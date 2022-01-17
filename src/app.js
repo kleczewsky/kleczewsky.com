@@ -4,6 +4,9 @@ import PostProcessing from './post_processing'
 import { GUI } from 'dat.gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { debounce } from 'lodash'
+
+import Stats from 'three/examples/jsm/libs/stats.module'
 
 import './modal'
 
@@ -47,10 +50,16 @@ class kleczewskyWorld {
 
     this._RenderLoop()
 
-    window.addEventListener('resize', () => this._OnWindowResize(), false)
+    window.addEventListener(
+      'resize',
+      _.debounce(() => this._OnWindowResize(), 100),
+      false
+    )
 
-    if (new URLSearchParams(window.location.search).has('debug'))
+    if (new URLSearchParams(window.location.search).has('debug')) {
       this._InitDebugHelpers()
+      this.debugMode = true
+    }
   }
 
   _InitScene() {
@@ -63,8 +72,6 @@ class kleczewskyWorld {
     directionalLight.position.set(0, 20, 20)
     directionalLight.name = 'global_directional_light'
 
-    // this.scene.add(new THREE.CameraHelper(directionalLight.shadow.camera))
-
     this.scene.add(ambientLight)
 
     this.scene.add(directionalLight)
@@ -72,7 +79,7 @@ class kleczewskyWorld {
 
   _InitCamera() {
     this.camera = new THREE.PerspectiveCamera(
-      75,
+      30,
       window.innerWidth / window.innerHeight,
       1,
       10000
@@ -86,6 +93,9 @@ class kleczewskyWorld {
     requestAnimationFrame(() => {
       this._RenderLoop()
       this.PostProcessing.render()
+      if (this.debugMode) {
+        this.stats.update()
+      }
     })
   }
 
@@ -154,6 +164,9 @@ class kleczewskyWorld {
 
   _InitDebugHelpers() {
     const controls = new OrbitControls(this.camera, this.renderer.domElement)
+
+    this.stats = Stats()
+    document.body.appendChild(this.stats.dom)
 
     const bloomPass = this.effectComposers.bloomComposer.passes[1]
 
