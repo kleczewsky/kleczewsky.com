@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { WEBGL } from './webgl_check'
 import PostProcessing from './post_processing'
+import AnimationController from './animation_controller'
 import { GUI } from 'dat.gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -48,6 +49,8 @@ class kleczewskyWorld {
     this._LoadModels()
     this._InitPostprocessing()
 
+    this.AnimationController = new AnimationController(this)
+
     this._RenderLoop()
 
     window.addEventListener(
@@ -92,7 +95,9 @@ class kleczewskyWorld {
   _RenderLoop() {
     requestAnimationFrame(() => {
       this._RenderLoop()
+      this.AnimationController.animate()
       this.PostProcessing.render()
+
       if (this.debugMode) {
         this.stats.update()
       }
@@ -106,15 +111,12 @@ class kleczewskyWorld {
     loader.load(
       './src/models/kleczewsky.glb',
       (gltf) => {
-        console.log(gltf)
-
         this.letterData.letterMaterials = []
         this.letterData.letterMeshes = []
 
         const root = gltf.scene
         root.scale.set(5, 5, 5)
 
-        console.log(root)
         // Enable bloom layer for letters meshes
         root.children.forEach((group) => {
           if (!group.name.endsWith('Group')) {
@@ -128,7 +130,7 @@ class kleczewskyWorld {
             if (obj.isMesh) {
               this.letterData.letterMeshes[group.name].push(obj)
             }
-
+            // todo: decide if enable on all
             if (Math.random() > 0) {
               obj.layers.enable(this.BLOOM_LAYER)
               obj.castShadow = true
@@ -136,6 +138,10 @@ class kleczewskyWorld {
           })
         })
         this.scene.add(root)
+
+        this.AnimationController.initLetterAnimations(
+          this.letterData.letterMeshes
+        )
       },
       (xhr) => console.log(xhr),
       (error) => console.error(error)
@@ -195,7 +201,6 @@ class kleczewskyWorld {
       this.scene.fog = null
     })
     fogFolder.add({ color: '#000000' }, 'color').onChange((colorValue) => {
-      console.log(colorValue)
       this.scene.fog.color = new THREE.Color(colorValue)
     })
     fogFolder.add({ near: 100 }, 'near', 1, 2000).onChange((near) => {
