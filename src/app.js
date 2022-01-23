@@ -39,17 +39,15 @@ class kleczewskyWorld {
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.toneMapping = THREE.ReinhardToneMapping
-    this.renderer.shadowMap.enabled = true
-    this.renderer.shadowMapSoft = true
 
     document.body.appendChild(this.renderer.domElement)
+
+    this.AnimationController = new AnimationController(this)
 
     this._InitScene()
     this._InitCamera()
     this._LoadModels()
     this._InitPostprocessing()
-
-    this.AnimationController = new AnimationController(this)
 
     this._RenderLoop()
 
