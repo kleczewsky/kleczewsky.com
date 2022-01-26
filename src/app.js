@@ -9,8 +9,6 @@ import { debounce } from 'lodash'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
-import './modal'
-
 class kleczewskyWorld {
   scene = null
   camera = null
