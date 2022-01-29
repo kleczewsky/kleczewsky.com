@@ -5,7 +5,7 @@ import AnimationController from './animation_controller'
 import { GUI } from 'dat.gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
@@ -51,7 +51,7 @@ class kleczewskyWorld {
 
     window.addEventListener(
       'resize',
-      _.debounce(() => this._OnWindowResize(), 100),
+      debounce(() => this._OnWindowResize(), 100),
       false
     )
 
@@ -105,7 +105,7 @@ class kleczewskyWorld {
 
     // kleczewsky
     loader.load(
-      './src/models/kleczewsky.glb',
+      './static/models/kleczewsky.glb',
       (gltf) => {
         this.letterData.letterMaterials = []
         this.letterData.letterMeshes = []
@@ -145,7 +145,7 @@ class kleczewskyWorld {
 
     // Load terrain
     loader.load(
-      './src/models/kleczewsky_terrain.glb',
+      './static/models/kleczewsky_terrain.glb',
       (gltf) => {
         const root = gltf.scene
         root.scale.set(3, 3, 3)

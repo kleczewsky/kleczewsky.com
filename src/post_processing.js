@@ -41,8 +41,8 @@ export default class PostProcessing {
         uniforms: {
           baseTexture: { value: null },
           bloomTexture: {
-            value: this.context.effectComposers.bloomComposer.renderTarget2
-              .texture,
+            value:
+              this.context.effectComposers.bloomComposer.renderTarget2.texture,
           },
         },
         vertexShader: VertexShader,
@@ -58,7 +58,7 @@ export default class PostProcessing {
     )
 
     const loader = new THREE.CubeTextureLoader()
-    loader.setPath('./src/models/textures/cubemap/')
+    loader.setPath('./static/models/textures/cubemap/')
     // todo: optimize skybox size
     this.backgroundTexture = loader.load([
       'corona_ft.png',
