@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { WEBGL } from './webgl_check'
+
 import PostProcessing from './post_processing'
 import AnimationController from './animation_controller'
+import LoaderController from './loader_controller'
+
 import { GUI } from 'dat.gui'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { debounce } from 'lodash-es'
 
@@ -40,6 +42,7 @@ class kleczewskyWorld {
 
     document.body.appendChild(this.renderer.domElement)
 
+    this.LoaderController = new LoaderController(this)
     this.AnimationController = new AnimationController(this)
 
     this._InitScene()
@@ -101,62 +104,57 @@ class kleczewskyWorld {
   }
 
   _LoadModels() {
-    const loader = new GLTFLoader()
+    // Load writing
+    const setupKleczewsky = (gltf) => {
+      this.letterData.letterMaterials = []
+      this.letterData.letterMeshes = []
 
-    // kleczewsky
-    loader.load(
-      './static/models/kleczewsky.glb',
-      (gltf) => {
-        this.letterData.letterMaterials = []
-        this.letterData.letterMeshes = []
+      const root = gltf.scene
+      root.scale.set(5, 5, 5)
 
-        const root = gltf.scene
-        root.scale.set(5, 5, 5)
-
-        // Enable bloom layer for letters meshes
-        root.children.forEach((group) => {
-          if (!group.name.endsWith('Group')) {
-            group.castShadow = true
-            return
+      // Enable bloom layer for letters meshes
+      root.children.forEach((group) => {
+        if (!group.name.endsWith('Group')) {
+          group.castShadow = true
+          return
+        }
+        this.letterData.letterMaterials[group.name] = group.children[0].material
+        this.letterData.letterMeshes[group.name] = []
+        group.traverse((obj) => {
+          if (obj.isMesh) {
+            this.letterData.letterMeshes[group.name].push(obj)
           }
-          this.letterData.letterMaterials[group.name] =
-            group.children[0].material
-          this.letterData.letterMeshes[group.name] = []
-          group.traverse((obj) => {
-            if (obj.isMesh) {
-              this.letterData.letterMeshes[group.name].push(obj)
-            }
-            // todo: decide if enable on all
-            if (Math.random() > 0) {
-              obj.layers.enable(this.BLOOM_LAYER)
-              obj.castShadow = true
-            }
-          })
+          // todo: decide if enable on all
+          if (Math.random() > 0) {
+            obj.layers.enable(this.BLOOM_LAYER)
+            obj.castShadow = true
+          }
         })
-        this.scene.add(root)
+      })
+      this.scene.add(root)
 
-        this.AnimationController.initLetterAnimations(
-          this.letterData.letterMeshes
-        )
-      },
-      (xhr) => console.log(xhr),
-      (error) => console.error(error)
+      this.AnimationController.initLetterAnimations(
+        this.letterData.letterMeshes
+      )
+    }
+    this.LoaderController.LoadGltf(
+      './static/models/kleczewsky.glb',
+      setupKleczewsky
     )
 
-    // Load terrain
-    loader.load(
+    //Load terrain
+    const setupTerrain = (gltf) => {
+      const root = gltf.scene
+      root.scale.set(3, 3, 3)
+      root.position.set(0, 10, 0)
+
+      root.children[0].receiveShadow = true
+
+      this.scene.add(root)
+    }
+    this.LoaderController.LoadGltf(
       './static/models/kleczewsky_terrain.glb',
-      (gltf) => {
-        const root = gltf.scene
-        root.scale.set(3, 3, 3)
-        root.position.set(0, 10, 0)
-
-        root.children[0].receiveShadow = true
-
-        this.scene.add(root)
-      },
-      (xhr) => console.log(xhr),
-      (error) => console.error(error)
+      setupTerrain
     )
   }
 

@@ -2,10 +2,11 @@
   "name": "kleczewsky",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
   "scripts": {
-    "start": "parcel index.html",
-    "format": "prettier --write '**/*.js'"
+    "start": "npm run clean && parcel index.html",
+    "build": "npm run clean && parcel build index.html",
+    "format": "prettier --write '**/*.js'",
+    "clean": "del .\\dist\\* /S /Q"
   },
   "keywords": [],
   "author": "Eryk Kleczewski",

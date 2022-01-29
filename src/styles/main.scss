@@ -1,8 +1,18 @@
+@import './reset';
+
 body {
   font-family: monospace;
   margin: 0;
   font-size: 1.3rem;
   font-weight: normal;
+}
+
+code {
+  font-family: Consolas, 'courier new';
+  color: crimson;
+  background-color: #f1f1f1;
+  padding: 2px;
+  display: flex;
 }
 
 canvas {
@@ -23,4 +33,58 @@ code {
   padding: 1.5em;
   width: 400px;
   margin: 5em auto 0;
+}
+
+.loader-screen {
+  position: absolute;
+  z-index: 999999;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0e0e0e;
+
+  transition: opacity 0.5s ease-out;
+
+  .loader-wrapper {
+    width: 30%;
+    text-align: center;
+    color: #f1f1f1;
+
+    > h1 {
+      font-size: 200%;
+      padding: 3rem;
+    }
+  }
+
+  // todo: dokończyć loader z czerwonego przechodzący w zielony zgodnie ze stopniem załadownia + counter "%" załadowania
+
+  .loader {
+    display: flex;
+    height: 2px;
+
+    margin: 2rem 0;
+
+    div {
+      flex: 1;
+      background: rgb(255, 72, 0);
+      animation: go 1200ms infinite alternate linear;
+      box-shadow: 0px 0px 20px 2px red;
+
+      @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+          animation-delay: 50ms * (10 - $i);
+        }
+      }
+    }
+
+    @keyframes go {
+      100% {
+        background: transparent;
+        flex: 10;
+        box-shadow: 0 0 0 transparent;
+      }
+    }
+  }
 }

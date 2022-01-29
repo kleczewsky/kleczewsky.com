@@ -57,17 +57,7 @@ export default class PostProcessing {
       this.context.renderer
     )
 
-    const loader = new THREE.CubeTextureLoader()
-    loader.setPath('./static/models/textures/cubemap/')
-    // todo: optimize skybox size
-    this.backgroundTexture = loader.load([
-      'corona_ft.png',
-      'corona_bk.png',
-      'corona_up.png',
-      'corona_dn.png',
-      'corona_rt.png',
-      'corona_lf.png',
-    ])
+    this.backgroundTexture = this.context.LoaderController.LoadBackground()
 
     const geometry = new THREE.PlaneBufferGeometry(1, 1)
     const groundReflector = new ReflectorForSSRPass(geometry, {
