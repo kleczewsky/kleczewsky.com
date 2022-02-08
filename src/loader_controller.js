@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { throttle, mean, once } from 'lodash-es'
+import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader'
+import { throttle, mean } from 'lodash-es'
 import { gsap } from 'gsap'
-import { GreaterStencilFunc } from 'three'
 
 export default class LoaderController {
   constructor(context) {
@@ -12,6 +12,13 @@ export default class LoaderController {
 
   _Initialize() {
     this.GLTFLoader = new GLTFLoader()
+
+    const dracoLoader = new DRACOLoader()
+
+    dracoLoader.setDecoderPath('./static/draco/')
+    dracoLoader.preload()
+
+    this.GLTFLoader.setDRACOLoader(dracoLoader)
 
     this.loadingStatus = []
 
@@ -75,12 +82,12 @@ export default class LoaderController {
     // todo: optimize skybox size
     return loader.load(
       [
-        'corona_ft.png',
-        'corona_bk.png',
-        'corona_up.png',
-        'corona_dn.png',
-        'corona_rt.png',
-        'corona_lf.png',
+        'corona_ft.jpg',
+        'corona_bk.jpg',
+        'corona_up.jpg',
+        'corona_dn.jpg',
+        'corona_rt.jpg',
+        'corona_lf.jpg',
       ],
       () => this._ReportLoadingStatus(path, null, 100),
       (xhr) => console.log(xhr),

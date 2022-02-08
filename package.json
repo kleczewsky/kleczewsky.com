@@ -24,7 +24,7 @@
     "prettier": "^2.0.4"
   },
   "staticFiles": {
-    "staticPath": "static/models",
-    "staticOutPath": "static/models"
+    "staticPath": "static",
+    "staticOutPath": "static"
   }
 }
