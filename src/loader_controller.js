@@ -36,6 +36,19 @@ export default class LoaderController {
     })
 
     this.loaded = false
+
+    gsap.fromTo(
+      '.loader-text',
+      { y: -25, opacity: 0 },
+      {
+        fontSize: '150%',
+        opacity: 1,
+        y: 0,
+
+        duration: 1,
+        delay: 0.3,
+      }
+    )
   }
 
   _ReportLoadingStatus(id, xhr = null, progressPercent = null) {
@@ -66,11 +79,14 @@ export default class LoaderController {
       gsap.to('.loader-screen', {
         opacity: 0,
 
-        delay: 0.3,
-        duration: 0.3,
+        delay: 0.5,
+        duration: 1,
 
         onComplete: () => {
           document.querySelector('.loader-screen').style.display = 'none'
+        },
+        onStart: () => {
+          this.loaderText.innerText = 'Gotowe'
         },
       })
     }

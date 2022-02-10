@@ -66,7 +66,7 @@ class kleczewskyWorld {
 
   _InitScene() {
     this.scene = new THREE.Scene()
-    this.scene.fog = new THREE.Fog(0x000000, 1, 100)
+    this.scene.fog = new THREE.Fog(0x000000, 1, 900)
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
@@ -87,7 +87,7 @@ class kleczewskyWorld {
       10000
     )
 
-    this.camera.position.set(0, 5, 100)
+    this.camera.position.set(0, 5, 75)
     this.camera.lookAt(0, 0, 0)
   }
 

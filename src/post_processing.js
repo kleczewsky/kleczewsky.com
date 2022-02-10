@@ -27,7 +27,7 @@ export default class PostProcessing {
     )
 
     bloomPass.threshold = 0
-    bloomPass.strength = 0.9
+    bloomPass.strength = 1.4
     bloomPass.radius = 0.15
     this.context.effectComposers.bloomComposer = new EffectComposer(
       this.context.renderer
