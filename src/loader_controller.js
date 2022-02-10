@@ -62,11 +62,17 @@ export default class LoaderController {
 
     if (roundedTotal == 100 && !this.loaded) {
       this.loaded = true
-      document.querySelector('.loader-screen').style.opacity = 0
 
-      setTimeout(() => {
-        document.querySelector('.loader-screen').remove()
-      }, 500)
+      gsap.to('.loader-screen', {
+        opacity: 0,
+
+        delay: 0.3,
+        duration: 0.3,
+
+        onComplete: () => {
+          document.querySelector('.loader-screen').style.display = 'none'
+        },
+      })
     }
   }
 
