@@ -7,6 +7,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { SSRPass } from 'three/examples/jsm/postprocessing/SSRPass.js'
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js'
 import { ReflectorForSSRPass } from 'three/examples/jsm/objects/ReflectorForSSRPass.js'
 
 export default class PostProcessing {
@@ -83,9 +84,17 @@ export default class PostProcessing {
 
     ssrPass.maxDistance = 3
 
+    const fxaaPass = new ShaderPass(FXAAShader)
+
+    fxaaPass.uniforms['resolution'].value.set(
+      1 / window.innerWidth,
+      1 / window.innerHeight
+    )
+
     this.context.effectComposers.finalComposer.addPass(renderPass)
     this.context.effectComposers.finalComposer.addPass(ssrPass)
     this.context.effectComposers.finalComposer.addPass(shaderPass)
+    this.context.effectComposers.finalComposer.addPass(fxaaPass)
   }
 
   render() {

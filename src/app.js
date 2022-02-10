@@ -36,6 +36,7 @@ class kleczewskyWorld {
       // antialias: true,
       stencil: false,
       // depth: false,
+      // logarithmicDepthBuffer: true,
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.toneMapping = THREE.ReinhardToneMapping
