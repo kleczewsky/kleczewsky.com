@@ -231,6 +231,19 @@ class kleczewskyWorld {
         this.scene.remove(directionalLightHelper)
       })
 
+    let controls
+
+    helpersFolder
+        .add({ ObitControlsHelper: false }, 'ObitControlsHelper')
+        .onChange((enabled) => {
+          if (enabled) {
+            controls = new OrbitControls(this.camera, this.renderer.domElement)
+
+            return
+          }
+          controls.dispose()
+        })
+
     helpersFolder.open()
   }
 
