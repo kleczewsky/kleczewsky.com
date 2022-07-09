@@ -67,7 +67,10 @@ export default class LoaderController {
 
   _UpdateUi() {
     let roundedTotal = Math.round(mean(Object.values(this.loadingStatus)))
-    this.loaderText.innerText = roundedTotal + '%'
+
+    if (!this.loaded) {
+      this.loaderText.innerText = roundedTotal + '%'
+    }
 
     gsap.to(this.loaderIndicatorTween, {
       progress: roundedTotal / 100,
@@ -76,17 +79,16 @@ export default class LoaderController {
     if (roundedTotal == 100 && !this.loaded) {
       this.loaded = true
 
+      this.loaderText.innerText = 'Gotowe'
+
       gsap.to('.loader-screen', {
         opacity: 0,
 
-        delay: 0.5,
-        duration: 1,
+        delay: 2,
+        duration: 0.5,
 
         onComplete: () => {
           document.querySelector('.loader-screen').style.display = 'none'
-        },
-        onStart: () => {
-          this.loaderText.innerText = 'Gotowe'
         },
       })
     }
