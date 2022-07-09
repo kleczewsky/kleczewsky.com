@@ -82,7 +82,7 @@ export default class PostProcessing {
       groundReflector: groundReflector,
     })
 
-    ssrPass.maxDistance = 3
+    ssrPass.maxDistance = 4
 
     const fxaaPass = new ShaderPass(FXAAShader)
 

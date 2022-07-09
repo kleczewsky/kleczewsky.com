@@ -89,6 +89,7 @@ export default class LoaderController {
 
         onComplete: () => {
           document.querySelector('.loader-screen').style.display = 'none'
+          this.context.AnimationController.initIntroAnimation()
         },
       })
     }

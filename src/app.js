@@ -69,7 +69,7 @@ class kleczewskyWorld {
     this.scene = new THREE.Scene()
     this.scene.fog = new THREE.Fog(0x000000, 1, 900)
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
 
     directionalLight.position.set(0, 20, 20)
@@ -82,14 +82,14 @@ class kleczewskyWorld {
 
   _InitCamera() {
     this.camera = new THREE.PerspectiveCamera(
-      30,
+      75,
       window.innerWidth / window.innerHeight,
       1,
       10000
     )
 
-    this.camera.position.set(0, 5, 75)
-    this.camera.lookAt(0, 0, 0)
+    this.camera.position.set(0, 2, 30)
+    this.camera.rotateX(-90)
   }
 
   _RenderLoop() {
@@ -112,6 +112,7 @@ class kleczewskyWorld {
 
       const root = gltf.scene
       root.scale.set(5, 5, 5)
+      root.position.set(2, 0, 0)
 
       // Enable bloom layer for letters meshes
       root.children.forEach((group) => {
@@ -164,7 +165,6 @@ class kleczewskyWorld {
   }
 
   _InitDebugHelpers() {
-    const controls = new OrbitControls(this.camera, this.renderer.domElement)
 
     this.stats = Stats()
     document.body.appendChild(this.stats.dom)
