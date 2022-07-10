@@ -5,8 +5,9 @@ import { throttle, mean } from 'lodash-es'
 import { gsap } from 'gsap'
 
 export default class LoaderController {
-  constructor(context) {
+  constructor(context, onLoad = () => {}) {
     this.context = context
+    this.onLoad = onLoad
     this._Initialize()
   }
 
@@ -89,7 +90,7 @@ export default class LoaderController {
 
         onComplete: () => {
           document.querySelector('.loader-screen').style.display = 'none'
-          this.context.AnimationController.initIntroAnimation()
+          this.onLoad()
         },
       })
     }

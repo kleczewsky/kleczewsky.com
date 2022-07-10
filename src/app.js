@@ -10,6 +10,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { debounce } from 'lodash-es'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
+import InputController from "./input_controller";
 
 class kleczewskyWorld {
   scene = null
@@ -43,8 +44,9 @@ class kleczewskyWorld {
 
     document.body.appendChild(this.renderer.domElement)
 
-    this.LoaderController = new LoaderController(this)
+    this.LoaderController = new LoaderController(this, () => this._OnModelsLoad())
     this.AnimationController = new AnimationController(this)
+    this.InputController = new InputController(this)
 
     this._InitScene()
     this._InitCamera()
@@ -92,6 +94,7 @@ class kleczewskyWorld {
     this.camera.rotateX(-90)
   }
 
+  // callback rate dependent on monitor refresh rate
   _RenderLoop() {
     requestAnimationFrame(() => {
       this._RenderLoop()
@@ -102,6 +105,13 @@ class kleczewskyWorld {
         this.stats.update()
       }
     })
+  }
+
+  // simple 30 Hz logic loop
+  _LogicLoop(){
+    setInterval(()=>{
+      this.InputController.update()
+    }, 33)
   }
 
   _LoadModels() {
@@ -245,6 +255,13 @@ class kleczewskyWorld {
         })
 
     helpersFolder.open()
+  }
+
+  _OnModelsLoad() {
+    this.InputController.setupRaycasterObjects()
+    this.AnimationController.initIntroAnimation()
+
+    this._LogicLoop()
   }
 
   _OnWindowResize() {

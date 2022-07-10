@@ -93,20 +93,28 @@ export default class AnimationController {
 
             setTimeout(() => {
                 this.explodeLetter(this.context.letterData.letterMeshes[group])
-            }, 250 * staggerCounter)
+            }, staggerTime * staggerCounter)
 
             setTimeout(() => {
                 this.implodeLetter(this.context.letterData.letterMeshes[group])
-            }, 250 * staggerCounter + 1300)
+            }, staggerTime * staggerCounter + 1300)
             staggerCounter++
         })
     }
 
     initIdleAnimation() {
-        setInterval(() => {
-            this.staggeredLetterAnimation(500)
+        this.idleAnimationId = setInterval(() => {
+            this.staggeredLetterAnimation()
         }, 7000)
 
+    }
+
+    stopIdleAnimation() {
+        if(this.idleAnimationId){
+            clearInterval(this.idleAnimationId)
+        }
+
+        this.idleAnimationId = null
     }
 
     initIntroAnimation() {
