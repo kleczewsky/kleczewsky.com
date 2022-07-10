@@ -31,10 +31,12 @@ export default class AnimationController {
     }
 
     explodeLetter(letterGroup) {
+        const scale = 1.3
+
         letterGroup.forEach((mesh) => {
             gsap.to(mesh.position, {
-                x: Math.random() - 0.5,
-                y: Math.random() - 0.5,
+                x: (Math.random() - 0.5) * scale,
+                y: (Math.random() - 0.5) * scale,
                 z: Math.random(),
 
                 duration: 1,
