@@ -13,10 +13,10 @@ import { ReflectorForSSRPass } from 'three/examples/jsm/objects/ReflectorForSSRP
 export default class PostProcessing {
   constructor(context) {
     this.context = context
-    this._Initalize()
+    this._Initialize()
   }
 
-  _Initalize() {
+  _Initialize() {
     this.context.letterData = {}
     this.context.bloomLayer = new THREE.Layers()
     this.context.bloomLayer.set(1)
