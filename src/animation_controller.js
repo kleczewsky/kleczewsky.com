@@ -1,6 +1,14 @@
 import { gsap } from 'gsap'
+import * as THREE from 'three'
 
 export default class AnimationController {
+
+    letterColors = {
+        "S-Group": new THREE.Color("#bb4646"),
+        "K-Group": new THREE.Color("#cb39ff"),
+        "Y-Group": new THREE.Color("#08e0b2")
+    };
+
     constructor(context) {
         this.context = context
         this._Initialize()
@@ -34,9 +42,9 @@ export default class AnimationController {
                 ease: 'back.out',
             })
             gsap.to(mesh.material.color, {
-                r: Math.random(),
-                g: Math.random(),
-                b: Math.random(),
+                r: mesh.material.color.explodedColor.r,
+                g: mesh.material.color.explodedColor.g,
+                b: mesh.material.color.explodedColor.b,
 
                 ease: 'back.out',
 
@@ -71,6 +79,9 @@ export default class AnimationController {
         Object.keys(letterMeshes).forEach((group) => {
             this.context.letterData.letterMaterials[group].color.originalColor =
                 this.context.letterData.letterMaterials[group].color.clone()
+
+            this.context.letterData.letterMaterials[group].color.explodedColor =
+                this.letterColors[group]
         })
     }
 
