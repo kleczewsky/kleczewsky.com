@@ -159,7 +159,7 @@ class kleczewskyWorld {
     const setupTerrain = (gltf) => {
       const root = gltf.scene
       root.scale.set(3, 3, 3)
-      root.position.set(0, 10, 0)
+      root.position.set(0, 9, 0)
 
       root.children[0].receiveShadow = true
 
