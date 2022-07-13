@@ -34,6 +34,7 @@ class kleczewskyWorld {
 
     this.renderer = new THREE.WebGLRenderer({
       powerPreference: 'high-performance',
+      precision: 'highp', // possible fix for https://github.com/kleczewsky/kleczewsky-threejs/issues/1
       // antialias: true,
       stencil: false,
       // depth: false,
