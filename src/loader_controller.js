@@ -85,7 +85,7 @@ export default class LoaderController {
       gsap.to('.loader-screen', {
         opacity: 0,
 
-        delay: 2,
+        delay: this.context.debugMode ? 0 : 2,
         duration: 0.5,
 
         onComplete: () => {
