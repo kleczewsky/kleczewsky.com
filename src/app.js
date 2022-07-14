@@ -11,6 +11,7 @@ import { debounce } from 'lodash-es'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 import InputController from "./input_controller";
+import {random} from "lodash-es/number";
 
 class kleczewskyWorld {
   scene = null
@@ -19,7 +20,8 @@ class kleczewskyWorld {
   BLOOM_LAYER = 1
   DARK_MATERIAL = new THREE.MeshBasicMaterial({ color: 'black' })
 
-  letterData = [] //
+  letterData = [] // SKY letter meshes and materials
+  lightsData = [] // lights meshes and materials
   effectComposers = []
 
   constructor() {
@@ -52,7 +54,9 @@ class kleczewskyWorld {
     this._InitScene()
     this._InitCamera()
     this._LoadModels()
-    this._InitPostprocessing()
+
+    this.PostProcessing = new PostProcessing(this)
+
 
     this._RenderLoop()
 
@@ -70,7 +74,7 @@ class kleczewskyWorld {
 
   _InitScene() {
     this.scene = new THREE.Scene()
-    this.scene.fog = new THREE.Fog(0x000000, 1, 900)
+    this.scene.fog = new THREE.Fog(0x000000, 1, 200)
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
@@ -116,6 +120,9 @@ class kleczewskyWorld {
   }
 
   _LoadModels() {
+    // Setup ground lights
+    this._SetupLights()
+
     // Load writing
     const setupKleczewsky = (gltf) => {
       this.letterData.letterMaterials = []
@@ -155,7 +162,7 @@ class kleczewskyWorld {
       setupKleczewsky
     )
 
-    //Load terrain
+    // Load terrain
     const setupTerrain = (gltf) => {
       const root = gltf.scene
       root.scale.set(3, 3, 3)
@@ -169,10 +176,50 @@ class kleczewskyWorld {
       './static/models/kleczewsky_terrain.glb',
       setupTerrain
     )
+
   }
 
-  _InitPostprocessing() {
-    this.PostProcessing = new PostProcessing(this)
+  _SetupLights() {
+    this.lightsData.lights = []
+    this.lightsData.lightsMeshes = []
+    this.lightsData.lightsMaterials = []
+
+    const scatter =  20
+    const clearRange = 10
+
+    // Generate materials to be animated later
+    Object.values(this.AnimationController.letterColors).forEach((color) => {
+      const material = new THREE.MeshPhongMaterial({
+        color: '#000000',
+        emissive:'#000000',
+      })
+      material.color.targetColor = new THREE.Color(color)
+
+      this.lightsData.lightsMaterials.push(material)
+    })
+
+
+    // Generate meshes and corresponding point lights
+    for(let i = 0; i < 10; i++){
+      const obj = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.2, 1),
+          this.lightsData.lightsMaterials[i%3]
+      )
+
+      const light = new THREE.PointLight( this.lightsData.lightsMaterials[i%3].color.targetColor, 0, 5)
+
+      const xPos = Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter)
+      const zPos = Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter)
+
+      obj.position.set(xPos, 0, zPos)
+      light.position.set(xPos, 0, zPos)
+
+      this.scene.add(obj)
+      this.scene.add(light)
+
+      this.lightsData.lightsMeshes.push(obj)
+      this.lightsData.lights.push(light)
+    }
   }
 
   _InitDebugHelpers() {

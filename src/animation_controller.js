@@ -4,7 +4,7 @@ import * as THREE from 'three'
 export default class AnimationController {
 
     letterColors = {
-        "S-Group": new THREE.Color("#bb4646"),
+        "S-Group": new THREE.Color("#e81313"),
         "K-Group": new THREE.Color("#cb39ff"),
         "Y-Group": new THREE.Color("#08e0b2")
     };
@@ -12,6 +12,7 @@ export default class AnimationController {
     constructor(context) {
         this.context = context
         this._Initialize()
+
     }
 
     _Initialize() {
@@ -37,7 +38,7 @@ export default class AnimationController {
             gsap.to(mesh.position, {
                 x: (Math.random() - 0.5) * scale,
                 y: (Math.random() - 0.5) * scale,
-                z: Math.random(),
+                z: Math.random() - 0.5,
 
                 duration: 1,
 
@@ -117,6 +118,47 @@ export default class AnimationController {
         this.idleAnimationId = null
     }
 
+    lightsOnAnimation() {
+        const lights = this.context.lightsData.lights
+        const materials = this.context.lightsData.lightsMaterials
+
+        const duration = 1
+        const delay = 1.5
+
+        // animate material colors
+        materials.forEach((material) => {
+            gsap.fromTo(material.color, {
+                r: 0,
+                g: 0,
+                b: 0
+            }, {
+                r: material.color.targetColor.r,
+                g: material.color.targetColor.g,
+                b: material.color.targetColor.b,
+                ease: 'bounce.in',
+                duration: duration,
+                delay: delay,
+                onUpdate: () => {
+                    material.emissive.r = material.color.r
+                    material.emissive.g = material.color.g
+                    material.emissive.b = material.color.b
+                }
+            })
+        })
+
+        // animate lights intesity
+        lights.forEach((light) => {
+            gsap.fromTo(light, {
+                intensity: 0
+            }, {
+                intensity: 5,
+                ease: 'bounce.in',
+                duration: duration,
+                delay: delay,
+            })
+        })
+    }
+
     initIntroAnimation() {
         const introAnim = gsap.timeline()
         const camera = this.context.camera
@@ -131,21 +173,21 @@ export default class AnimationController {
 
 
         const fovZTimeOffset = 1
-        const fovZDuration = 3
+        const fovZDuration = 4
 
         // Z movement with fov change
         introAnim.fromTo (camera.position,{
-            z: 20
+            z: 150
         } ,{
-            z: 45,
-            ease:'power1.out',
+            z: 40,
+            ease:'easeInOut',
             duration: fovZDuration,
         },fovZTimeOffset )
         introAnim.fromTo(camera,{
-            fov:90
+            zoom:6
         } , {
-            fov: 55,
-            ease:'power1.out',
+            zoom: 1.5,
+            ease:'easeInOut',
             duration: fovZDuration,
             onUpdate: () => {
                 camera.updateProjectionMatrix()
@@ -154,9 +196,11 @@ export default class AnimationController {
 
         introAnim.add(() => {
             this.staggeredLetterAnimation()
+
         }, '-=1')
 
         introAnim.add(() => {
+            this.lightsOnAnimation()
             this.initIdleAnimation()
         })
     }
