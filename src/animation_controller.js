@@ -118,20 +118,33 @@ export default class AnimationController {
         this.idleAnimationId = null
     }
 
-    lightsOnAnimation() {
+    // todo: refactor this to be more generic and reusable and more dry
+    flickerLights(duration = 1, stayOn = false) {
         const lights = this.context.lightsData.lights
         const materials = this.context.lightsData.lightsMaterials
         const terrainMaterial = this.context.terrainData.material
 
-        const duration = 1
-        const delay = 1.5
-
         gsap.fromTo(terrainMaterial, terrainMaterial, {
-            emissiveIntensity: 2,
+            emissiveIntensity: 3,
             ease: 'bounce.in',
             duration: duration,
-            delay: delay,
         })
+        gsap.to(terrainMaterial, {
+            emissiveIntensity: 0,
+            ease: 'bounce.in',
+            duration: duration,
+            delay: duration,
+
+        })
+
+        if (stayOn) {
+            gsap.to(terrainMaterial, {
+                emissiveIntensity: 3,
+                ease: 'bounce.in',
+                duration: duration,
+                delay: duration * 2,
+            })
+        }
 
         // animate material colors
         materials.forEach((material) => {
@@ -143,27 +156,68 @@ export default class AnimationController {
                 r: material.color.targetColor.r,
                 g: material.color.targetColor.g,
                 b: material.color.targetColor.b,
-                ease: 'elastic.out(0.8, 1.2)',
+                ease: 'bounce.in',
                 duration: duration,
-                delay: delay,
                 onUpdate: () => {
                     material.emissive.r = material.color.r
                     material.emissive.g = material.color.g
                     material.emissive.b = material.color.b
                 }
             })
+            gsap.to(material.color, {
+                r: 0,
+                g: 0,
+                b: 0,
+                ease: 'bounce.in',
+                duration: duration,
+                delay: duration,
+                onUpdate: () => {
+                    material.emissive.r = material.color.r
+                    material.emissive.g = material.color.g
+                    material.emissive.b = material.color.b
+                }
+            })
+
+            if (stayOn) {
+                gsap.to(material.color, {
+                    r: material.color.targetColor.r,
+                    g: material.color.targetColor.g,
+                    b: material.color.targetColor.b,
+                    ease: 'bounce.in',
+                    duration: duration,
+                    delay: duration * 2,
+                    onUpdate: () => {
+                        material.emissive.r = material.color.r
+                        material.emissive.g = material.color.g
+                        material.emissive.b = material.color.b
+                    }
+                })
+            }
         })
 
         // animate lights intesity
         lights.forEach((light) => {
             gsap.fromTo(light, {
-                intensity: 0
+                intensity: 0,
             }, {
                 intensity: 5,
                 ease: 'bounce.in',
                 duration: duration,
-                delay: delay,
             })
+            gsap.to(light, {
+                intensity: 0,
+                ease: 'bounce.in',
+                duration: duration,
+                delay: duration,
+            })
+            if (stayOn) {
+                gsap.to(light, {
+                    intensity: 5,
+                    ease: 'bounce.in',
+                    duration: duration,
+                    delay: duration * 2,
+                })
+            }
         })
     }
 
@@ -208,9 +262,14 @@ export default class AnimationController {
         }, '-=1')
 
         introAnim.add(() => {
-            this.lightsOnAnimation()
+            this.flickerLights(1)
             this.initIdleAnimation()
         })
+
+        introAnim.add(() => {
+            this.flickerLights(0.5, true)
+
+        }, '+=3')
     }
 
     animate() {
