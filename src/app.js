@@ -13,6 +13,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import InputController from "./input_controller";
 import {random} from "lodash-es/number";
 import {degToRad} from "three/src/math/MathUtils";
+import shuffle from "lodash-es/shuffle";
 
 class kleczewskyWorld {
   scene = null
@@ -202,6 +203,21 @@ class kleczewskyWorld {
       this.lightsData.lightsMaterials.push(material)
     })
 
+    const lightCoordinates = shuffle([
+      {x: -15, y: 5},
+      {x: 11, y: 7},
+      {x: 18, y: -4},
+      {x: -19, y: 15},
+      {x: -24, y: -5},
+      {x: 26, y: 2},
+      {x: 11, y: 26},
+      {x: -29, y: 5},
+    ]).map((coordinate) => {
+      return {
+        x: coordinate.x + (Math.random() - 0.5) * scatter/3,
+        y: coordinate.y + (Math.random() - 0.5) * scatter/3
+      }
+    })
 
     // Generate meshes and corresponding point lights
     for(let i = 0; i < 10; i++){
@@ -212,8 +228,8 @@ class kleczewskyWorld {
 
       const light = new THREE.PointLight( this.lightsData.lightsMaterials[i%3].color.targetColor, 0, 5)
 
-      const xPos = Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter)
-      const zPos = Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter)
+      const xPos = lightCoordinates[i]?.x ?? (Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter))
+      const zPos = lightCoordinates[i]?.y ?? (Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter))
 
       obj.position.set(xPos, 0, zPos)
       light.position.set(xPos, 0, zPos)
