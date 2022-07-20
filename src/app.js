@@ -12,6 +12,7 @@ import { debounce } from 'lodash-es'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import InputController from "./input_controller";
 import {random} from "lodash-es/number";
+import {degToRad} from "three/src/math/MathUtils";
 
 class kleczewskyWorld {
   scene = null
@@ -22,6 +23,7 @@ class kleczewskyWorld {
 
   letterData = [] // SKY letter meshes and materials
   lightsData = [] // lights meshes and materials
+  terrainData = [] // Terrain material
   effectComposers = []
 
   constructor() {
@@ -96,7 +98,7 @@ class kleczewskyWorld {
     )
 
     this.camera.position.set(0, 2, 30)
-    this.camera.rotateX(-90)
+    this.camera.rotateX(degToRad(-90))
   }
 
   // callback rate dependent on monitor refresh rate
@@ -169,6 +171,8 @@ class kleczewskyWorld {
       root.position.set(0, 9, 0)
 
       root.children[0].receiveShadow = true
+      this.terrainData.material = root.children[0].material
+      root.children[0].material.emissiveIntensity = 0
 
       this.scene.add(root)
     }

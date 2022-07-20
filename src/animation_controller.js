@@ -121,9 +121,17 @@ export default class AnimationController {
     lightsOnAnimation() {
         const lights = this.context.lightsData.lights
         const materials = this.context.lightsData.lightsMaterials
+        const terrainMaterial = this.context.terrainData.material
 
         const duration = 1
         const delay = 1.5
+
+        gsap.fromTo(terrainMaterial, terrainMaterial, {
+            emissiveIntensity: 2,
+            ease: 'bounce.in',
+            duration: duration,
+            delay: delay,
+        })
 
         // animate material colors
         materials.forEach((material) => {
@@ -135,7 +143,7 @@ export default class AnimationController {
                 r: material.color.targetColor.r,
                 g: material.color.targetColor.g,
                 b: material.color.targetColor.b,
-                ease: 'bounce.in',
+                ease: 'elastic.out(0.8, 1.2)',
                 duration: duration,
                 delay: delay,
                 onUpdate: () => {
@@ -165,7 +173,7 @@ export default class AnimationController {
 
 
         // Initial rotation reveal
-        introAnim.to(camera.rotation, {
+        introAnim.fromTo(camera.rotation, camera.rotation, {
             x: -0.05,
             ease: 'elastic.out(0.8, 1.2)',
             duration: 3, // seconds
