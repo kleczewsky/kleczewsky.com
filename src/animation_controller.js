@@ -123,7 +123,7 @@ export default class AnimationController {
         const materials = this.context.lightsData.lightsMaterials
         const terrainMaterial = this.context.terrainData.material
 
-        const intensity = 3;
+        const intensity = 2;
 
         gsap.fromTo(terrainMaterial, terrainMaterial, {
             emissiveIntensity: intensity,
@@ -234,19 +234,21 @@ export default class AnimationController {
         }, fovZTimeOffset )
 
         introAnim.add(() => {
+            this.flickerLights(1)
+        }, '-=3')
+        introAnim.add(() => {
             this.staggeredLetterAnimation()
 
         }, '-=1')
 
         introAnim.add(() => {
-            this.flickerLights(1)
             this.initIdleAnimation()
         })
 
         introAnim.add(() => {
             this.flickerLights(0.5, true)
 
-        }, '+=3')
+        }, '+=1')
     }
 
     animate() {
