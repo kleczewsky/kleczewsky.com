@@ -118,31 +118,26 @@ export default class AnimationController {
         this.idleAnimationId = null
     }
 
-    // todo: refactor this to be more generic and reusable and more dry
     flickerLights(duration = 1, stayOn = false) {
         const lights = this.context.lightsData.lights
         const materials = this.context.lightsData.lightsMaterials
         const terrainMaterial = this.context.terrainData.material
 
+        const intensity = 3;
+
         gsap.fromTo(terrainMaterial, terrainMaterial, {
-            emissiveIntensity: 3,
+            emissiveIntensity: intensity,
             ease: 'bounce.in',
             duration: duration,
         })
-        gsap.to(terrainMaterial, {
-            emissiveIntensity: 0,
-            ease: 'bounce.in',
-            duration: duration,
-            delay: duration,
 
-        })
-
-        if (stayOn) {
+        if (!stayOn) {
             gsap.to(terrainMaterial, {
-                emissiveIntensity: 3,
-                ease: 'bounce.in',
-                duration: duration,
-                delay: duration * 2,
+                emissiveIntensity: 0,
+                ease: 'rough({ template: bounce.out, strength: 1.5, points: 20, taper: none, randomize: true, clamp: false})',
+                duration: duration / 2,
+                delay: duration,
+
             })
         }
 
@@ -164,28 +159,15 @@ export default class AnimationController {
                     material.emissive.b = material.color.b
                 }
             })
-            gsap.to(material.color, {
-                r: 0,
-                g: 0,
-                b: 0,
-                ease: 'bounce.in',
-                duration: duration,
-                delay: duration,
-                onUpdate: () => {
-                    material.emissive.r = material.color.r
-                    material.emissive.g = material.color.g
-                    material.emissive.b = material.color.b
-                }
-            })
 
-            if (stayOn) {
+            if (!stayOn) {
                 gsap.to(material.color, {
-                    r: material.color.targetColor.r,
-                    g: material.color.targetColor.g,
-                    b: material.color.targetColor.b,
-                    ease: 'bounce.in',
-                    duration: duration,
-                    delay: duration * 2,
+                    r: 0,
+                    g: 0,
+                    b: 0,
+                    ease: 'rough({ template: bounce.out, strength: 1.5, points: 20, taper: none, randomize: true, clamp: false})',
+                    duration: duration / 2,
+                    delay: duration,
                     onUpdate: () => {
                         material.emissive.r = material.color.r
                         material.emissive.g = material.color.g
@@ -195,27 +177,22 @@ export default class AnimationController {
             }
         })
 
-        // animate lights intesity
+        // animate lights intensity
         lights.forEach((light) => {
             gsap.fromTo(light, {
                 intensity: 0,
             }, {
-                intensity: 5,
+                intensity: intensity,
                 ease: 'bounce.in',
                 duration: duration,
             })
-            gsap.to(light, {
-                intensity: 0,
-                ease: 'bounce.in',
-                duration: duration,
-                delay: duration,
-            })
-            if (stayOn) {
+
+            if (!stayOn) {
                 gsap.to(light, {
-                    intensity: 5,
-                    ease: 'bounce.in',
-                    duration: duration,
-                    delay: duration * 2,
+                    intensity: 0,
+                    ease: 'rough({ template: bounce.out, strength: 1.5, points: 20, taper: none, randomize: true, clamp: false})',
+                    duration: duration / 2,
+                    delay: duration,
                 })
             }
         })
