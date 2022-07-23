@@ -15,8 +15,11 @@ code {
   display: flex;
 }
 
-canvas {
+body > canvas {
   display: block;
+  // simplistic fix to os scaling problem
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
 .overlay{
