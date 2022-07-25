@@ -18,6 +18,9 @@ export default class InputController {
         this.raycaster = new THREE.Raycaster()
         this.explodedLetters = new Set()
 
+        this.targetCameraOffset = new THREE.Vector2()
+        this.targetCameraOffsetLerp = new THREE.Vector2()
+
         this.enableControls = false
     }
 
@@ -63,9 +66,13 @@ export default class InputController {
         this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
         if (this.enableControls) {
+            this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
+            this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
 
-            this.context.camera.translateX((this.pointer.x - this.pointerPrevious.x) * -2)
-            this.context.camera.translateY((this.pointer.y - this.pointerPrevious.y) * 0.5)
+            this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.1)
+
+            this.context.camera.translateX(this.targetCameraOffsetLerp.x)
+            this.context.camera.translateY(this.targetCameraOffsetLerp.y)
             this.context.camera.lookAt(this.context.scene.position)
 
             // interact with letters
