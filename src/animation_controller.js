@@ -17,18 +17,6 @@ export default class AnimationController {
 
     _Initialize() {
         this.timeline = gsap.timeline()
-
-        document.querySelector('canvas').addEventListener('click', () => {
-            Object.keys(this.context.letterData.letterMeshes).forEach((group) => {
-                this.explodeLetter(this.context.letterData.letterMeshes[group])
-            })
-        })
-
-        document.querySelector('canvas').addEventListener('auxclick', () => {
-            Object.keys(this.context.letterData.letterMeshes).forEach((group) => {
-                this.implodeLetter(this.context.letterData.letterMeshes[group])
-            })
-        })
     }
 
     explodeLetter(letterGroup) {
@@ -238,16 +226,15 @@ export default class AnimationController {
         }, '-=3')
         introAnim.add(() => {
             this.staggeredLetterAnimation()
-
         }, '-=1')
 
         introAnim.add(() => {
             this.initIdleAnimation()
+            this.context.InputController.enableControls = true
         })
 
         introAnim.add(() => {
             this.flickerLights(0.5, true)
-
         }, '+=1')
     }
 

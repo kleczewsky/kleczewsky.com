@@ -14,20 +14,23 @@ export default class InputController {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
 
         this.pointer = new THREE.Vector2()
-        this.raycaster = new THREE.Raycaster();
+        this.pointerPrevious = new THREE.Vector2()
+        this.raycaster = new THREE.Raycaster()
         this.explodedLetters = new Set()
+
+        this.enableControls = false
     }
 
     _onPointerMove(event) {
-        this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1
+        this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1
     }
 
     // Collects all the objects that raycaster should pick up
     setupRaycasterObjects() {
         this._raycasterObjects = Object.keys(this.context.letterData.letterMeshes)
             .reduce((value, key) => {
-            return value.concat(this.context.letterData.letterMeshes[key]);
+            return value.concat(this.context.letterData.letterMeshes[key])
         }, [])
     }
 
@@ -57,15 +60,25 @@ export default class InputController {
 
 
     update() {
-        this.raycaster.setFromCamera( this.pointer, this.context.camera );
+        this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
-        const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
+        if (this.enableControls) {
 
-        if(intersectingObjects.length > 0){
-            const groupName = intersectingObjects[0].object.parent.name
-            this._debouncedExplode(groupName)
+            this.context.camera.translateX((this.pointer.x - this.pointerPrevious.x) * -2)
+            this.context.camera.translateY((this.pointer.y - this.pointerPrevious.y) * 0.5)
+            this.context.camera.lookAt(this.context.scene.position)
+
+            // interact with letters
+            const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
+
+            if (intersectingObjects.length > 0) {
+                const groupName = intersectingObjects[0].object.parent.name
+                this._debouncedExplode(groupName)
+            }
+
         }
 
+        this.context.camera.prevPosition = this.context.camera.position.clone()
+        this.pointerPrevious.copy(this.pointer)
     }
-
 }
