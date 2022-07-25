@@ -105,7 +105,6 @@ export default class LoaderController {
 
     this._ReportLoadingStatus(path, null, 0)
 
-    // todo: optimize skybox size
     return loader.load(
       [
         'corona_ft.jpg',
