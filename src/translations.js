@@ -19,8 +19,11 @@ i18next
         nsSeparator: false,
 
 }).then(() => {
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        element.textContent = i18next.t(element.dataset.i18n);
+    document.querySelectorAll('[translate]').forEach(element => {
+        element.textContent = i18next.t(element.textContent.trim());
+        if(element.hasAttribute('title')) {
+            element.title = i18next.t(element.title.trim());
+        }
     })
 
     window.dispatchEvent(new Event('TranslationsLoaded'))
