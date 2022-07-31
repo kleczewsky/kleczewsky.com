@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "npm run clean && parcel index.html ./static/**/*",
+    "start": "npm run clean && parcel index.html 'static/locales/**/*'",
     "build": "npm run clean && parcel build index.html",
     "format": "prettier --write '**/*.js'",
-    "clean": "del .\\dist\\* /S /Q"
+    "clean": "del .\\dist\\* /S /Q && del .parcel-cache /S /Q"
   },
   "keywords": [],
   "author": "Eryk Kleczewski",
