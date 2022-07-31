@@ -20,7 +20,11 @@ i18next
 
 }).then(() => {
     document.querySelectorAll('[translate]').forEach(element => {
-        element.textContent = i18next.t(element.textContent.trim());
+        if(element.dataset.i18n) {
+            element.innerHTML = i18next.t(element.dataset.i18n);
+        } else {
+            element.innerHTML = i18next.t(element.innerHTML.trim());
+        }
         if(element.hasAttribute('title')) {
             element.title = i18next.t(element.title.trim());
         }
