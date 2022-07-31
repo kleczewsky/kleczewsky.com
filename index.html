@@ -9,9 +9,11 @@
     <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="src/styles/main.scss" />
     <title>Kleczewsky.com</title>
+
   </head>
   <body>
-    <section class="loader-screen">
+
+  <section class="loader-screen">
       <div class="loader-wrapper">
         <img src="./static/assets/kleczewsky.svg" alt="Napis Kleczewsky" />
         <div class="loader">
@@ -32,6 +34,7 @@
     <div class="overlay"></div>
     <script type="module" src="src/app.js"></script>
     <script type="module" src="src/translations.js"></script>
+
   <section class="main-content">
 
 <!--    <div class="welcome-message">-->
@@ -42,19 +45,24 @@
 <!--    </div>-->
 
     <nav class="main-nav">
-      <div class="item btn ">Projekty</div>
-      <div class="item btn ">KleczewSKY</div>
-      <div class="item btn ">Kontakt</div>
+      <div class="item btn" data-i18n="Projekty"></div>
+      <div class="item btn " data-i18n="KleczewSKY"></div>
+      <div class="item btn " data-i18n="Kontakt"></div>
     </nav>
 
     <div class="toolbar text-muted">
 
-      <div class="item text-primary basic-site">
-        Uproszczona wersja
+      <div class="item text-primary basic-site" data-i18n="Uproszczona wersja">
+
       </div>
 
       <div class="item language-selector">
-        PL
+        <a class="link-unstyled" href="?lng=pl">
+          PL
+        </a>
+        <a class="link-unstyled" href="?lng=en">
+          EN
+        </a>
       </div>
     </div>
   </section>

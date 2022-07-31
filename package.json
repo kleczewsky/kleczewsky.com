@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "npm run clean && parcel index.html static/**/*",
+    "start": "npm run clean && parcel index.html ./static/**/*",
     "build": "npm run clean && parcel build index.html",
     "format": "prettier --write '**/*.js'",
     "clean": "del .\\dist\\* /S /Q"
@@ -15,7 +15,9 @@
     "bootstrap": "^5.2.0",
     "dat.gui": "^0.7.7",
     "gsap": "^3.9.1",
-    "i18nextify": "^3.1.2",
+    "i18next": "^21.8.8",
+    "i18next-browser-languagedetector": "^6.1.4",
+    "i18next-http-backend": "^1.4.1",
     "lodash-es": "^4.17.21",
     "three": "^0.136.0"
   },

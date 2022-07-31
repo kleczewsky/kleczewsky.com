@@ -351,6 +351,6 @@ class kleczewskyWorld {
 
 let APP = null
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('TranslationsLoaded', () => {
   APP = new kleczewskyWorld()
 })

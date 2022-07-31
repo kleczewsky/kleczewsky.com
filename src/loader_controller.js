@@ -80,7 +80,8 @@ export default class LoaderController {
     if (roundedTotal == 100 && !this.loaded) {
       this.loaded = true
 
-      this.loaderText.innerText = 'Gotowe'
+
+      this.loaderText.innerText = i18next.t('Gotowe')
 
       gsap.to('.loader-screen', {
         opacity: 0,
