@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import debounce from "lodash-es/debounce";
+import Cookies from 'js-cookie'
 
 
 export default class InputController {
@@ -22,6 +23,7 @@ export default class InputController {
         this.targetCameraOffsetLerp = new THREE.Vector2()
 
         this.enableControls = false
+        this._initializeSiteControls()
     }
 
     _onPointerMove(event) {
@@ -61,11 +63,25 @@ export default class InputController {
         this._debouncedImplode()
     }
 
+    _initializeSiteControls() {
+        if (Cookies.get('welcome-message-shown')) {
+            this.context.AnimationController.onWelcomeAck(true)
+        } else {
+            document.getElementById('welcome-message-ack')
+                .addEventListener('click', () => {
+                        this.context.AnimationController.onWelcomeAck(false)
+                        Cookies.set('welcome-message-shown', true, {expires: 7})
+                    }
+                )
+
+        }
+    }
 
     update() {
         this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
         if (this.enableControls) {
+            // lerp camera position to desired offset
             this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
             this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
 

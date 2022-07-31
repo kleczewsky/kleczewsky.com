@@ -236,6 +236,37 @@ export default class AnimationController {
         introAnim.add(() => {
             this.flickerLights(0.5, true)
         }, '+=1')
+
+        introAnim.add(() => {
+            gsap.to('.main-content', {
+                opacity: 1,
+                duration: 0.5,
+            })
+        }, '+=1')
+    }
+
+    onWelcomeAck(shown = false) {
+        
+        if (!shown) {
+            gsap.to('.welcome-message', {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: function () {
+                    this.targets()[0].classList.add('d-none')
+                }
+            })
+        } else {
+            document.querySelector('.welcome-message').classList.add('d-none')
+        }
+
+        gsap.to('.main-nav', {
+            opacity: 1,
+            delay: 0.5,
+            duration: 0.5,
+            onStart: function () {
+                this.targets()[0].classList.remove('d-none')
+            }
+        })
     }
 
     animate() {

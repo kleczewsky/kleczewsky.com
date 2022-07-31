@@ -16,7 +16,7 @@
     <meta name="robots" content="index, follow" />
 
   </head>
-  <body>
+  <body style="background: #000">
 
   <section class="loader-screen">
       <div class="loader-wrapper">
@@ -42,14 +42,13 @@
 
   <section class="main-content">
 
-<!--    <div class="welcome-message">-->
-<!--      <h3 class="title">Witaj w świecie Kleczew<b class="text-primary">sky...</b></h3>-->
-<!--      <p class="text-muted">Możesz przejść do galerii moich projektów, albo wprost do sekcji kontakt</p>-->
-<!--      <button class="btn-outline ack-button">OK</button>-->
+    <div class="welcome-message">
+      <h3 class="title" data-i18n="welcome-title" translate>Witaj w świecie Kleczew<b class="text-primary">sky...</b></h3>
+      <p class="text-muted" translate>Możesz przejść do galerii moich projektów, albo wprost do sekcji kontakt</p>
+      <button id="welcome-message-ack" class="btn btn-outline-light rounded-pill mt-3 px-5">OK</button>
+    </div>
 
-<!--    </div>-->
-
-    <nav class="main-nav">
+    <nav class="main-nav d-none">
       <div class="item btn" translate>Projekty</div>
       <div class="item btn" translate>KleczewSKY</div>
       <div class="item btn" translate>Kontakt</div>

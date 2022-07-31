@@ -6,7 +6,7 @@
     "start": "npm run clean && parcel index.html 'static/locales/**/*'",
     "build": "npm run clean && parcel build index.html",
     "format": "prettier --write '**/*.js'",
-    "clean": "del .\\dist\\* /S /Q && del .parcel-cache /S /Q"
+    "clean": "del .\\dist\\* /S /Q "
   },
   "keywords": [],
   "author": "Eryk Kleczewski",
@@ -18,6 +18,7 @@
     "i18next": "^21.8.8",
     "i18next-browser-languagedetector": "^6.1.4",
     "i18next-http-backend": "^1.4.1",
+    "js-cookie": "^3.0.1",
     "lodash-es": "^4.17.21",
     "three": "^0.136.0"
   },
