@@ -1,4 +1,4 @@
-@import './reset';
+@import 'bootstrap';
 
 body {
   font-family: monospace;
@@ -42,11 +42,15 @@ code {
 
 #webgl-error-message {
   text-align: center;
-  background: #fff;
-  color: #000;
+  background: #f1f1f1;
+  color: #121212;
   padding: 1.5em;
   width: 400px;
   margin: 5em auto 0;
+}
+// debug dat gui always on top
+.dg {
+  z-index: 9999 !important;
 }
 
 .loader-screen {
@@ -61,7 +65,7 @@ code {
 
   .loader-wrapper {
     text-align: center;
-    color: #f1f1f1;
+    color: #efefef;
 
     > img {
       width: 25vw;
@@ -101,5 +105,82 @@ code {
         box-shadow: 0 0 0 transparent;
       }
     }
+  }
+}
+
+.main-content{
+  z-index: 2;
+  color: #efefef;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+}
+
+.welcome-message{
+  position: absolute;
+  bottom:30%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 0 5rem 0 5rem;
+  > .title {
+    margin-bottom: 1rem;
+  }
+
+  > .ack-button{
+    margin-top: 1rem;
+  }
+}
+
+.toolbar{
+  position: absolute;
+  bottom:0;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0.5rem;
+
+  > .item {
+    margin: 0 1rem 0 1rem;
+  }
+}
+
+.text-muted {
+  color: #9a9a9a
+}
+
+.text-primary {
+  color: #D4A615;
+}
+
+.btn-outline {
+  background: transparent;
+  border-radius: 2rem;
+  padding: 0.5rem 3rem;
+  color: #efefef;
+  border: 2px solid  #efefef;
+  cursor: pointer;
+
+  &:hover{
+    background: #efefef;
+    color: #121212;
+  }
+}
+
+.main-nav{
+  position: absolute;
+  bottom:30%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  > .item {
+    margin: 1rem 2rem;
+    font-size: 2rem;
+    text-transform: uppercase;
+
   }
 }
