@@ -314,13 +314,17 @@ class kleczewskyWorld {
     let controls
 
     helpersFolder
-        .add({ ObitControlsHelper: false }, 'ObitControlsHelper')
+        .add({ OrbitControlsHelper: false }, 'OrbitControlsHelper')
         .onChange((enabled) => {
+          const contentOverlay = document.querySelector('.main-content')
           if (enabled) {
             controls = new OrbitControls(this.camera, this.renderer.domElement)
+            contentOverlay.style.display = 'none'
 
             return
           }
+
+          contentOverlay.style.display = null
           controls.dispose()
         })
 
