@@ -320,10 +320,12 @@ class kleczewskyWorld {
           if (enabled) {
             controls = new OrbitControls(this.camera, this.renderer.domElement)
             contentOverlay.style.display = 'none'
+            this.InputController.enableControls = false
 
             return
           }
 
+          this.InputController.enableControls = true
           contentOverlay.style.display = null
           controls.dispose()
         })
