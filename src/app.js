@@ -79,12 +79,13 @@ class kleczewskyWorld {
 
   _InitScene() {
     this.scene = new THREE.Scene()
-    this.scene.fog = new THREE.Fog(0x000000, 1, 200)
+    // this.scene.fog = new THREE.Fog(0x000000, 1, 200)
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
 
-    directionalLight.position.set(0, 20, 20)
+    directionalLight.position.set(0, 50, -50)
+    directionalLight.intensity = 0.55
     directionalLight.name = 'global_directional_light'
 
     this.scene.add(ambientLight)
@@ -100,7 +101,8 @@ class kleczewskyWorld {
       10000
     )
 
-    this.camera.position.set(0, 2, 30)
+
+    this.camera.position.set(0, 2, 150)
     this.camera.rotateX(degToRad(-90))
   }
 
@@ -170,8 +172,8 @@ class kleczewskyWorld {
     // Load terrain
     const setupTerrain = (gltf) => {
       const root = gltf.scene
-      root.scale.set(3, 3, 3)
-      root.position.set(0, 9, 0)
+      root.scale.set(3, 4, 3)
+      root.position.set(0, 2, 0)
 
       root.children[0].receiveShadow = true
       this.terrainData.material = root.children[0].material
@@ -264,7 +266,7 @@ class kleczewskyWorld {
     ssrFolder.add(ssrPass, 'thickness', 0, 1, 0.001)
     ssrFolder.add(ssrPass, 'maxDistance', 0, 5, 0.01)
 
-    let fogCopy = this.scene.fog.clone()
+    let fogCopy = this.scene.fog ? this.scene.fog.clone() : new THREE.Fog(0xffffff, 1, 200)
 
     const fogFolder = gui.addFolder('Fog')
     fogFolder.add({ EnableFog: true }, 'EnableFog').onChange((enabled) => {

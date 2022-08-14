@@ -83,15 +83,15 @@ export default class LoaderController {
 
       this.loaderText.innerText = i18next.t('Gotowe')
 
+      setTimeout(this.onLoad, 500)
       gsap.to('.loader-screen', {
         opacity: 0,
 
-        delay: this.context.debugMode ? 0 : 2,
+        delay: this.context.debugMode ? 0 : 1.5,
         duration: 0.5,
 
         onComplete: () => {
           document.querySelector('.loader-screen').style.display = 'none'
-          this.onLoad()
         },
       })
     }
