@@ -101,7 +101,7 @@ class kleczewskyWorld {
       10000
     )
 
-
+    this.camera.targetPosition = new THREE.Vector3(0, 0, 0)
     this.camera.position.set(0, 2, 150)
     this.camera.rotateX(degToRad(-90))
   }
@@ -132,6 +132,8 @@ class kleczewskyWorld {
 
     // Load writing
     const setupKleczewsky = (gltf) => {
+      this.home = gltf.scene
+
       this.letterData.letterMaterials = []
       this.letterData.letterMeshes = []
 
@@ -154,7 +156,6 @@ class kleczewskyWorld {
           // todo: decide if enable on all
           if (Math.random() > 0) {
             obj.layers.enable(this.BLOOM_LAYER)
-            obj.castShadow = true
           }
         })
       })
@@ -175,7 +176,6 @@ class kleczewskyWorld {
       root.scale.set(3, 4, 3)
       root.position.set(0, 2, 0)
 
-      root.children[0].receiveShadow = true
       this.terrainData.material = root.children[0].material
       root.children[0].material.emissiveIntensity = 0
 
@@ -184,6 +184,46 @@ class kleczewskyWorld {
     this.LoaderController.LoadGltf(
       './static/models/kleczewsky_terrain.glb',
       setupTerrain
+    )
+
+    // Load contact model
+    const setupContact = (gltf) => {
+      this.contact = gltf.scene
+
+      const root = gltf.scene
+      root.scale.set(1, 1, 1)
+      root.position.set(70, 80, 20)
+
+      root.traverse((child) => {
+        child.layers.enable(this.BLOOM_LAYER)
+      })
+      const mixer = new THREE.AnimationMixer(root)
+      this.AnimationController.animationMixers.push(mixer)
+      gltf.animations.forEach((clip) => {
+        mixer.clipAction(clip).play()
+      })
+
+
+      this.scene.add(root)
+    }
+    this.LoaderController.LoadGltf(
+      './static/models/contact.glb',
+        setupContact
+    )
+
+    // Load project models TODO
+    const setupProjects = (gltf) => {
+      this.projects = gltf.scene
+
+      const root = gltf.scene
+      root.scale.set(1, 1, 1)
+      root.position.set(-70, 1, 40)
+
+      this.scene.add(root)
+    }
+    this.LoaderController.LoadGltf(
+      './static/models/contact.glb',
+        setupProjects
     )
 
   }
@@ -237,9 +277,10 @@ class kleczewskyWorld {
 
       obj.position.set(xPos, 0, zPos)
       light.position.set(xPos, 0, zPos)
+      obj.layers.enable(this.BLOOM_LAYER)
 
       this.scene.add(obj)
-      this.scene.add(light)
+      this.scene.add(light) // todo: decide if lights are added to scene (performance)
 
       this.lightsData.lightsMeshes.push(obj)
       this.lightsData.lights.push(light)

@@ -48,10 +48,29 @@
       <button id="welcome-message-ack" class="btn btn-outline-light rounded-pill mt-3 px-5">OK</button>
     </div>
 
+    <section class="contact-section m-0 text-center d-none row text-secondary" style="opacity: 0">
+      <div class="col-4"></div>
+      <div class="col d-flex flex-column justify-content-center align-items-center gradient show" >
+        <div>
+          <h3 translate>Skontaktuj się zemną
+          </h3>
+          <hr class="border-secondary px-5">
+
+        </div>
+
+        <a class="link-primary text-decoration-none mb-3" href="mailto:ekkleczewski@gmail.com">ekkleczewski@gmail.com</a>
+        <div class="d-flex gap-3">
+          <a class="link-secondary text-decoration-none" href="https://github.com/kleczewsky" target="_blank">Github</a>
+          <a class="link-secondary text-decoration-none" href="https://www.linkedin.com/in/kleczewsky/" target="_blank">LinkedIn</a>
+        </div>
+
+      </div>
+    </section>
+
     <nav class="main-nav d-none">
-      <div class="item btn" translate>Projekty</div>
-      <div class="item btn" translate>KleczewSKY</div>
-      <div class="item btn" translate>Kontakt</div>
+      <div class="item btn warp-trigger" data-warp-to="projects" translate>Projekty</div>
+      <div class="item btn warp-trigger text-primary opacity-50" data-warp-to="home" translate>KleczewSKY</div>
+      <div class="item btn warp-trigger" data-warp-to="contact" translate>Kontakt</div>
     </nav>
 
     <div class="toolbar text-muted">

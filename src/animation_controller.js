@@ -9,6 +9,8 @@ export default class AnimationController {
         "Y-Group": new THREE.Color("#08e0b2")
     };
 
+    animationMixers = [];
+
     constructor(context) {
         this.context = context
         this._Initialize()
@@ -17,6 +19,7 @@ export default class AnimationController {
 
     _Initialize() {
         this.timeline = gsap.timeline()
+        this.clock = new THREE.Clock()
     }
 
     explodeLetter(letterGroup) {
@@ -269,6 +272,140 @@ export default class AnimationController {
         })
     }
 
+    onContactClick() {
+        const camera = this.context.camera
+        const contact = this.context.contact
+
+        const duration = 3
+
+        this.offsetCamera('left')
+
+        this.context.InputController.isNavigating = true
+
+        gsap.to('.main-nav', {
+            bottom: '5%',
+            duration: 1,
+            ease: 'easeInOut',
+        })
+
+        gsap.to(camera.targetPosition, {
+            z: contact.position.z ,
+            y: contact.position.y,
+            x: contact.position.x,
+            duration: duration,
+            ease: 'ease',
+        })
+
+        gsap.to(camera.position, {
+            z: contact.position.z + 4 ,
+            y: contact.position.y,
+            x: contact.position.x - 8,
+            duration: duration,
+            ease: 'easeInOut',
+            onUpdate: () => {
+                contact.lookAt(camera.position)
+            },
+        })
+
+        gsap.to('.contact-section', {
+                opacity: 1,
+                duration: 1,
+                delay: duration,
+                onStart: function () {
+                    this.targets()[0].classList.remove('d-none')
+                },
+                onComplete: () => {
+                    this.context.InputController.isNavigating = false
+                }
+            })
+    }
+
+    onContactExit() {
+        gsap.to('.main-nav', {
+            bottom: '30%',
+            duration: 1,
+            ease: 'easeInOut',
+        })
+
+        gsap.to('.contact-section', {
+            opacity: 0,
+            duration: 0.5,
+            onComplete: function () {
+                this.targets()[0].classList.add('d-none')
+            }
+        })
+
+        this.offsetCamera('center')
+
+    }
+
+    onHomeClick() {
+        const camera = this.context.camera
+        this.flickerLights(0.5) // turn off lights
+        this.stopIdleAnimation()
+
+        this.context.InputController.isNavigating = true
+
+
+        gsap.to(camera.targetPosition, {
+            z: 0 ,
+            y: 0,
+            x: 0,
+            delay: 0,
+            duration: 3,
+            ease: 'ease',
+        })
+
+
+        gsap.to(camera.position, {
+            z: 40 ,
+            y: 2,
+            x: 0,
+            duration: 3,
+            ease: 'easeInOut',
+            onComplete: () => {
+                this.staggeredLetterAnimation()
+                this.flickerLights(0.5, true)
+                this.context.InputController.isNavigating = false
+            }
+        })
+    }
+
+    offsetCamera(side) {
+        const offset = {
+            from: this.context.camera.viewOffsetRatio ?? 0,
+            target: 0}
+
+        switch (side) {
+            case 'left':
+                offset.target = 0.25
+                break
+            case 'right':
+                offset.target = 0.7
+                break
+            case 'center':
+            default:
+                offset.target = 0
+                break
+        }
+
+        gsap.to(offset, {
+                from: offset.target,
+                duration: 3,
+                ease: 'easeInOut',
+                onUpdate: () => {
+                    this.context.camera.setViewOffset(window.innerWidth, window.innerHeight, window.innerWidth * offset.from, 0, window.innerWidth, window.innerHeight)
+                },
+                onComplete: () => {
+                    this.context.camera.viewOffsetRatio = offset.target
+                }
+            }
+        )
+    }
+
     animate() {
+        this.animationMixers.forEach((mixer) => {
+            mixer.update(this.clock.getDelta())
+        })
     }
 }

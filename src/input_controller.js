@@ -23,6 +23,12 @@ export default class InputController {
         this.targetCameraOffsetLerp = new THREE.Vector2()
 
         this.enableControls = false
+        this.isNavigating = false
+
+        this.searchParams = new URLSearchParams(window.location.search)
+        if(!this.searchParams.has('active')) {
+            this.searchParams.set('active', 'home')
+        }
         this._initializeSiteControls()
     }
 
@@ -75,6 +81,47 @@ export default class InputController {
                 )
 
         }
+
+        const warpTriggers = document.querySelectorAll('.warp-trigger')
+
+        warpTriggers.forEach((trigger) => {
+            trigger.addEventListener('click', (event) => {
+                const target = event.target
+                const lastActive = this.searchParams.get('active')
+
+                if (target.dataset.warpTo === lastActive) return false
+
+                if(this.isNavigating) return false
+
+                switch (target.dataset.warpTo) {
+                    case 'home':
+                        this.context.AnimationController.onHomeClick()
+                        break
+                    case 'contact':
+                        this.context.AnimationController.onContactClick()
+                        break
+                    case 'about':
+                        // this.context.AnimationController.onAboutClick()
+                        // break
+                    case 'projects':
+                        // this.context.AnimationController.onProjectsClick()
+                        // break
+                    default:
+                        return false
+                }
+
+                // clean up changes from previous state
+                switch (lastActive) {
+                    case 'contact':
+                        this.context.AnimationController.onContactExit()
+                        break
+                }
+
+                target.classList.add('text-primary', 'opacity-50')
+                document.querySelector(`.warp-trigger[data-warp-to=${lastActive}]`).classList.remove('text-primary', 'opacity-50')
+                this.searchParams.set('active', target.dataset.warpTo)
+            })
+        })
     }
 
     update() {
@@ -85,11 +132,18 @@ export default class InputController {
             this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
             this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
 
-            this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.1)
+            this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
 
             this.context.camera.translateX(this.targetCameraOffsetLerp.x)
             this.context.camera.translateY(this.targetCameraOffsetLerp.y)
-            this.context.camera.lookAt(this.context.scene.position)
+
+            // lerp camera rotation to look at target
+            const qStart =  this.context.camera.quaternion.clone()
+            this.context.camera.lookAt(this.context.camera.targetPosition)
+            const qEnd =  this.context.camera.quaternion.clone()
+            this.context.camera.quaternion.copy(qStart)
+
+            this.context.camera.quaternion.slerp(qEnd, 0.05)
 
             // interact with letters
             const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
