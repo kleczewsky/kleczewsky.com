@@ -84,6 +84,7 @@ class kleczewskyWorld {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
 
+    ambientLight.name = 'global_ambient_light'
     directionalLight.position.set(0, 50, -50)
     directionalLight.intensity = 0.55
     directionalLight.name = 'global_directional_light'
@@ -299,7 +300,14 @@ class kleczewskyWorld {
     bloomFolder.add(bloomPass, 'strength', 0, 10)
     bloomFolder.add(bloomPass, 'radius', 0, 10)
     bloomFolder.add(bloomPass, 'threshold', 0, 1)
-    bloomFolder.add(this.renderer, 'toneMappingExposure', 0.1, 2)
+
+    const ambientLight = this.scene.getObjectByName('global_ambient_light')
+    const directionalLight = this.scene.getObjectByName('global_directional_light')
+
+    const lightsFolder = gui.addFolder('Lights')
+    lightsFolder.add(ambientLight, 'intensity', 0, 5).name('AmbientLight')
+    lightsFolder.add(directionalLight, 'intensity', 0, 5).name('DirectionalLight')
+    lightsFolder.add(this.renderer, 'toneMappingExposure', 0.1, 2)
 
     const ssrPass = this.effectComposers.finalComposer.passes[1]
 
