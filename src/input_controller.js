@@ -127,15 +127,20 @@ export default class InputController {
     update() {
         this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
-        if (this.enableControls) {
+        if (this.enableControls && !this.isNavigating) {
             // lerp camera position to desired offset
-            this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
-            this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
+            // this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
+            // this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
+            //
+            // this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
+            //
+            // this.context.camera.translateX(this.targetCameraOffsetLerp.x)
+            // this.context.camera.translateY(this.targetCameraOffsetLerp.y)
 
-            this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
-
-            this.context.camera.translateX(this.targetCameraOffsetLerp.x)
-            this.context.camera.translateY(this.targetCameraOffsetLerp.y)
+            // distance from center of screen with parent object
+            this.targetCameraOffset.x = (this.pointer.x*1.5)
+            this.targetCameraOffset.y = (this.pointer.y*1.5)
+            this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.06)
 
             // lerp camera rotation to look at target
             const qStart =  this.context.camera.quaternion.clone()

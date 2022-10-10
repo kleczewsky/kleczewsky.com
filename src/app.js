@@ -27,6 +27,8 @@ class kleczewskyWorld {
   letterData = [] // SKY letter meshes and materials
   lightsData = [] // lights meshes and materials
   terrainData = [] // Terrain material
+  wallObject = []
+  cameraCheckpoints = []
   effectComposers = []
 
   constructor() {
@@ -49,6 +51,7 @@ class kleczewskyWorld {
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.toneMapping = THREE.ReinhardToneMapping
+    this.renderer.physicallyCorrectLights = true
 
     document.body.appendChild(this.renderer.domElement)
 
@@ -81,7 +84,7 @@ class kleczewskyWorld {
     this.scene = new THREE.Scene()
     // this.scene.fog = new THREE.Fog(0x000000, 1, 200)
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.85)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
 
     ambientLight.name = 'global_ambient_light'
@@ -105,6 +108,9 @@ class kleczewskyWorld {
     this.camera.targetPosition = new THREE.Vector3(0, 0, 0)
     this.camera.position.set(0, 2, 150)
     this.camera.rotateX(degToRad(-90))
+
+    this.dolly = new THREE.Object3D().add(this.camera)
+    this.scene.add(this.dolly)
   }
 
   // callback rate dependent on monitor refresh rate
@@ -171,20 +177,35 @@ class kleczewskyWorld {
       setupKleczewsky
     )
 
-    // Load terrain
-    const setupTerrain = (gltf) => {
-      const root = gltf.scene
-      root.scale.set(3, 4, 3)
-      root.position.set(0, 2, 0)
+    // Load project models
+    const setupWorld = (gltf) => {
+      this.projects = gltf.scene
 
-      this.terrainData.material = root.children[0].material
-      root.children[0].material.emissiveIntensity = 0
+      const root = gltf.scene
+      root.scale.set(1, 1, 1)
+      root.position.set(0, 0, 0)
+
+      const terrain = root.getObjectByName('Terrain')
+
+      this.terrainData.material = terrain.children[1].material
+      terrain.children[1].material.emissiveIntensity = 0
+      terrain.children[1].material.color = new THREE.Color('#360831')
+
+      const wall = root.getObjectByName('Wall')
+      this.wallObject = wall
+      wall.traverse(function(obj) {
+        obj.frustumCulled = false
+      })
+      wall.scale.set(0,0,0)
+
+      this.cameraCheckpoints =  root.getObjectByName('Camera-checkpoints')
+      console.log(this.cameraCheckpoints)
 
       this.scene.add(root)
     }
     this.LoaderController.LoadGltf(
-      './static/models/kleczewsky_terrain.glb',
-      setupTerrain
+        './static/models/kleczewsky_wall.glb',
+        setupWorld
     )
 
     // Load contact model
@@ -212,20 +233,9 @@ class kleczewskyWorld {
         setupContact
     )
 
-    // Load project models TODO
-    const setupProjects = (gltf) => {
-      this.projects = gltf.scene
 
-      const root = gltf.scene
-      root.scale.set(1, 1, 1)
-      root.position.set(-70, 1, 40)
 
-      this.scene.add(root)
-    }
-    this.LoaderController.LoadGltf(
-      './static/models/contact.glb',
-        setupProjects
-    )
+
 
   }
 
@@ -281,7 +291,7 @@ class kleczewskyWorld {
       obj.layers.enable(this.BLOOM_LAYER)
 
       this.scene.add(obj)
-      this.scene.add(light) // todo: decide if lights are added to scene (performance)
+      // this.scene.add(light)
 
       this.lightsData.lightsMeshes.push(obj)
       this.lightsData.lights.push(light)

@@ -207,7 +207,7 @@ export default class AnimationController {
 
         // Z movement with fov change
         introAnim.fromTo (camera.position,{
-            z: 150
+            z: 100
         } ,{
             z: 40,
             ease:'easeInOut',
@@ -234,6 +234,7 @@ export default class AnimationController {
         introAnim.add(() => {
             this.initIdleAnimation()
             this.context.InputController.enableControls = true
+            this.context.wallObject.scale.set(1,1,1)
         })
 
         introAnim.add(() => {
@@ -274,11 +275,10 @@ export default class AnimationController {
 
     onContactClick() {
         const camera = this.context.camera
-        const contact = this.context.contact
+        const targetPosition = this.context.cameraCheckpoints.getObjectByName('Camera-wall').position
 
-        const duration = 3
+        const duration = 1.5
 
-        this.offsetCamera('left')
 
         this.context.InputController.isNavigating = true
 
@@ -288,24 +288,14 @@ export default class AnimationController {
             ease: 'easeInOut',
         })
 
-        gsap.to(camera.targetPosition, {
-            z: contact.position.z ,
-            y: contact.position.y,
-            x: contact.position.x,
+        gsap.to(camera.position, {
+            z: targetPosition.z ,
+            y: targetPosition.y,
+            x: targetPosition.x,
             duration: duration,
             ease: 'ease',
         })
 
-        gsap.to(camera.position, {
-            z: contact.position.z + 4 ,
-            y: contact.position.y,
-            x: contact.position.x - 8,
-            duration: duration,
-            ease: 'easeInOut',
-            onUpdate: () => {
-                contact.lookAt(camera.position)
-            },
-        })
 
         gsap.to('.contact-section', {
                 opacity: 1,
@@ -314,7 +304,7 @@ export default class AnimationController {
                 onStart: function () {
                     this.targets()[0].classList.remove('d-none')
                 },
-                onComplete: () => {
+                beforeStart: () => {
                     this.context.InputController.isNavigating = false
                 }
             })
@@ -335,7 +325,6 @@ export default class AnimationController {
             }
         })
 
-        this.offsetCamera('center')
 
     }
 
