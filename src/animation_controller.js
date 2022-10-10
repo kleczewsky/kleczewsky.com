@@ -233,7 +233,7 @@ export default class AnimationController {
 
         introAnim.add(() => {
             this.initIdleAnimation()
-            this.context.InputController.enableControls = true
+            this.context.InputController.controls.enable = true
             this.context.wallObject.scale.set(1,1,1)
         })
 
@@ -306,6 +306,7 @@ export default class AnimationController {
                 },
                 beforeStart: () => {
                     this.context.InputController.isNavigating = false
+                    this.context.InputController.controls.scroll = true
                 }
             })
     }

@@ -1,10 +1,16 @@
 import * as THREE from 'three'
 import debounce from "lodash-es/debounce";
 import Cookies from 'js-cookie'
+import {lerp} from "three/src/math/MathUtils";
 
 
 export default class InputController {
 
+     controls = {
+         enable: false,
+         dollyCameraOffset: true,
+         scroll: false,
+    }
 
     constructor(context) {
         this.context = context
@@ -13,6 +19,7 @@ export default class InputController {
 
     _Initialize() {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
+        window.addEventListener('wheel', (event) => this._onWheel(event));
 
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
@@ -20,9 +27,12 @@ export default class InputController {
         this.explodedLetters = new Set()
 
         this.targetCameraOffset = new THREE.Vector2()
+        this.currentScrollOffset = new THREE.Vector2()
+
         this.targetCameraOffsetLerp = new THREE.Vector2()
 
-        this.enableControls = false
+        this.scrollOffset = 0
+
         this.isNavigating = false
 
         this.searchParams = new URLSearchParams(window.location.search)
@@ -35,6 +45,14 @@ export default class InputController {
     _onPointerMove(event) {
         this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1
+    }
+
+    _onWheel(event) {
+        if(event.deltaY !== 0 && this.controls.scroll){
+            if(event.deltaY < 0 && this.scrollOffset < 0)  this.scrollOffset += 1
+            if(event.deltaY > 0 && this.scrollOffset > -20)  this.scrollOffset -= 1
+        }
+
     }
 
     // Collects all the objects that raycaster should pick up
@@ -127,28 +145,41 @@ export default class InputController {
     update() {
         this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
-        if (this.enableControls && !this.isNavigating) {
-            // lerp camera position to desired offset
-            // this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
-            // this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
-            //
-            // this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
-            //
-            // this.context.camera.translateX(this.targetCameraOffsetLerp.x)
-            // this.context.camera.translateY(this.targetCameraOffsetLerp.y)
+        if (this.controls.enable && !this.isNavigating) {
+            if(this.controls.dollyCameraOffset) {
+                // lerp camera position to desired offset using the distance of pointer from center
 
-            // distance from center of screen with parent object
-            this.targetCameraOffset.x = (this.pointer.x*1.5)
-            this.targetCameraOffset.y = (this.pointer.y*1.5)
-            this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.06)
+                this.targetCameraOffset.x = (this.pointer.x*1.5)
+                this.targetCameraOffset.y = (this.pointer.y*1.5)
+                this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.06)
+            } else {
+                // lerp camera position to desired offset using delta pointer pos
 
-            // lerp camera rotation to look at target
-            const qStart =  this.context.camera.quaternion.clone()
-            this.context.camera.lookAt(this.context.camera.targetPosition)
-            const qEnd =  this.context.camera.quaternion.clone()
-            this.context.camera.quaternion.copy(qStart)
+                this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
+                this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
 
-            this.context.camera.quaternion.slerp(qEnd, 0.05)
+                this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
+
+                this.context.camera.translateX(this.targetCameraOffsetLerp.x)
+                this.context.camera.translateY(this.targetCameraOffsetLerp.y)
+            }
+
+            if (this.controls.scroll) {
+                // "not so" smooth elevation control
+                const translateBy = lerp(this.currentScrollOffset.y, this.scrollOffset, 0.05 ) - this.currentScrollOffset.y
+                this.context.camera.translateY(translateBy)
+
+                this.currentScrollOffset.y += translateBy
+            } else {
+                // lerp camera rotation to look at target
+                const qStart = this.context.camera.quaternion.clone()
+                this.context.camera.lookAt(this.context.camera.targetPosition)
+                const qEnd = this.context.camera.quaternion.clone()
+                this.context.camera.quaternion.copy(qStart)
+
+                this.context.camera.quaternion.slerp(qEnd, 0.05)
+            }
+
 
             // interact with letters
             const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
@@ -160,7 +191,6 @@ export default class InputController {
 
         }
 
-        this.context.camera.prevPosition = this.context.camera.position.clone()
         this.pointerPrevious.copy(this.pointer)
     }
 }

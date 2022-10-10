@@ -160,10 +160,7 @@ class kleczewskyWorld {
           if (obj.isMesh) {
             this.letterData.letterMeshes[group.name].push(obj)
           }
-          // todo: decide if enable on all
-          if (Math.random() > 0) {
             obj.layers.enable(this.BLOOM_LAYER)
-          }
         })
       })
       this.scene.add(root)
@@ -193,13 +190,9 @@ class kleczewskyWorld {
 
       const wall = root.getObjectByName('Wall')
       this.wallObject = wall
-      wall.traverse(function(obj) {
-        obj.frustumCulled = false
-      })
       wall.scale.set(0,0,0)
 
       this.cameraCheckpoints =  root.getObjectByName('Camera-checkpoints')
-      console.log(this.cameraCheckpoints)
 
       this.scene.add(root)
     }
@@ -381,12 +374,12 @@ class kleczewskyWorld {
           if (enabled) {
             controls = new OrbitControls(this.camera, this.renderer.domElement)
             contentOverlay.style.display = 'none'
-            this.InputController.enableControls = false
+            this.InputController.controls.enable = false
 
             return
           }
 
-          this.InputController.enableControls = true
+          this.InputController.controls.enable = true
           contentOverlay.style.display = null
           controls.dispose()
         })
