@@ -73,7 +73,7 @@ export default class PostProcessing {
     groundReflector.visible = false
     this.context.scene.add(groundReflector)
 
-    // SSR is quite costly 30-40% of the render time
+    // SSR is quite costly 30-40% of the render time - performance: fallback
     const ssrPass = new SSRPass({
       renderer: this.context.renderer,
       scene: this.context.scene,
@@ -81,6 +81,7 @@ export default class PostProcessing {
       width: window.innerWidth,
       height: window.innerHeight,
       groundReflector: groundReflector,
+      selects: [],
     })
 
     ssrPass.maxDistance = 4

@@ -84,7 +84,7 @@ class kleczewskyWorld {
     this.scene = new THREE.Scene()
     // this.scene.fog = new THREE.Fog(0x000000, 1, 200)
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.85)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
     const directionalLight = new THREE.DirectionalLight(0xffffff)
 
     ambientLight.name = 'global_ambient_light'
@@ -151,7 +151,6 @@ class kleczewskyWorld {
       // Enable bloom layer for letters meshes
       root.children.forEach((group) => {
         if (!group.name.endsWith('Group')) {
-          group.castShadow = true
           return
         }
         this.letterData.letterMaterials[group.name] = group.children[0].material
@@ -163,6 +162,9 @@ class kleczewskyWorld {
             obj.layers.enable(this.BLOOM_LAYER)
         })
       })
+
+      root.name = 'Kleczewsky'
+
       this.scene.add(root)
 
       this.AnimationController.initLetterAnimations(
@@ -184,13 +186,19 @@ class kleczewskyWorld {
 
       const terrain = root.getObjectByName('Terrain')
 
-      this.terrainData.material = terrain.children[1].material
-      terrain.children[1].material.emissiveIntensity = 0
-      terrain.children[1].material.color = new THREE.Color('#360831')
+      this.effectComposers.finalComposer.passes[1].selects = [terrain.getObjectByName('Plane')]
 
       const wall = root.getObjectByName('Wall')
       this.wallObject = wall
+
+      // preload textures
+      wall.traverse(function(obj) {
+        obj.frustumCulled = false
+      })
+
       wall.scale.set(0,0,0)
+
+      root.name = 'Main'
 
       this.cameraCheckpoints =  root.getObjectByName('Camera-checkpoints')
 

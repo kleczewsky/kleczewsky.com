@@ -35,7 +35,7 @@ export default class AnimationController {
 
                 ease: 'back.out',
             })
-            gsap.to(mesh.material.color, {
+            gsap.to(mesh.material.emissive, {
                 r: mesh.material.color.explodedColor.r,
                 g: mesh.material.color.explodedColor.g,
                 b: mesh.material.color.explodedColor.b,
@@ -57,7 +57,7 @@ export default class AnimationController {
                 ease: 'back.out',
                 duration: 1,
             })
-            gsap.fromTo(mesh.material.color, mesh.material.color, {
+            gsap.fromTo(mesh.material.emissive, mesh.material.emissive, {
                 r: mesh.material.color.originalColor.r,
                 g: mesh.material.color.originalColor.g,
                 b: mesh.material.color.originalColor.b,
@@ -112,25 +112,8 @@ export default class AnimationController {
     flickerLights(duration = 1, stayOn = false) {
         const lights = this.context.lightsData.lights
         const materials = this.context.lightsData.lightsMaterials
-        const terrainMaterial = this.context.terrainData.material
 
         const intensity = 2;
-
-        gsap.fromTo(terrainMaterial, terrainMaterial, {
-            emissiveIntensity: intensity,
-            ease: 'bounce.in',
-            duration: duration,
-        })
-
-        if (!stayOn) {
-            gsap.to(terrainMaterial, {
-                emissiveIntensity: 0,
-                ease: 'rough({ template: bounce.out, strength: 1.5, points: 20, taper: none, randomize: true, clamp: false})',
-                duration: duration / 2,
-                delay: duration,
-
-            })
-        }
 
         // animate material colors
         materials.forEach((material) => {
@@ -227,6 +210,14 @@ export default class AnimationController {
         introAnim.add(() => {
             this.flickerLights(1)
         }, '-=3')
+
+        introAnim.to(this.context.scene.getObjectByName('Kleczewsky').getObjectByName('Kleczew').material.emissive, {
+            r: 1,
+            g: 1,
+            b: 1,
+            ease:'easeInOut',
+        }, '-=1.25')
+
         introAnim.add(() => {
             this.staggeredLetterAnimation()
         }, '-=1')

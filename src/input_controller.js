@@ -166,7 +166,7 @@ export default class InputController {
 
             if (this.controls.scroll) {
                 // "not so" smooth elevation control
-                const translateBy = lerp(this.currentScrollOffset.y, this.scrollOffset, 0.05 ) - this.currentScrollOffset.y
+                const translateBy = lerp(this.currentScrollOffset.y, this.scrollOffset, 0.03 ) - this.currentScrollOffset.y
                 this.context.camera.translateY(translateBy)
 
                 this.currentScrollOffset.y += translateBy
