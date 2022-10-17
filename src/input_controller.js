@@ -151,14 +151,14 @@ export default class InputController {
 
                 this.targetCameraOffset.x = (this.pointer.x*1.5)
                 this.targetCameraOffset.y = (this.pointer.y*1.5)
-                this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.06)
+                this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.02)
             } else {
                 // lerp camera position to desired offset using delta pointer pos
 
                 this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3
                 this.targetCameraOffset.y = (this.pointer.y - this.pointerPrevious.y) * 0.8
 
-                this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.05)
+                this.targetCameraOffsetLerp.lerp(this.targetCameraOffset, 0.02)
 
                 this.context.camera.translateX(this.targetCameraOffsetLerp.x)
                 this.context.camera.translateY(this.targetCameraOffsetLerp.y)
@@ -166,7 +166,7 @@ export default class InputController {
 
             if (this.controls.scroll) {
                 // "not so" smooth elevation control
-                const translateBy = lerp(this.currentScrollOffset.y, this.scrollOffset, 0.03 ) - this.currentScrollOffset.y
+                const translateBy = lerp(this.currentScrollOffset.y, this.scrollOffset, 0.01 ) - this.currentScrollOffset.y
                 this.context.camera.translateY(translateBy)
 
                 this.currentScrollOffset.y += translateBy

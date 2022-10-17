@@ -120,6 +120,9 @@ class kleczewskyWorld {
       this.AnimationController.animate()
       this.PostProcessing.render()
 
+      // todo: split to animation and other(raycast)
+      this.InputController.update()
+
       if (this.debugMode) {
         this.stats.update()
       }
@@ -128,9 +131,9 @@ class kleczewskyWorld {
 
   // simple 30 Hz logic loop
   _LogicLoop(){
-    setInterval(()=>{
-      this.InputController.update()
-    }, 33)
+    // setInterval(()=>{
+    //   this.InputController.update()
+    // }, 33)
   }
 
   _LoadModels() {
