@@ -57,10 +57,15 @@ export default class InputController {
 
     // Collects all the objects that raycaster should pick up
     setupRaycasterObjects() {
-        this._raycasterObjects = Object.keys(this.context.letterData.letterMeshes)
-            .reduce((value, key) => {
-            return value.concat(this.context.letterData.letterMeshes[key])
-        }, [])
+         // exploding letters meshes
+        this._raycasterObjects = []
+
+        if(this.context.letterData.boundingBoxes && this.context.letterData.boundingBoxes.length) {
+            this.context.letterData.boundingBoxes.forEach(box => {
+                box.update()
+                this._raycasterObjects.push(box)
+            })
+        }
     }
 
     _debouncedImplode = debounce(() => {
@@ -97,7 +102,6 @@ export default class InputController {
                         Cookies.set('welcome-message-shown', true, {expires: 7})
                     }
                 )
-
         }
 
         const warpTriggers = document.querySelectorAll('.warp-trigger')
@@ -185,7 +189,7 @@ export default class InputController {
             const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
 
             if (intersectingObjects.length > 0) {
-                const groupName = intersectingObjects[0].object.parent.name
+                const groupName = intersectingObjects[0].object.name
                 this._debouncedExplode(groupName)
             }
 

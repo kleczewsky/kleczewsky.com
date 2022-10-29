@@ -120,11 +120,12 @@ class kleczewskyWorld {
       this.AnimationController.animate()
       this.PostProcessing.render()
 
-      // todo: split to animation and other(raycast)
+      // todo: split to animation and other(raycast) or raycast on mouse event
       this.InputController.update()
 
       if (this.debugMode) {
         this.stats.update()
+        this.letterData?.boundingBoxes?.forEach(box => box.update())
       }
     })
   }
@@ -151,11 +152,20 @@ class kleczewskyWorld {
       root.scale.set(5, 5, 5)
       root.position.set(2, 0, 0)
 
+      this.letterData.boundingBoxes = []
+
       // Enable bloom layer for letters meshes
       root.children.forEach((group) => {
         if (!group.name.endsWith('Group')) {
           return
         }
+
+        const bbox = new THREE.BoxHelper(group);
+        bbox.name = group.name
+        bbox.visible = false
+        this.letterData.boundingBoxes.push(bbox)
+        this.scene.add(bbox)
+
         this.letterData.letterMaterials[group.name] = group.children[0].material
         this.letterData.letterMeshes[group.name] = []
         group.traverse((obj) => {
@@ -374,6 +384,16 @@ class kleczewskyWorld {
         }
         this.scene.fog = null
         this.scene.remove(directionalLightHelper)
+      })
+
+    helpersFolder
+      .add({ BBoxHelper: false }, 'BBoxHelper')
+      .onChange((enabled) => {
+        if (enabled) {
+          this.letterData?.boundingBoxes.forEach(box => box.visible = true)
+          return
+        }
+        this.letterData?.boundingBoxes.forEach(box => box.visible = false)
       })
 
     let controls
