@@ -22,6 +22,7 @@ export default class InputController {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
         window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
+
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
         this.raycaster = new THREE.Raycaster()
@@ -46,6 +47,8 @@ export default class InputController {
     _onPointerMove(event) {
         this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1
+
+        this.raycasterCheckIntersecting()
     }
 
     _onWheel(event) {
@@ -65,6 +68,21 @@ export default class InputController {
                 box.update()
                 this._raycasterObjects.push(box)
             })
+        }
+    }
+
+    raycasterCheckIntersecting () {
+         if(!this._raycasterObjects || !this._raycasterObjects.length)
+             return
+
+        this.raycaster.setFromCamera(this.pointer, this.context.camera);
+
+        // interact with letters
+        const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
+
+        if (intersectingObjects.length > 0) {
+            const groupName = intersectingObjects[0].object.name
+            this._debouncedExplode(groupName)
         }
     }
 
@@ -147,8 +165,6 @@ export default class InputController {
     }
 
     update() {
-        this.raycaster.setFromCamera(this.pointer, this.context.camera);
-
         if (this.controls.enable && !this.isNavigating) {
             if(this.controls.dollyCameraOffset) {
                 // lerp camera position to desired offset using the distance of pointer from center
@@ -184,14 +200,6 @@ export default class InputController {
                 this.context.camera.quaternion.slerp(qEnd, 0.05)
             }
 
-
-            // interact with letters
-            const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
-
-            if (intersectingObjects.length > 0) {
-                const groupName = intersectingObjects[0].object.name
-                this._debouncedExplode(groupName)
-            }
 
         }
 
