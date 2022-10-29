@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import debounce from "lodash-es/debounce";
 import Cookies from 'js-cookie'
 import {lerp} from "three/src/math/MathUtils";
+import throttle from "lodash-es/throttle";
 
 
 export default class InputController {
@@ -19,7 +20,7 @@ export default class InputController {
 
     _Initialize() {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
-        window.addEventListener('wheel', (event) => this._onWheel(event));
+        window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
@@ -52,7 +53,6 @@ export default class InputController {
             if(event.deltaY < 0 && this.scrollOffset < 0)  this.scrollOffset += 1
             if(event.deltaY > 0 && this.scrollOffset > -20)  this.scrollOffset -= 1
         }
-
     }
 
     // Collects all the objects that raycaster should pick up
