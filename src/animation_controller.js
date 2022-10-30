@@ -69,6 +69,42 @@ export default class AnimationController {
         })
     }
 
+    highlightPoster(poster) {
+        gsap.to(poster.position, {
+            z: 0.2,
+
+            ease: 'back.out',
+            duration: .5,
+        })
+        gsap.to(poster.material.emissive, {
+            r: 0.05,
+            g: 0.05,
+            b: 0.05,
+
+            ease: 'back.out',
+            duration: .5,
+        })
+
+    }
+
+    unHighlightPoster(poster) {
+        gsap.to(poster.position, {
+            z: 0,
+
+            ease: 'back.out',
+            duration: .5,
+        })
+
+        gsap.to(poster.material.emissive, {
+            r: 0,
+            g: 0,
+            b: 0,
+
+            ease: 'back.out',
+            duration: .5,
+        })
+    }
+
     initLetterAnimations(letterMeshes) {
         Object.keys(letterMeshes).forEach((group) => {
             this.context.letterData.letterMaterials[group].color.originalColor =

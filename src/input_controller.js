@@ -3,6 +3,7 @@ import debounce from "lodash-es/debounce";
 import Cookies from 'js-cookie'
 import {lerp} from "three/src/math/MathUtils";
 import throttle from "lodash-es/throttle";
+import differenceBy from "lodash-es/differenceBy";
 
 
 export default class InputController {
@@ -20,12 +21,15 @@ export default class InputController {
 
     _Initialize() {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
+        window.addEventListener( 'click', (event) => this.raycasterCheckIntersecting(true) );
+
         window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
 
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
         this.raycaster = new THREE.Raycaster()
+        this.intersectingObjects = []
         this.explodedLetters = new Set()
 
         this.targetCameraOffset = new THREE.Vector2()
@@ -60,30 +64,82 @@ export default class InputController {
 
     // Collects all the objects that raycaster should pick up
     setupRaycasterObjects() {
-         // exploding letters meshes
         this._raycasterObjects = []
 
+        // exploding letters meshes
         if(this.context.letterData.boundingBoxes && this.context.letterData.boundingBoxes.length) {
             this.context.letterData.boundingBoxes.forEach(box => {
                 box.update()
+                // todo: move to onMouseEnter - remove debounce and add implode onMouseExit
+                box.onMouseOver = () => {
+                    this._debouncedExplode(box.name)
+                }
+
                 this._raycasterObjects.push(box)
             })
         }
+
+        this.context.postersObject.children.forEach(poster => {
+
+            poster.onClick = () => {
+                alert(poster.name)
+            }
+            poster.onMouseEnter = () => {
+                this.context.AnimationController.highlightPoster(poster)
+            }
+            poster.onMouseExit = () => {
+                this.context.AnimationController.unHighlightPoster(poster)
+            }
+
+            this._raycasterObjects.push(poster)
+        })
     }
 
-    raycasterCheckIntersecting () {
-         if(!this._raycasterObjects || !this._raycasterObjects.length)
-             return
+    // todo: refactor this to a proper event system
+    raycasterCheckIntersecting(onClick = false) {
+        if (!this.controls.enable || this.isNavigating)
+            return
+
+        if (!this._raycasterObjects || !this._raycasterObjects.length)
+            return
 
         this.raycaster.setFromCamera(this.pointer, this.context.camera);
 
-        // interact with letters
-        const intersectingObjects = this.raycaster.intersectObjects(this._raycasterObjects, false)
+        this.prevIntersectingObjects = this.intersectingObjects
+        this.intersectingObjects = []
 
-        if (intersectingObjects.length > 0) {
-            const groupName = intersectingObjects[0].object.name
-            this._debouncedExplode(groupName)
+        this._raycasterObjects.forEach(object => {
+            const intersected = this.raycaster.intersectObject(object, false)[0]
+            if (intersected)
+                this.intersectingObjects.push(intersected)
+        })
+
+        const noLongerIntersecting = differenceBy(this.prevIntersectingObjects, this.intersectingObjects, 'object')
+        const newIntersecting = differenceBy(this.intersectingObjects, this.prevIntersectingObjects, 'object')
+
+
+        if (this.intersectingObjects.length > 0) {
+
+            if (typeof this.intersectingObjects[0].object?.onMouseOver === 'function') {
+                this.intersectingObjects[0].object.onMouseOver()
+            }
+
+            if (onClick && typeof this.intersectingObjects[0].object?.onClick === 'function') {
+                this.intersectingObjects[0].object.onClick()
+            }
         }
+
+        noLongerIntersecting.forEach((intersection) => {
+            if (typeof intersection.object.onMouseExit === 'function') {
+                intersection.object.onMouseExit()
+            }
+        })
+
+        newIntersecting.forEach((intersection) => {
+            if (typeof intersection.object.onMouseEnter === 'function') {
+                intersection.object.onMouseEnter()
+            }
+        })
     }
 
     _debouncedImplode = debounce(() => {

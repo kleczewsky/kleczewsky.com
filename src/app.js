@@ -25,9 +25,10 @@ class kleczewskyWorld {
   DARK_MATERIAL = new THREE.MeshBasicMaterial({ color: 'black' })
 
   letterData = [] // SKY letter meshes and materials
+  postersObject = {}
   lightsData = [] // lights meshes and materials
   terrainData = [] // Terrain material
-  wallObject = []
+  wallObject = {}
   cameraCheckpoints = []
   effectComposers = []
 
@@ -203,6 +204,8 @@ class kleczewskyWorld {
 
       const wall = root.getObjectByName('Wall')
       this.wallObject = wall
+
+      this.postersObject = wall.getObjectByName('posters')
 
       // preload textures
       wall.traverse(function(obj) {
