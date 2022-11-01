@@ -82,7 +82,7 @@ export default class InputController {
         this.context.postersObject.children.forEach(poster => {
 
             poster.onClick = () => {
-                alert(poster.name)
+                this.context.AnimationController.showPosterSection(poster.name)
             }
             poster.onMouseEnter = () => {
                 this.context.AnimationController.highlightPoster(poster)
@@ -177,6 +177,16 @@ export default class InputController {
                     }
                 )
         }
+
+        const closePosterTriggers = document.querySelectorAll('.close-poster-section')
+
+        closePosterTriggers.forEach((trigger) => {
+            trigger.addEventListener('click', (event) => {
+                event.stopPropagation()
+                this.context.AnimationController.hidePosterSection(trigger.parentElement.id)
+            })
+        })
+
 
         const warpTriggers = document.querySelectorAll('.warp-trigger')
 

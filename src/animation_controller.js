@@ -69,6 +69,32 @@ export default class AnimationController {
         })
     }
 
+    showPosterSection(posterName) {
+        this.context.InputController.controls.enable = false
+
+        gsap.to('#'+posterName,{
+            opacity:1,
+            duration: .25,
+
+            onStart: function() {
+                this.targets()[0].classList.remove('d-none')
+            }
+        })
+    }
+
+    hidePosterSection(posterName) {
+        this.context.InputController.controls.enable = true
+
+        gsap.to('#'+posterName,{
+            opacity:0,
+            duration: .25,
+
+            onComplete: function() {
+                this.targets()[0].classList.add('d-none')
+            }
+        })
+    }
+
     highlightPoster(poster) {
         gsap.to(poster.position, {
             z: 0.2,

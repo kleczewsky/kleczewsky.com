@@ -48,11 +48,17 @@
       <button id="welcome-message-ack" class="btn btn-outline-light rounded-pill mt-3 px-5">OK</button>
     </div>
 
+    <nav class="main-nav d-none">
+      <div class="item btn warp-trigger" data-warp-to="projects" translate>Projekty</div>
+      <div class="item btn warp-trigger text-primary opacity-50" data-warp-to="home" translate>KleczewSKY</div>
+      <div class="item btn warp-trigger" data-warp-to="contact" translate>Kontakt</div>
+    </nav>
+
     <section class="contact-section m-0 text-center d-none row text-secondary" style="opacity: 0">
       <div class="col-4"></div>
       <div class="col d-flex flex-column justify-content-center align-items-center gradient show" >
         <div>
-          <h3 translate>Skontaktuj się zemną
+          <h3 translate>Skontaktuj się ze mną
           </h3>
           <hr class="border-secondary px-5">
 
@@ -67,11 +73,214 @@
       </div>
     </section>
 
-    <nav class="main-nav d-none">
-      <div class="item btn warp-trigger" data-warp-to="projects" translate>Projekty</div>
-      <div class="item btn warp-trigger text-primary opacity-50" data-warp-to="home" translate>KleczewSKY</div>
-      <div class="item btn warp-trigger" data-warp-to="contact" translate>Kontakt</div>
-    </nav>
+    <section id="grajs"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">GRAJS</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+                class="lazy img-fluid poster-gif"
+                title="Grajs gameplay"
+                autoplay muted loop playsinline
+                preload="none"
+                data-src="static/assets/grajs.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          JAVASCRIPT | CANVAS
+        </p>
+        <p class="fs-4 my-5">
+          Niewielka gra, w której gracz wciela się w pilota statku kosmicznego.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/GraJS.js" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB*
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZAGRAJ
+          </a>
+        </div>
+        <p class="small text-muted mt-5">
+          * Ostrzeżenie jakości kodu <br>
+          Projekt z czasów kiedy trawa była bardziej zielona, a piwo mocniejsze.
+        </p>
+      </div>
+    </section>
+
+    <section id="phyxlist"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">PhyxList</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+                class="lazy img-fluid poster-gif"
+                title="PhyxList showcase"
+                autoplay muted loop playsinline
+                preload="none"
+                data-src="static/assets/phyxlist.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          REACT | LARAVEL | MATTER.JS
+        </p>
+        <p class="fs-4 my-5">
+          Lista zadań do zrobienia oparta o silnik fizyki matter.js.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/phyxlist" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZOBACZ
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="webape"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">Webape</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+                class="lazy img-fluid poster-gif"
+                title="Webape showcase"
+                autoplay muted loop playsinline
+                preload="none"
+                data-src="static/assets/webape.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          THREE.JS | JAVASCRIPT
+        </p>
+        <p class="fs-4 my-5">
+          Desktopowa wersja strony firmy WebApe, motywem przewodnim został kosmos.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/webape-example" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZOBACZ
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="pong"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">Pong</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+                class="lazy img-fluid poster-gif"
+                title="Pong gameplay"
+                autoplay muted loop playsinline
+                preload="none"
+                data-src="static/assets/pong.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          JAVASCRIPT | CANVAS
+        </p>
+        <p class="fs-4 my-5">
+          Stary dobry pong. Niekończąca się zabawa w prostej formie.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/pong.js" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB*
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZAGRAJ
+          </a>
+        </div>
+        <p class="small text-muted mt-5">
+          * Ostrzeżenie jakości kodu <br>
+          Projekt z czasów kiedy trawa była bardziej zielona, a piwo mocniejsze.
+        </p>
+      </div>
+    </section>
+
+    <section id="rickandmorty"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">Rick&Search</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+                class="lazy img-fluid poster-gif"
+                title="Rick&Search showcase"
+                autoplay muted loop playsinline
+                preload="none"
+                data-src="static/assets/rickandmorty.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          React
+        </p>
+        <p class="fs-4 my-5">
+          Przeglądarka statusów postaci z serialu Rick and Morty.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/rickandmortyBrowser" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZOBACZ
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="jsdoodles"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container text-uppercase" style="max-width:700px">
+        <h2 class="display-2">JS Doodles</h2>
+        <hr class="opacity-100 border-white mt-n3 mb-5" style="border-top: 6px solid">
+        <video
+            class="lazy img-fluid poster-gif"
+            title="JS Doodles showcase"
+            autoplay muted loop playsinline
+            preload="none"
+            data-src="static/assets/jsdoodles.mp4"
+        >
+        </video>
+        <p class="float-end text-primary mt-1">
+          React | Javascript
+        </p>
+        <p class="fs-4 my-5">
+          Strona agregująca moje mniejsze projekty w Javascript.
+        </p>
+        <div class="d-flex gap-3 justify-content-center fs-4">
+          <a target="_blank" href="https://github.com/kleczewsky/jsdoodles-react" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+            GITHUB
+          </a>
+          <a target="_blank" href="#" class="btn btn-lg btn-outline-primary px-5 rounded-pill">
+            ZOBACZ
+          </a>
+        </div>
+      </div>
+    </section>
+
+
 
     <div class="toolbar text-muted">
 
@@ -89,5 +298,9 @@
       </div>
     </div>
   </section>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
+  <script type="text/javascript">
+    const lazyLoadInstance = new LazyLoad();
+  </script>
   </body>
 </html>
