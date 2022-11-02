@@ -16,6 +16,7 @@ import InputController from "./input_controller";
 import {random} from "lodash-es/number";
 import {degToRad} from "three/src/math/MathUtils";
 import shuffle from "lodash-es/shuffle";
+import i18next from "i18next";
 
 class kleczewskyWorld {
   scene = null
@@ -206,6 +207,11 @@ class kleczewskyWorld {
       this.wallObject = wall
 
       this.postersObject = wall.getObjectByName('posters')
+
+      wall.getObjectByName('text').children.forEach(text => {
+        if(text.name != i18next.language)
+          text.visible = false
+      })
 
       // preload textures
       wall.traverse(function(obj) {
