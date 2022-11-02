@@ -447,8 +447,9 @@ export default class AnimationController {
     }
 
     animate() {
+        const deltaTime = this.clock.getDelta()
         this.animationMixers.forEach((mixer) => {
-            mixer.update(this.clock.getDelta())
+            mixer.update(deltaTime)
         })
     }
 }

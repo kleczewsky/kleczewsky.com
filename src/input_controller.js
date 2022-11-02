@@ -58,7 +58,7 @@ export default class InputController {
     _onWheel(event) {
         if(event.deltaY !== 0 && this.controls.scroll){
             if(event.deltaY < 0 && this.scrollOffset < 0)  this.scrollOffset += 1
-            if(event.deltaY > 0 && this.scrollOffset > -20)  this.scrollOffset -= 1
+            if(event.deltaY > 0 && this.scrollOffset > -36)  this.scrollOffset -= 1
         }
     }
 

@@ -213,11 +213,20 @@ class kleczewskyWorld {
           text.visible = false
       })
 
-      // preload textures
-      wall.traverse(function(obj) {
-        obj.frustumCulled = false
+      const mixer = new THREE.AnimationMixer(root)
+      this.AnimationController.animationMixers.push(mixer)
+      gltf.animations.forEach((clip) => {
+        mixer.clipAction(clip).play()
       })
 
+      // preload textures
+      wall.traverse((obj) => {
+        obj.frustumCulled = false
+
+        if(obj.userData?.bloom){
+          obj.layers.enable(this.BLOOM_LAYER)
+        }
+      })
       wall.scale.set(0,0,0)
 
       root.name = 'Main'
