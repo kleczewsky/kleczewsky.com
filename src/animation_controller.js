@@ -19,6 +19,7 @@ export default class AnimationController {
 
     _Initialize() {
         this.timeline = gsap.timeline()
+        this.arcadeHighlightAnmiatons = []
         this.clock = new THREE.Clock()
     }
 
@@ -129,6 +130,40 @@ export default class AnimationController {
             ease: 'back.out',
             duration: .5,
         })
+    }
+
+    highlightArcade() {
+        this.arcadeHighlightAnmiatons.forEach(tween => tween.kill())
+
+        this.context.arcadeDecorations.forEach((object, index) => {
+            this.arcadeHighlightAnmiatons.push(
+                gsap.to(object.material, {
+                    emissiveIntensity: .85,
+
+                    delay: index*0.07,
+                    ease: 'ease',
+                    duration: .25,
+                })
+            )
+        })
+    }
+
+    unHighlightArcade() {
+        this.arcadeHighlightAnmiatons.forEach(tween => tween.kill())
+
+        this.context.arcadeDecorations.reverse().forEach((object, index) => {
+            this.arcadeHighlightAnmiatons.push(
+                gsap.to(object.material, {
+                    emissiveIntensity: 0,
+
+                    delay: index * 0.07,
+                    ease: 'ease',
+                    duration: .25,
+                })
+            )
+        })
+
+        this.context.arcadeDecorations.reverse()
     }
 
     initLetterAnimations(letterMeshes) {
@@ -269,9 +304,6 @@ export default class AnimationController {
             },
         }, fovZTimeOffset )
 
-        introAnim.add(() => {
-            this.flickerLights(1)
-        }, '-=3')
 
         introAnim.to(this.context.scene.getObjectByName('Kleczewsky').getObjectByName('Kleczew').material.emissive, {
             r: 1,

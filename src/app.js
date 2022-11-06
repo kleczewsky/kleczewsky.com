@@ -30,6 +30,7 @@ class kleczewskyWorld {
   lightsData = [] // lights meshes and materials
   terrainData = [] // Terrain material
   wallObject = {}
+  arcadeDecorations = [] // floating decorations for arcade machine
   cameraCheckpoints = []
   effectComposers = []
 
@@ -209,8 +210,13 @@ class kleczewskyWorld {
       this.postersObject = wall.getObjectByName('posters')
 
       wall.getObjectByName('text').children.forEach(text => {
-        if(text.name != i18next.language)
+        if(text.name !== i18next.language)
           text.visible = false
+      })
+
+      wall.getObjectByName('floating-decorations').children.forEach(object => {
+        object.material.emissiveIntensity = 0
+        this.arcadeDecorations[object.name] = object
       })
 
       const mixer = new THREE.AnimationMixer(root)
@@ -239,35 +245,6 @@ class kleczewskyWorld {
         './static/models/kleczewsky_wall.glb',
         setupWorld
     )
-
-    // Load contact model
-    const setupContact = (gltf) => {
-      this.contact = gltf.scene
-
-      const root = gltf.scene
-      root.scale.set(1, 1, 1)
-      root.position.set(70, 80, 20)
-
-      root.traverse((child) => {
-        child.layers.enable(this.BLOOM_LAYER)
-      })
-      const mixer = new THREE.AnimationMixer(root)
-      this.AnimationController.animationMixers.push(mixer)
-      gltf.animations.forEach((clip) => {
-        mixer.clipAction(clip).play()
-      })
-
-
-      this.scene.add(root)
-    }
-    this.LoaderController.LoadGltf(
-      './static/models/contact.glb',
-        setupContact
-    )
-
-
-
-
 
   }
 

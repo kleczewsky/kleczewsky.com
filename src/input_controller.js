@@ -93,6 +93,16 @@ export default class InputController {
 
             this._raycasterObjects.push(poster)
         })
+
+        const arcade = this.context.scene.getObjectByName('arcade-trigger')
+
+        arcade.visible = false
+
+        arcade.onClick = () => alert('ok')
+        arcade.onMouseEnter = () => this.context.AnimationController.highlightArcade()
+        arcade.onMouseExit = () => this.context.AnimationController.unHighlightArcade()
+
+        this._raycasterObjects.push(arcade)
     }
 
     // todo: refactor this to a proper event system
@@ -119,25 +129,29 @@ export default class InputController {
 
 
         if (this.intersectingObjects.length > 0) {
-
             if (typeof this.intersectingObjects[0].object?.onMouseOver === 'function') {
                 this.intersectingObjects[0].object.onMouseOver()
             }
 
             if (onClick && typeof this.intersectingObjects[0].object?.onClick === 'function') {
                 this.intersectingObjects[0].object.onClick()
+                document.body.style.cursor = 'auto'
             }
         }
 
         noLongerIntersecting.forEach((intersection) => {
             if (typeof intersection.object.onMouseExit === 'function') {
                 intersection.object.onMouseExit()
+                document.body.style.cursor = 'auto'
             }
         })
 
         newIntersecting.forEach((intersection) => {
             if (typeof intersection.object.onMouseEnter === 'function') {
                 intersection.object.onMouseEnter()
+                if(typeof intersection.object.onClick === 'function'){
+                    document.body.style.cursor = 'pointer'
+                }
             }
         })
     }
