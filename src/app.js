@@ -217,6 +217,10 @@ class kleczewskyWorld {
       wall.getObjectByName('floating-decorations').children.forEach(object => {
         object.material.emissiveIntensity = 0
         this.arcadeDecorations[object.name] = object
+
+        if (object.userData?.animateColor) {
+          this.AnimationController.initEmissiveColorAnimation(object)
+        }
       })
 
       const mixer = new THREE.AnimationMixer(root)

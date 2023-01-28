@@ -191,6 +191,18 @@ export default class AnimationController {
         })
     }
 
+    initEmissiveColorAnimation(object) {
+        console.log(object.material)
+        const material = object.material
+        gsap.to(material, {
+            ease:'linear',
+            repeat: -1,
+            onUpdate: ()=>{
+                material.emissive.offsetHSL(0.001, 0, 0)
+            }
+        })
+    }
+
     initIdleAnimation() {
         this.idleAnimationId = setInterval(() => {
             this.staggeredLetterAnimation()
