@@ -192,7 +192,6 @@ export default class AnimationController {
     }
 
     initEmissiveColorAnimation(object) {
-        console.log(object.material)
         const material = object.material
         gsap.to(material, {
             ease:'linear',

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="src/styles/main.scss" />
     <link rel="canonical" href="https://kleczewsky.com" />
     <title>Kleczewsky.com - Sky is no longer the limit</title>
-    <meta name="description" content="Cześć! Jestem Eryk Kleczewski - full-stack deweloper. Zajmuję się zagadnieniami web-dev (czasami nawet od A do Z) i wiem jedno, że wiem niewiele. Profesjonalnie kodem zajmuję się od 2020 roku i cały czas się rozwijam." />
+    <meta name="description" content="Cześć! Jestem full stack developerem. Główne technologie, których używam to Laravel i React. Pracuję z dbałością o szczegóły, aby dostarczać i ulepszać funkcje, z których sam byłbym dumny. Staram się poprawić doświadczenia ludzi korzystających z sieci poprzez zrozumienie ich potrzeb i nawyków. Czerpię ogromną przyjemność z pracy z nowymi technologiami, stawiam sobie za cel doskonalenie siebie i swoich umiejętności. Zawsze jestem wdzięczny ludziom, którzy dzielą się swoją wiedzą." />
     <meta name="keywords" content="Full-stack developer, laravel, html, javascript, react, react native, php, eryk, kleczewski, www, strony internetowe, bootstrap, jquery, kleczewsky, js doodles, three.js, three js, webgl" />
     <meta name="author" content="Eryk Kleczewski" />
     <meta name="robots" content="index, follow" />
@@ -45,33 +45,18 @@
     <div class="welcome-message">
       <h3 class="title" data-i18n="welcome-title" translate>Witaj w świecie Kleczew<b class="text-primary">sky...</b></h3>
       <p class="text-muted" translate>Możesz przejść do galerii moich projektów, albo wprost do sekcji kontakt</p>
+      <p class="text-muted" translate>Użyj scrolla, aby poruszać się po sekcjach</p>
       <button id="welcome-message-ack" class="btn btn-outline-light rounded-pill mt-3 px-5">OK</button>
     </div>
 
     <nav class="main-nav d-none">
       <div class="item btn warp-trigger" data-warp-to="projects" translate>Projekty</div>
-      <div class="item btn warp-trigger text-primary opacity-50" data-warp-to="home" translate>KleczewSKY</div>
+      <div class="item opacity-50 pt-1" >
+        <img style="max-height: 40px;" src="./static/assets/scroll-down.svg" alt="scroll down icon">
+      </div>
+      <div class="item btn warp-trigger text-primary opacity-50 d-none" data-warp-to="home" translate>KleczewSKY</div>
       <div class="item btn warp-trigger" data-warp-to="contact" translate>Kontakt</div>
     </nav>
-
-    <section class="contact-section m-0 text-center d-none row text-secondary" style="opacity: 0">
-      <div class="col-4"></div>
-      <div class="col d-flex flex-column justify-content-center align-items-center gradient show" >
-        <div>
-          <h3 translate>Skontaktuj się ze mną
-          </h3>
-          <hr class="border-secondary px-5">
-
-        </div>
-
-        <a class="link-primary text-decoration-none mb-3" href="mailto:ekkleczewski@gmail.com">ekkleczewski@gmail.com</a>
-        <div class="d-flex gap-3">
-          <a class="link-secondary text-decoration-none" href="https://github.com/kleczewsky" target="_blank">Github</a>
-          <a class="link-secondary text-decoration-none" href="https://www.linkedin.com/in/kleczewsky/" target="_blank">LinkedIn</a>
-        </div>
-
-      </div>
-    </section>
 
     <section id="grajs"
              class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
@@ -277,6 +262,30 @@
             ZOBACZ
           </a>
         </div>
+      </div>
+    </section>
+
+    <section id="contact"
+             class="poster-section min-vh-100 w-100 m-0 d-flex justify-content-center align-items-center text-white d-none"
+             style="opacity: 0;">
+
+      <button style="top:0; right: 0;" class="btn-close btn-close-white opacity-100 position-absolute m-4 close-poster-section"> </button>
+      <div class="container px-3 my-5" style="max-width:800px">
+        <h3 class="display-4 mb-4">Eryk Kleczewski</h3>
+
+        <h4 class="text-primary mb-0">Full-stack Developer</h4>
+        <h4 class="">Laravel & React</h4>
+
+        <p class="fs-5 my-5" translate>
+          Jestem full stack developerem. Główne technologie, których używam to Laravel i React. Pracuję z dbałością o szczegóły, aby dostarczać i ulepszać funkcje, z których sam byłbym dumny. Staram się poprawić doświadczenia ludzi korzystających z sieci poprzez zrozumienie ich potrzeb i nawyków. Czerpię ogromną przyjemność z pracy z nowymi technologiami, stawiam sobie za cel doskonalenie siebie i swoich umiejętności. Zawsze jestem wdzięczny ludziom, którzy dzielą się swoją wiedzą.
+        </p>
+
+        <div class="text-end">
+          <h3 class="display-6 mb-4" translate="">Skontaktujmy się</h3>
+          <a class="text-decoration-none" href="mailto:ekkleczewski@gmail.com">ekkleczewski@gmail.com</a> <br>
+          <a class="text-decoration-none" href="https://www.linkedin.com/in/kleczewsky">linkedin.com/in/kleczewsky</a>
+        </div>
+
       </div>
     </section>
 

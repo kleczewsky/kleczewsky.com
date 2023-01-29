@@ -4,6 +4,7 @@ import Cookies from 'js-cookie'
 import {lerp} from "three/src/math/MathUtils";
 import throttle from "lodash-es/throttle";
 import differenceBy from "lodash-es/differenceBy";
+import EventEmitter from "events";
 
 
 export default class InputController {
@@ -25,6 +26,7 @@ export default class InputController {
 
         window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
+        this.events = new EventEmitter()
 
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
@@ -56,9 +58,17 @@ export default class InputController {
     }
 
     _onWheel(event) {
-        if(event.deltaY !== 0 && this.controls.scroll){
-            if(event.deltaY < 0 && this.scrollOffset < 0)  this.scrollOffset += 1
-            if(event.deltaY > 0 && this.scrollOffset > -36)  this.scrollOffset -= 1
+        if (event.deltaY !== 0 && !this.controls.scroll) {
+            // Scroll up
+            if (event.deltaY < 0 && this.scrollOffset < 0) {
+                this.events.emit('mousewheel.up')
+                this.scrollOffset += 1
+            }
+            // Scroll down
+            if (event.deltaY > 0 && this.scrollOffset > -34) {
+                this.events.emit('mousewheel.down')
+                this.scrollOffset -= 1
+            }
         }
     }
 
@@ -98,7 +108,11 @@ export default class InputController {
 
         arcade.visible = false
 
-        arcade.onClick = () => alert('ok')
+        arcade.onClick = () => {
+            arcade.onMouseEnter = ()=>{}
+            arcade.onMouseExit = ()=>{}
+            this.context.AnimationController.showPosterSection('contact-section')
+        }
         arcade.onMouseEnter = () => this.context.AnimationController.highlightArcade()
         arcade.onMouseExit = () => this.context.AnimationController.unHighlightArcade()
 
@@ -187,11 +201,10 @@ export default class InputController {
             document.getElementById('welcome-message-ack')
                 .addEventListener('click', () => {
                         this.context.AnimationController.onWelcomeAck(false)
-                        Cookies.set('welcome-message-shown', true, {expires: 7})
+                        Cookies.set('welcome-message-shown', true, {expires: 1})
                     }
                 )
         }
-
         const closePosterTriggers = document.querySelectorAll('.close-poster-section')
 
         closePosterTriggers.forEach((trigger) => {
