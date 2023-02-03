@@ -69,6 +69,7 @@ class kleczewskyWorld {
     this.PostProcessing = new PostProcessing(this)
 
 
+    // todo: move this after all models load + fix raycaster bug after
     this._RenderLoop()
 
     window.addEventListener(
@@ -440,8 +441,6 @@ class kleczewskyWorld {
   }
 }
 
-let APP = null
-
 window.addEventListener('TranslationsLoaded', () => {
-  APP = new kleczewskyWorld()
+  window.app = new kleczewskyWorld()
 })

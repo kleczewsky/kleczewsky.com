@@ -30,7 +30,7 @@ export default class PostProcessing {
     bloomPass.threshold = 0
     bloomPass.strength = 1.1
     bloomPass.radius = 0.15
-    this.context.effectComposers.bloomComposer = new EffectComposer(
+    this.context.effectComposers.bloomComposer = new EffectComposer( // this could be in lower resolution - performance: fallback
       this.context.renderer
     )
     this.context.effectComposers.bloomComposer.renderToScreen = false
@@ -101,6 +101,8 @@ export default class PostProcessing {
 
   render() {
     this.context.scene.background = new THREE.Color(0x000000)
+
+    // Bloom layer
     this.context.scene.traverse((obj) => {
       if (obj.isMesh && this.context.bloomLayer.test(obj.layers) === false) {
         this.context.letterData.materials[obj.uuid] = obj.material
@@ -109,6 +111,7 @@ export default class PostProcessing {
     })
     this.context.effectComposers.bloomComposer.render()
 
+    // Rest of scene
     this.context.scene.background = this.backgroundTexture
     this.context.scene.traverse((obj) => {
       if (this.context.letterData.materials[obj.uuid]) {

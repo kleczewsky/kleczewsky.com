@@ -10,9 +10,9 @@ import EventEmitter from "events";
 export default class InputController {
 
      controls = {
-         enable: false,
-         dollyCameraOffset: true,
-         scroll: false,
+         enable: false, // disables any controls (mouse / scroll)
+         dollyCameraOffset: true, // disables camera dolly controls
+         scroll: false, // disables scroll offset changing
     }
 
     constructor(context) {
@@ -58,18 +58,19 @@ export default class InputController {
     }
 
     _onWheel(event) {
-        if (event.deltaY !== 0 && !this.controls.scroll) {
-            // Scroll up
-            if (event.deltaY < 0 && this.scrollOffset < 0) {
-                this.events.emit('mousewheel.up')
-                this.scrollOffset += 1
-            }
-            // Scroll down
-            if (event.deltaY > 0 && this.scrollOffset > -34) {
-                this.events.emit('mousewheel.down')
-                this.scrollOffset -= 1
-            }
+        if (event.deltaY == 0) return
+
+        if (!this.controls.enable) return
+
+        // Scroll up
+        if (event.deltaY < 0) {
+            this.events.emit('mousewheel.up')
         }
+        // Scroll down
+        if (event.deltaY > 0) {
+            this.events.emit('mousewheel.down')
+        }
+
     }
 
     // Collects all the objects that raycaster should pick up
@@ -206,7 +207,6 @@ export default class InputController {
                 )
         }
         const closePosterTriggers = document.querySelectorAll('.close-poster-section')
-
         closePosterTriggers.forEach((trigger) => {
             trigger.addEventListener('click', (event) => {
                 event.stopPropagation()
@@ -216,7 +216,6 @@ export default class InputController {
 
 
         const warpTriggers = document.querySelectorAll('.warp-trigger')
-
         warpTriggers.forEach((trigger) => {
             trigger.addEventListener('click', (event) => {
                 const target = event.target
@@ -254,6 +253,20 @@ export default class InputController {
                 document.querySelector(`.warp-trigger[data-warp-to=${lastActive}]`).classList.remove('text-primary', 'opacity-50')
                 this.searchParams.set('active', target.dataset.warpTo)
             })
+        })
+
+        this.events.once('mousewheel.down', () => {
+            this.context.AnimationController.onFirstScrollDown()
+        })
+
+        this.events.on('mousewheel.up', () => {
+            if (this.controls.scroll && this.scrollOffset < 0)
+                this.scrollOffset += 1
+        })
+
+        this.events.on('mousewheel.down', () => {
+            if (this.controls.scroll && this.scrollOffset > -34)
+                this.scrollOffset -= 1
         })
     }
 

@@ -328,19 +328,20 @@ export default class AnimationController {
         }, '-=1')
 
         introAnim.add(() => {
-            this.initIdleAnimation()
-            this.context.InputController.controls.enable = true
-            this.context.wallObject.scale.set(1,1,1)
-        })
-
-        introAnim.add(() => {
             this.flickerLights(0.5, true)
         }, '+=1')
 
         introAnim.add(() => {
+            this.initIdleAnimation()
+            this.context.InputController.controls.enable = true
+            this.context.wallObject.scale.set(1, 1, 1)
+
             gsap.to('.main-content', {
                 opacity: 1,
                 duration: 0.5,
+                onStart: function () {
+                    this.targets()[0].classList.remove('d-none')
+                }
             })
         }, '+=1')
     }
@@ -369,14 +370,29 @@ export default class AnimationController {
         })
     }
 
-    onContactClick() {
+    async navigateToCheckpoint(checkpoint) {
         const camera = this.context.camera
-        const targetPosition = this.context.cameraCheckpoints.getObjectByName('Camera-wall').position
-
-        const duration = 1.5
-
+        const targetPosition = this.context.cameraCheckpoints.getObjectByName(checkpoint).position
 
         this.context.InputController.isNavigating = true
+
+        await gsap.to(camera.position, {
+            z: targetPosition.z ,
+            y: targetPosition.y,
+            x: targetPosition.x,
+            duration: 1.5,
+            ease: 'easeInOut',
+            onComplete: ()=>{
+                this.context.InputController.isNavigating = false
+
+            }
+        })
+    }
+
+    onFirstScrollDown() {
+        gsap.to('#scroll-down-icon', {
+            opacity: 0
+        })
 
         gsap.to('.main-nav', {
             bottom: '5%',
@@ -384,27 +400,36 @@ export default class AnimationController {
             ease: 'easeInOut',
         })
 
-        gsap.to(camera.position, {
-            z: targetPosition.z ,
-            y: targetPosition.y,
-            x: targetPosition.x,
-            duration: duration,
-            ease: 'ease',
-        })
-
-
-        gsap.to('.contact-section', {
-                opacity: 1,
-                duration: 1,
-                delay: duration,
-                onStart: function () {
-                    this.targets()[0].classList.remove('d-none')
-                },
-                beforeStart: () => {
-                    this.context.InputController.isNavigating = false
-                    this.context.InputController.controls.scroll = true
-                }
+        this.navigateToCheckpoint('Camera-wall')
+            .then(()=>{
+                this.context.InputController.controls.scroll = true
             })
+    }
+
+    onContactClick() {
+        const camera = this.context.camera
+        const targetPosition = this.context.cameraCheckpoints.getObjectByName('Camera-wall').position
+
+        const duration = 1.5
+
+
+        // this.context.InputController.isNavigating = true
+        //
+
+        //
+        //
+        // gsap.to('.contact-section', {
+        //         opacity: 1,
+        //         duration: 1,
+        //         delay: duration,
+        //         onStart: function () {
+        //             this.targets()[0].classList.remove('d-none')
+        //         },
+        //         beforeStart: () => {
+        //             this.context.InputController.isNavigating = false
+        //             this.context.InputController.controls.scroll = true
+        //         }
+        //     })
     }
 
     onContactExit() {
