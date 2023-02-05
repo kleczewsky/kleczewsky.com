@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader'
 import { throttle, mean } from 'lodash-es'
 import { gsap } from 'gsap'
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
 
 export default class LoaderController {
   constructor(context, onLoad = () => {}) {
@@ -14,12 +15,17 @@ export default class LoaderController {
   _Initialize() {
     this.GLTFLoader = new GLTFLoader()
 
+    // support for DRACO compressed meshes
     const dracoLoader = new DRACOLoader()
-
     dracoLoader.setDecoderPath('./static/draco/')
     dracoLoader.preload()
-
     this.GLTFLoader.setDRACOLoader(dracoLoader)
+
+    // support for KTX2 basis supercompressed textures
+    const ktxLoader = new KTX2Loader()
+    ktxLoader.detectSupport(this.context.renderer)
+    ktxLoader.setTranscoderPath('./static/basis/')
+    this.GLTFLoader.setKTX2Loader(ktxLoader)
 
     this.loadingStatus = []
 
