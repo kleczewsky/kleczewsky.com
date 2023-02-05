@@ -17,6 +17,7 @@ import {random} from "lodash-es/number";
 import {degToRad} from "three/src/math/MathUtils";
 import shuffle from "lodash-es/shuffle";
 import i18next from "i18next";
+import EventEmitter from "events";
 
 class kleczewskyWorld {
   scene = null
@@ -43,13 +44,16 @@ class kleczewskyWorld {
       document.body.appendChild(WEBGL.getWebGLErrorMessage())
       return false
     }
+    this.events = new EventEmitter()
+
+    this.events.once('modelsLoaded', () => this._OnModelsLoaded())
 
     this.renderer = new THREE.WebGLRenderer({
       powerPreference: 'high-performance',
       precision: 'highp', // possible fix for https://github.com/kleczewsky/kleczewsky-threejs/issues/1
-      // antialias: true,
+      antialias: false,
       stencil: false,
-      // depth: false,
+      depth: false,
       // logarithmicDepthBuffer: true,
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
@@ -58,7 +62,7 @@ class kleczewskyWorld {
 
     document.body.appendChild(this.renderer.domElement)
 
-    this.LoaderController = new LoaderController(this, () => this._OnModelsLoad())
+    this.LoaderController = new LoaderController(this)
     this.AnimationController = new AnimationController(this)
     this.InputController = new InputController(this)
 
@@ -67,10 +71,6 @@ class kleczewskyWorld {
     this._LoadModels()
 
     this.PostProcessing = new PostProcessing(this)
-
-
-    // todo: move this after all models load + fix raycaster bug after
-    this._RenderLoop()
 
     window.addEventListener(
       'resize',
@@ -136,9 +136,10 @@ class kleczewskyWorld {
 
   // simple 30 Hz logic loop
   _LogicLoop(){
-    // setInterval(()=>{
-    //   this.InputController.update()
-    // }, 33)
+    setInterval(()=>{
+      // fix for stale bounding boxes todo: change to fixed hitboxes implementation
+      this.letterData?.boundingBoxes?.forEach(box => box.update())
+    }, 33)
   }
 
   _LoadModels() {
@@ -208,6 +209,7 @@ class kleczewskyWorld {
       const wall = root.getObjectByName('Wall')
       this.wallObject = wall
 
+      // todo: change posters textures to be of base 2 - performance
       this.postersObject = wall.getObjectByName('posters')
 
       wall.getObjectByName('text').children.forEach(text => {
@@ -230,9 +232,13 @@ class kleczewskyWorld {
         mixer.clipAction(clip).play()
       })
 
-      // preload textures
+      // preload textures and setup bloom
       wall.traverse((obj) => {
         obj.frustumCulled = false
+
+        if(obj?.material?.map) {
+          this.renderer.initTexture(obj.material.map)
+        }
 
         if(obj.userData?.bloom){
           obj.layers.enable(this.BLOOM_LAYER)
@@ -418,10 +424,23 @@ class kleczewskyWorld {
     helpersFolder.open()
   }
 
-  _OnModelsLoad() {
+  _OnModelsLoaded() {
+
+    // remove all materials and replace with basic material - useful for checking first render delay (breaks animations)
+    // if( this.debugMode ){
+    //   var basicMaterial = new THREE.MeshStandardMaterial(  );
+    //
+    //   this.scene.traverse((obj) => {
+    //     obj.material = basicMaterial
+    //   })
+    // }
+
+    this.renderer.compile(this.scene, this.camera) // helps with initial render stutter (precompiled shaders)
+
     this.InputController.setupRaycasterObjects()
     this.AnimationController.initIntroAnimation()
 
+    this._RenderLoop()
     this._LogicLoop()
   }
 

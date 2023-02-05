@@ -284,6 +284,15 @@ export default class AnimationController {
         const introAnim = gsap.timeline()
         const camera = this.context.camera
 
+        // hide loader screen
+        introAnim.to('.loader-screen', {
+            opacity: 0,
+            duration: 1,
+
+            onComplete: () => {
+                document.querySelector('.loader-screen').style.display = 'none'
+            },
+        }, 1)
 
         // Initial rotation reveal
         introAnim.fromTo(camera.rotation, camera.rotation, {

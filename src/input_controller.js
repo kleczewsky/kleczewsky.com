@@ -26,8 +26,6 @@ export default class InputController {
 
         window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
-        this.events = new EventEmitter()
-
         this.pointer = new THREE.Vector2()
         this.pointerPrevious = new THREE.Vector2()
         this.raycaster = new THREE.Raycaster()
@@ -64,11 +62,11 @@ export default class InputController {
 
         // Scroll up
         if (event.deltaY < 0) {
-            this.events.emit('mousewheel.up')
+            this.context.events.emit('mousewheel.up')
         }
         // Scroll down
         if (event.deltaY > 0) {
-            this.events.emit('mousewheel.down')
+            this.context.events.emit('mousewheel.down')
         }
 
     }
@@ -80,7 +78,7 @@ export default class InputController {
         // exploding letters meshes
         if(this.context.letterData.boundingBoxes && this.context.letterData.boundingBoxes.length) {
             this.context.letterData.boundingBoxes.forEach(box => {
-                box.update()
+                // box.update()
                 // todo: move to onMouseEnter - remove debounce and add implode onMouseExit
                 box.onMouseOver = () => {
                     this._debouncedExplode(box.name)
@@ -255,16 +253,16 @@ export default class InputController {
             })
         })
 
-        this.events.once('mousewheel.down', () => {
+        this.context.events.once('mousewheel.down', () => {
             this.context.AnimationController.onFirstScrollDown()
         })
 
-        this.events.on('mousewheel.up', () => {
+        this.context.events.on('mousewheel.up', () => {
             if (this.controls.scroll && this.scrollOffset < 0)
                 this.scrollOffset += 1
         })
 
-        this.events.on('mousewheel.down', () => {
+        this.context.events.on('mousewheel.down', () => {
             if (this.controls.scroll && this.scrollOffset > -34)
                 this.scrollOffset -= 1
         })

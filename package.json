@@ -22,7 +22,7 @@
     "i18next-http-backend": "^1.4.1",
     "js-cookie": "^3.0.1",
     "lodash-es": "^4.17.21",
-    "three": "^0.136.0"
+    "three": "^0.149.0"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "^2.2.1",

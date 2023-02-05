@@ -6,9 +6,8 @@ import { gsap } from 'gsap'
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
 
 export default class LoaderController {
-  constructor(context, onLoad = () => {}) {
+  constructor(context) {
     this.context = context
-    this.onLoad = onLoad
     this._Initialize()
   }
 
@@ -46,11 +45,11 @@ export default class LoaderController {
 
     gsap.fromTo(
       '.loader-text',
-      { y: -25, opacity: 0 },
+      { y: -50, opacity: 0 },
       {
         fontSize: '150%',
         opacity: 1,
-        y: 0,
+        y: -35,
 
         duration: 1,
         delay: 0.3,
@@ -86,20 +85,13 @@ export default class LoaderController {
     if (roundedTotal == 100 && !this.loaded) {
       this.loaded = true
 
+      setTimeout(() => this.context.events.emit('modelsLoaded'), 1000)
+
+      gsap.to('.loader', {
+        opacity: 0
+      })
 
       this.loaderText.innerText = i18next.t('Gotowe')
-
-      setTimeout(this.onLoad, 500)
-      gsap.to('.loader-screen', {
-        opacity: 0,
-
-        delay: this.context.debugMode ? 0 : 1.5,
-        duration: 0.5,
-
-        onComplete: () => {
-          document.querySelector('.loader-screen').style.display = 'none'
-        },
-      })
     }
   }
 

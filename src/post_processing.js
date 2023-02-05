@@ -28,7 +28,7 @@ export default class PostProcessing {
     )
 
     bloomPass.threshold = 0
-    bloomPass.strength = 1.1
+    bloomPass.strength = 1
     bloomPass.radius = 0.15
     this.context.effectComposers.bloomComposer = new EffectComposer( // this could be in lower resolution - performance: fallback
       this.context.renderer
@@ -58,7 +58,7 @@ export default class PostProcessing {
       this.context.renderer
     )
 
-    this.backgroundTexture = this.context.LoaderController.LoadBackground()
+    this.backgroundTexture = this.context.LoaderController.LoadBackground() // adds ~200ms first render stutter
 
     const geometry = new THREE.PlaneBufferGeometry(1, 1)
     const groundReflector = new ReflectorForSSRPass(geometry, {
