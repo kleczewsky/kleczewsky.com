@@ -93,7 +93,7 @@ class kleczewskyWorld {
 
     ambientLight.name = 'global_ambient_light'
     directionalLight.position.set(0, 50, -50)
-    directionalLight.intensity = 0.55
+    directionalLight.intensity = 1
     directionalLight.name = 'global_directional_light'
 
     this.scene.add(ambientLight)

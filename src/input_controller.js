@@ -40,6 +40,7 @@ export default class InputController {
         this.scrollOffset = 0
 
         this.isNavigating = false
+        this.hasNavigated = false
 
         this.searchParams = new URLSearchParams(window.location.search)
         if(!this.searchParams.has('active')) {
@@ -214,69 +215,73 @@ export default class InputController {
 
 
         const warpTriggers = document.querySelectorAll('.warp-trigger')
-        warpTriggers.forEach((trigger) => {
-            trigger.addEventListener('click', (event) => {
+        warpTriggers.forEach( (trigger) => {
+            trigger.addEventListener('click', async (event) => {
+                event.stopPropagation()
                 const target = event.target
                 const lastActive = this.searchParams.get('active')
 
-                if (target.dataset.warpTo === lastActive) return false
-
                 if(this.isNavigating) return false
 
+                this.context.events.removeListener('mousewheel.down',  this.context.AnimationController.onFirstNavigate)
+
+                if(!this.hasNavigated) {
+                    await this.context.AnimationController.onFirstNavigate()
+
+                    await (async function(resolve) {
+                        console.log('wtf')
+                        setTimeout(resolve,500)
+                    }) // wait after first transition
+                }
+
                 switch (target.dataset.warpTo) {
-                    case 'home':
-                        this.context.AnimationController.onHomeClick()
-                        break
+                    // case 'home':
+                    //     this.context.AnimationController.onHomeClick()
+                    //     break
                     case 'contact':
-                        this.context.AnimationController.onContactClick()
+                        await this.context.AnimationController.onContactClick()
                         break
-                    case 'about':
-                        // this.context.AnimationController.onAboutClick()
-                        // break
+                    // case 'about':
+                    //     this.context.AnimationController.onAboutClick()
+                    //     break
                     case 'projects':
-                        // this.context.AnimationController.onProjectsClick()
-                        // break
+                        await this.context.AnimationController.onProjectsClick()
+                        break
                     default:
                         return false
                 }
 
-                // clean up changes from previous state
-                switch (lastActive) {
-                    case 'contact':
-                        this.context.AnimationController.onContactExit()
-                        break
-                }
 
-                target.classList.add('text-primary', 'opacity-50')
-                document.querySelector(`.warp-trigger[data-warp-to=${lastActive}]`).classList.remove('text-primary', 'opacity-50')
                 this.searchParams.set('active', target.dataset.warpTo)
             })
         })
 
-        this.context.events.once('mousewheel.down', () => {
-            this.context.AnimationController.onFirstScrollDown()
-        })
+        // move to wall section on first scroll
+        this.context.events.once('mousewheel.down', this.context.AnimationController.onFirstNavigate)
 
         this.context.events.on('mousewheel.up', () => {
-            if (this.controls.scroll && this.scrollOffset < 0)
+            if (this.controls.scroll && this.scrollOffset < 3)
                 this.scrollOffset += 1
         })
 
         this.context.events.on('mousewheel.down', () => {
-            if (this.controls.scroll && this.scrollOffset > -34)
+            if (this.controls.scroll && this.scrollOffset > -31)
                 this.scrollOffset -= 1
         })
     }
 
     update() {
-        if (this.controls.enable && !this.isNavigating) {
-            if(this.controls.dollyCameraOffset) {
-                // lerp camera position to desired offset using the distance of pointer from center
+        if(this.controls.enable && this.controls.dollyCameraOffset) {
+            // lerp camera position to desired offset using the distance of pointer from center
 
-                this.targetCameraOffset.x = (this.pointer.x*1.5)
-                this.targetCameraOffset.y = (this.pointer.y*1.5)
-                this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.02)
-            } else {
+            this.targetCameraOffset.x = (this.pointer.x*1.5)
+            this.targetCameraOffset.y = (this.pointer.y*1.5)
+            this.context.dolly.position.lerp(new THREE.Vector3(this.targetCameraOffset.x, this.targetCameraOffset.y, 0), 0.02)
+        }
+
+        if (this.controls.enable && !this.isNavigating) {
+
+            if(!this.controls.dollyCameraOffset) {
                 // lerp camera position to desired offset using delta pointer pos
 
                 this.targetCameraOffset.x = (this.pointer.x - this.pointerPrevious.x) * -3

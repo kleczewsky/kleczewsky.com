@@ -1,5 +1,6 @@
 import { gsap } from 'gsap'
 import * as THREE from 'three'
+import clamp from "lodash-es/clamp";
 
 export default class AnimationController {
 
@@ -287,7 +288,7 @@ export default class AnimationController {
         // hide loader screen
         introAnim.to('.loader-screen', {
             opacity: 0,
-            duration: 1,
+            duration: 0.5,
 
             onComplete: () => {
                 document.querySelector('.loader-screen').style.display = 'none'
@@ -379,9 +380,23 @@ export default class AnimationController {
         })
     }
 
-    async navigateToCheckpoint(checkpoint) {
+    async navigateToCheckpoint(checkpoint, duration = 'auto') {
         const camera = this.context.camera
         const targetPosition = this.context.cameraCheckpoints.getObjectByName(checkpoint).position
+
+
+        this.context.InputController.scrollOffset = targetPosition.y
+        this.context.InputController.currentScrollOffset.y = targetPosition.y
+
+        if(duration == 'auto') {
+            const distance = camera.position.distanceTo(targetPosition)
+
+            // skip navigation if user is close enough to target
+            if(distance < 1) return true
+
+            duration = distance / 7
+            duration = clamp(duration, 1, 5)
+        }
 
         this.context.InputController.isNavigating = true
 
@@ -389,16 +404,17 @@ export default class AnimationController {
             z: targetPosition.z ,
             y: targetPosition.y,
             x: targetPosition.x,
-            duration: 1.5,
+            duration: duration,
             ease: 'easeInOut',
             onComplete: ()=>{
                 this.context.InputController.isNavigating = false
-
             }
         })
     }
 
-    onFirstScrollDown() {
+    onFirstNavigate = async () => {
+        this.context.InputController.hasNavigated = true
+
         gsap.to('#scroll-down-icon', {
             opacity: 0
         })
@@ -409,36 +425,22 @@ export default class AnimationController {
             ease: 'easeInOut',
         })
 
-        this.navigateToCheckpoint('Camera-wall')
+        await this.navigateToCheckpoint('Camera-wall' ,1.5)
             .then(()=>{
                 this.context.InputController.controls.scroll = true
             })
     }
 
-    onContactClick() {
-        const camera = this.context.camera
-        const targetPosition = this.context.cameraCheckpoints.getObjectByName('Camera-wall').position
-
-        const duration = 1.5
-
-
-        // this.context.InputController.isNavigating = true
-        //
-
-        //
-        //
-        // gsap.to('.contact-section', {
-        //         opacity: 1,
-        //         duration: 1,
-        //         delay: duration,
-        //         onStart: function () {
-        //             this.targets()[0].classList.remove('d-none')
-        //         },
-        //         beforeStart: () => {
-        //             this.context.InputController.isNavigating = false
-        //             this.context.InputController.controls.scroll = true
-        //         }
-        //     })
+    async onContactClick() {
+        await this.navigateToCheckpoint('Camera-contact' )
+        this.context.InputController.isNavigating = true
+        await gsap.timeline()
+            .add(() => this.highlightArcade())
+            .add(() => this.showPosterSection('contact-section'), '+=1.5')
+        this.context.InputController.isNavigating = false
+    }
+    async onProjectsClick() {
+        await this.navigateToCheckpoint('Camera-posters' )
     }
 
     onContactExit() {
