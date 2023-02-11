@@ -82,7 +82,7 @@ export default class LoaderController {
       progress: roundedTotal / 100,
     })
 
-    if (roundedTotal == 100 && !this.loaded) {
+    if (roundedTotal === 100 && !this.loaded) {
       this.loaded = true
 
       setTimeout(() => this.context.events.emit('modelsLoaded'), 1000)
@@ -98,7 +98,7 @@ export default class LoaderController {
   LoadBackground() {
     const loader = new THREE.CubeTextureLoader()
 
-    const path = './static/models/textures/cubemap/'
+    const path = './static/models/textures/skybox/'
 
     loader.setPath(path)
 
