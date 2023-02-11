@@ -58,7 +58,7 @@ export default class PostProcessing {
       this.context.renderer
     )
 
-    this.backgroundTexture = this.context.LoaderController.LoadBackground() // adds ~200ms first render stutter
+    this.backgroundTexture = this.context.LoaderController.LoadBackground() // 170ms on first render
 
     const geometry = new THREE.PlaneGeometry(1, 1)
     const groundReflector = new ReflectorForSSRPass(geometry, {

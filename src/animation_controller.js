@@ -300,7 +300,7 @@ export default class AnimationController {
             x: -0.05,
             ease: 'elastic.out(0.8, 1.2)',
             duration: 3, // seconds
-        }, 0.5)
+        }, 0.8)
 
 
         const fovZTimeOffset = 1
@@ -331,11 +331,11 @@ export default class AnimationController {
             g: 1,
             b: 1,
             ease:'easeInOut',
-        }, '-=1.25')
+        }, '-=2.25')
 
         introAnim.add(() => {
             this.staggeredLetterAnimation()
-        }, '-=1')
+        }, '-=2')
 
         introAnim.add(() => {
             this.flickerLights(0.5, true)
@@ -388,7 +388,7 @@ export default class AnimationController {
         this.context.InputController.scrollOffset = targetPosition.y
         this.context.InputController.currentScrollOffset.y = targetPosition.y
 
-        if(duration == 'auto') {
+        if(duration === 'auto') {
             const distance = camera.position.distanceTo(targetPosition)
 
             // skip navigation if user is close enough to target

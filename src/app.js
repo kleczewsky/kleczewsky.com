@@ -183,7 +183,7 @@ class kleczewskyWorld {
 
       root.name = 'Kleczewsky'
 
-      this.scene.add(root)
+      this.scene.add(root) // 150ms on first render
 
       this.AnimationController.initLetterAnimations(
         this.letterData.letterMeshes
@@ -249,7 +249,7 @@ class kleczewskyWorld {
 
       this.cameraCheckpoints =  root.getObjectByName('Camera-checkpoints')
 
-      this.scene.add(root)
+      this.scene.add(root) // 250 ms on first render
     }
     this.LoaderController.LoadGltf(
         './static/models/kleczewsky_wall.glb',
