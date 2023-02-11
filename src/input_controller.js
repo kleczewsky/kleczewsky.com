@@ -77,17 +77,21 @@ export default class InputController {
         this._raycasterObjects = []
 
         // exploding letters meshes
-        if(this.context.letterData.boundingBoxes && this.context.letterData.boundingBoxes.length) {
-            this.context.letterData.boundingBoxes.forEach(box => {
-                // box.update()
-                // todo: move to onMouseEnter - remove debounce and add implode onMouseExit
-                box.onMouseOver = () => {
-                    this._debouncedExplode(box.name)
+        this.context.letterData.triggers.forEach(trigger => {
+                const groupName = trigger.name + '-Group'
+                trigger.onMouseEnter = () => {
+                    // this._debouncedExplode(trigger.name + '-Group')
+                    this.context.AnimationController.stopIdleAnimation()
+                    this.context.AnimationController.explodeLetter(this.context.letterData.letterMeshes[groupName])
+                }
+                trigger.onMouseExit = () => {
+                    // this._debouncedImplode(trigger.name + '-Group')
+                    this.context.AnimationController.implodeLetter(this.context.letterData.letterMeshes[groupName])
                 }
 
-                this._raycasterObjects.push(box)
+                this._raycasterObjects.push(trigger)
             })
-        }
+
 
         this.context.postersObject.children.forEach(poster => {
 

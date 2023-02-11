@@ -157,19 +157,17 @@ class kleczewskyWorld {
       root.scale.set(5, 5, 5)
       root.position.set(2, 0, 0)
 
-      this.letterData.boundingBoxes = []
+      this.letterData.triggers = []
+      root.getObjectByName('Triggers').children.forEach(trigger => {
+        this.letterData.triggers.push(trigger)
+        trigger.visible = false
+      })
 
       // Enable bloom layer for letters meshes
       root.children.forEach((group) => {
         if (!group.name.endsWith('Group')) {
           return
         }
-
-        const bbox = new THREE.BoxHelper(group);
-        bbox.name = group.name
-        bbox.visible = false
-        this.letterData.boundingBoxes.push(bbox)
-        this.scene.add(bbox)
 
         this.letterData.letterMaterials[group.name] = group.children[0].material
         this.letterData.letterMeshes[group.name] = []
