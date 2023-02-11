@@ -49,7 +49,7 @@ export default class LoaderController {
       {
         fontSize: '150%',
         opacity: 1,
-        y: -35,
+        y: -52,
 
         duration: 1,
         delay: 0.3,
@@ -98,7 +98,7 @@ export default class LoaderController {
   LoadBackground() {
     const loader = new THREE.CubeTextureLoader()
 
-    const path = './static/models/textures/skybox/'
+    const path = './static/models/skybox/'
 
     loader.setPath(path)
 
