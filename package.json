@@ -6,7 +6,9 @@
     "start": "npm run clean && parcel index.html 'static/locales/**/*'",
     "build": "npm run clean && parcel build index.html",
     "format": "prettier --write '**/*.js'",
-    "clean": "del .\\dist\\* /S /Q "
+    "clean": "del .\\dist\\* /S /Q ",
+    "wall-inspect": "gltf-transform inspect .\\static\\models\\kleczewsky_wall.glb",
+    "wall-to-ktx": "gltf-transform etc1s .\\static\\models\\kleczewsky_wall.glb .\\static\\models\\kleczewsky_wall.glb -v"
   },
   "keywords": [],
   "author": "Eryk Kleczewski",

@@ -209,7 +209,6 @@ class kleczewskyWorld {
       const wall = root.getObjectByName('Wall')
       this.wallObject = wall
 
-      // todo: change posters textures to be of base 2 - performance
       this.postersObject = wall.getObjectByName('posters')
 
       wall.getObjectByName('text').children.forEach(text => {
@@ -311,7 +310,7 @@ class kleczewskyWorld {
       obj.layers.enable(this.BLOOM_LAYER)
 
       this.scene.add(obj)
-      // this.scene.add(light)
+      // this.scene.add(light) // removed for performance reasons
 
       this.lightsData.lightsMeshes.push(obj)
       this.lightsData.lights.push(light)

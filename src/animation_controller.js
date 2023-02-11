@@ -436,7 +436,7 @@ export default class AnimationController {
         this.context.InputController.isNavigating = true
         await gsap.timeline()
             .add(() => this.highlightArcade())
-            .add(() => this.showPosterSection('contact-section'), '+=1.5')
+            .add(() => this.showPosterSection('contact-section'), '+=1.1')
         this.context.InputController.isNavigating = false
     }
     async onProjectsClick() {
