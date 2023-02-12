@@ -33,8 +33,13 @@
     "parcel-reporter-static-files-copy": "^1.5.0",
     "prettier": "^2.0.4"
   },
-  "staticFiles": {
-    "staticPath": "static",
-    "staticOutPath": "static"
-  }
+  "staticFiles": [
+    {
+      "staticPath": "static",
+      "staticOutPath": "static"
+    },
+    {
+      "staticPath": "robots.txt"
+    }
+  ]
 }

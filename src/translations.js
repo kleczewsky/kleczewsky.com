@@ -11,6 +11,8 @@ i18next
     .use(LanguageDetector)
     .init({
     fallbackLng: 'en',
+    supportedLngs: ['en', 'pl'],
+    load: 'languageOnly',
     debug: urlSearchParams.has('debug'),
     backend: {
       loadPath: '/static/locales/{{lng}}/{{ns}}.json'
