@@ -210,7 +210,7 @@ class kleczewskyWorld {
       this.postersObject = wall.getObjectByName('posters')
 
       wall.getObjectByName('text').children.forEach(text => {
-        if(text.name !== i18next.language)
+        if(text.name !== i18next.resolvedLanguage)
           text.visible = false
       })
 
