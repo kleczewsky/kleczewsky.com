@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/demos/phyxlist/static/css/main.411a9aef.chunk.css",
+    "main.js": "/demos/phyxlist/static/js/main.a1d0dde7.chunk.js",
+    "main.js.map": "/demos/phyxlist/static/js/main.a1d0dde7.chunk.js.map",
+    "runtime-main.js": "/demos/phyxlist/static/js/runtime-main.c32c7611.js",
+    "runtime-main.js.map": "/demos/phyxlist/static/js/runtime-main.c32c7611.js.map",
+    "static/css/2.97503911.chunk.css": "/demos/phyxlist/static/css/2.97503911.chunk.css",
+    "static/js/2.12e82e65.chunk.js": "/demos/phyxlist/static/js/2.12e82e65.chunk.js",
+    "static/js/2.12e82e65.chunk.js.map": "/demos/phyxlist/static/js/2.12e82e65.chunk.js.map",
+    "index.html": "/demos/phyxlist/index.html",
+    "static/css/2.97503911.chunk.css.map": "/demos/phyxlist/static/css/2.97503911.chunk.css.map",
+    "static/css/main.411a9aef.chunk.css.map": "/demos/phyxlist/static/css/main.411a9aef.chunk.css.map",
+    "static/js/2.12e82e65.chunk.js.LICENSE.txt": "/demos/phyxlist/static/js/2.12e82e65.chunk.js.LICENSE.txt",
+    "static/media/checkMark.83b9e867.svg": "/demos/phyxlist/static/media/checkMark.83b9e867.svg",
+    "static/media/close.d069f47d.svg": "/demos/phyxlist/static/media/close.d069f47d.svg",
+    "static/media/reload.bed4546a.svg": "/demos/phyxlist/static/media/reload.bed4546a.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c32c7611.js",
+    "static/css/2.97503911.chunk.css",
+    "static/js/2.12e82e65.chunk.js",
+    "static/css/main.411a9aef.chunk.css",
+    "static/js/main.a1d0dde7.chunk.js"
+  ]
+}

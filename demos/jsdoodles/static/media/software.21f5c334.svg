@@ -1,0 +1,23 @@
+<svg id="software" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48.025 36.541">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ff5d7d;
+      }
+
+      .cls-2 {
+        fill: #cae9fc;
+      }
+    </style>
+  </defs>
+  <g id="Group_4" data-name="Group 4" transform="translate(0 0)">
+    <g id="Group_3" data-name="Group 3" transform="translate(0 0)">
+      <path id="Path_13" data-name="Path 13" class="cls-1" d="M46.459,61.217H1.566A1.566,1.566,0,0,0,0,62.783v7.8H48.025v-7.8A1.566,1.566,0,0,0,46.459,61.217ZM30.23,67.986A2.088,2.088,0,1,1,32.318,65.9,2.09,2.09,0,0,1,30.23,67.986Zm5.688,0A2.088,2.088,0,1,1,38.006,65.9,2.09,2.09,0,0,1,35.918,67.986Zm5.688,0A2.088,2.088,0,1,1,43.694,65.9,2.09,2.09,0,0,1,41.606,67.986Z" transform="translate(0 -61.217)"/>
+    </g>
+  </g>
+  <g id="Group_6" data-name="Group 6" transform="translate(0 12.495)">
+    <g id="Group_5" data-name="Group 5" transform="translate(0 0)">
+      <path id="Path_14" data-name="Path 14" class="cls-2" d="M0,194.424V216.9a1.566,1.566,0,0,0,1.566,1.566H46.459a1.566,1.566,0,0,0,1.566-1.566v-22.48ZM22.085,207.64,16.959,212a1.566,1.566,0,0,1-2.03-2.385l3.725-3.169-3.725-3.169a1.566,1.566,0,1,1,2.03-2.385l5.126,4.362A1.567,1.567,0,0,1,22.085,207.64Zm10,4.735H25.9a1.566,1.566,0,1,1,0-3.132h6.186a1.566,1.566,0,1,1,0,3.132Z" transform="translate(0 -194.424)"/>
+    </g>
+  </g>
+</svg>

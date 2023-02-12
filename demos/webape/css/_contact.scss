@@ -1,0 +1,177 @@
+@import "variables";
+
+.contact {
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    height: calc(100vh - 60px);
+
+    .contact-left,
+    .contact-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .contact-info {
+        text-align: center;
+
+        > h3 {
+            margin: 1rem;
+            font-size: 2rem;
+        }
+        > p {
+            margin-top: 1rem;
+            font-size: 1.3rem;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+
+        h2 {
+            text-align: center;
+            margin: 2rem;
+            letter-spacing: 1px;
+            font-size: 2rem;
+        }
+
+        label {
+            visibility: hidden;
+            position: absolute;
+        }
+        .inline-input {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background-color: #1313136b;
+            color: white;
+            border-style: none;
+            border: 1px rgba(128, 128, 128, 0.096) solid;
+            border-bottom: 3px gray solid;
+            font-size: 1rem;
+            transition: all 0.2s;
+
+            flex: 1;
+            min-width: 300px;
+
+            padding: 10px;
+            margin: 1rem;
+
+            &:not(:placeholder-shown) {
+                border-bottom: 3px lightgray solid;
+            }
+            &:invalid {
+                border-bottom: 3px rgb(233, 49, 3) solid;
+                box-shadow: none;
+            }
+            &:focus {
+                border-bottom: 3px solid rgb(228, 228, 228);
+                outline: none;
+            }
+            &:hover {
+                border-bottom: 3px solid rgb(228, 228, 228);
+            }
+
+            &::placeholder {
+                color: rgba(223, 223, 223, 0.644);
+                opacity: 1;
+                font-weight: 600;
+            }
+        }
+
+        textarea {
+            border: 1px rgba(128, 128, 128, 0.096) solid;
+            background: #1313136b;
+            color: white;
+            border-bottom: 3px gray solid;
+
+            padding: 1rem;
+            margin-top: 2rem;
+            transition: all 0.2s;
+
+            resize: vertical;
+            max-height: 400px;
+            min-height: 100px;
+
+            outline: none;
+
+            &:focus {
+                border-bottom: 3px solid rgb(228, 228, 228);
+                outline: none;
+            }
+            &:hover {
+                border-bottom: 3px solid rgb(228, 228, 228);
+            }
+
+            &::placeholder {
+                color: rgba(223, 223, 223, 0.644);
+                opacity: 1;
+                font-weight: 600;
+            }
+        }
+
+        button {
+            font-size: 20px;
+            background: none;
+
+            border: 2px solid white;
+            padding: 10px;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            margin-left: auto;
+
+            width: 45%;
+            text-align: center;
+            transition: 0.4s;
+            color: white;
+        }
+
+        button:hover {
+            background-color: green;
+            color: white;
+            border: 2px solid transparent;
+        }
+    }
+}
+
+@media screen and (max-width: $breakpoint-tablet) {
+    form.contact-form {
+        width: 60%;
+        .inline-input {
+            flex-direction: column;
+            input {
+                min-width: initial;
+                width: 100%;
+                margin: 1rem 0;
+            }
+        }
+        input {
+            min-width: initial;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        > button#submit-button {
+            width: 100%;
+        }
+        textarea {
+            height: 9rem;
+            margin: 2rem 0;
+        }
+    }
+}
+
+@media only screen and (max-width: $breakpoint-phone) {
+    form.contact-form {
+        width: 85%;
+    }
+}
