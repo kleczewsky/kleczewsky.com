@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { throttle, mean } from 'lodash-es'
 import { gsap } from 'gsap'
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 
 export default class LoaderController {
   constructor(context) {
