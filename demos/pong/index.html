@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl-PL">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Kleczewsky.com - Pong</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto&family=Squada+One&display=swap"
+            rel="stylesheet"
+        />
+
+        <script src="./scripts/sounds.js" type="text/javascript"></script>
+    </head>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .game-preview {
+            z-index: 999999;
+            min-width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(#1f1f1f, #000507);
+        }
+    </style>
+    <body>
+        <main>
+            <section class="content game game-preview">
+                    <div class="game-desc" style="color: white">
+                        <canvas
+                            id="Giera"
+                            width="800px"
+                            height="500px"
+                            style="margin: 45px 0px; border-radius: 2rem"
+                        ></canvas>
+
+                    </div>
+                <script src="./scripts/pong.js"></script>
+            </section>
+        </main>
+    </body>
+</html>

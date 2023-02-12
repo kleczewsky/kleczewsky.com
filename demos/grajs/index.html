@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl-PL">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Kleczewsky.com - GraJS</title>
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto&family=Squada+One&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .game-preview {
+            z-index: 999999;
+            min-width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(#1f1f1f, #000507);
+        }
+    </style>
+    <body>
+        <main>
+            <section class="content game game-preview">
+                <canvas
+                    id="grajs"
+                    width="500px"
+                    height="500px"
+                    style="margin: 45px 95px; border-radius: 2rem"
+                ></canvas>
+                <script src="scripts/sounds.js"></script>
+                <script src="scripts/grajs.js"></script>
+            </section>
+        </main>
+    </body>
+</html>
