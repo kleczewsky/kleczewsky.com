@@ -308,7 +308,7 @@ export default class AnimationController {
 
         // Z movement with fov change
         introAnim.fromTo (camera.position,{
-            z: 100
+            z: 90
         } ,{
             z: 40,
             ease:'easeInOut',
@@ -357,6 +357,8 @@ export default class AnimationController {
     }
 
     onWelcomeAck(shown = false) {
+        //move to wall section on first scroll
+        this.context.events.once('mousewheel.down', this.onFirstNavigate)
         
         if (!shown) {
             gsap.to('.welcome-message', {

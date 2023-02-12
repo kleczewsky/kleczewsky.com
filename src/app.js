@@ -110,7 +110,7 @@ class kleczewskyWorld {
     )
 
     this.camera.targetPosition = new THREE.Vector3(0, 0, 0)
-    this.camera.position.set(0, 2, 150)
+    this.camera.position.set(0, 2, 90)
     this.camera.rotateX(degToRad(-90))
 
     this.dolly = new THREE.Object3D().add(this.camera)
@@ -129,7 +129,6 @@ class kleczewskyWorld {
 
       if (this.debugMode) {
         this.stats.update()
-        this.letterData?.boundingBoxes?.forEach(box => box.update())
       }
     })
   }
@@ -137,8 +136,6 @@ class kleczewskyWorld {
   // simple 30 Hz logic loop
   _LogicLoop(){
     setInterval(()=>{
-      // fix for stale bounding boxes todo: change to fixed hitboxes implementation
-      this.letterData?.boundingBoxes?.forEach(box => box.update())
     }, 33)
   }
 
@@ -389,15 +386,7 @@ class kleczewskyWorld {
         this.scene.remove(directionalLightHelper)
       })
 
-    helpersFolder
-      .add({ BBoxHelper: false }, 'BBoxHelper')
-      .onChange((enabled) => {
-        if (enabled) {
-          this.letterData?.boundingBoxes.forEach(box => box.visible = true)
-          return
-        }
-        this.letterData?.boundingBoxes.forEach(box => box.visible = false)
-      })
+
 
     let controls
 

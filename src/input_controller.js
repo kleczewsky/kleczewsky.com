@@ -4,7 +4,6 @@ import Cookies from 'js-cookie'
 import {lerp} from "three/src/math/MathUtils";
 import throttle from "lodash-es/throttle";
 import differenceBy from "lodash-es/differenceBy";
-import EventEmitter from "events";
 
 
 export default class InputController {
@@ -22,7 +21,7 @@ export default class InputController {
 
     _Initialize() {
         window.addEventListener( 'pointermove', (event) => this._onPointerMove(event) );
-        window.addEventListener( 'click', (event) => this.raycasterCheckIntersecting(true) );
+        window.addEventListener( 'click', () => this.raycasterCheckIntersecting(true) );
 
         window.addEventListener('wheel', throttle((event) => this._onWheel(event), 100));
 
@@ -259,9 +258,6 @@ export default class InputController {
                 this.searchParams.set('active', target.dataset.warpTo)
             })
         })
-
-        // move to wall section on first scroll
-        this.context.events.once('mousewheel.down', this.context.AnimationController.onFirstNavigate)
 
         this.context.events.on('mousewheel.up', () => {
             if (this.controls.scroll && this.scrollOffset < 3)
