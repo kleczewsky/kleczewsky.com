@@ -208,7 +208,7 @@ export default class InputController {
                     }
                 )
         }
-        const closePosterTriggers = document.querySelectorAll('.close-poster-section')
+        const closePosterTriggers = document.querySelectorAll('.close-full-screen-modal')
         closePosterTriggers.forEach((trigger) => {
             trigger.addEventListener('click', (event) => {
                 event.stopPropagation()

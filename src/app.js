@@ -18,6 +18,8 @@ import {degToRad} from "three/src/math/MathUtils";
 import shuffle from "lodash-es/shuffle";
 import i18next from "i18next";
 import EventEmitter from "events";
+import {mean} from "lodash-es/math";
+import {gsap} from "gsap";
 
 class kleczewskyWorld {
   scene = null
@@ -41,7 +43,14 @@ class kleczewskyWorld {
 
   _Initialize() {
     if (!WEBGL.isWebGLAvailable()) {
-      document.body.appendChild(WEBGL.getWebGLErrorMessage())
+      gsap.to('#error-section',{
+        opacity:1,
+        duration: .25,
+
+        onStart: function() {
+          this.targets()[0].classList.remove('d-none')
+        }
+      })
       return false
     }
     this.events = new EventEmitter()
@@ -71,6 +80,12 @@ class kleczewskyWorld {
     this._LoadModels()
 
     this.PostProcessing = new PostProcessing(this)
+
+    this.shouldRender = true
+    this.filteredFrameTime = 0
+    this.lastRender = performance.now()
+    this.currentRender = null
+    this.fpsRecords = []
 
     window.addEventListener(
       'resize',
@@ -119,6 +134,8 @@ class kleczewskyWorld {
 
   // callback rate dependent on monitor refresh rate
   _RenderLoop() {
+    if(this.shouldRender === false) return
+
     requestAnimationFrame(() => {
       this._RenderLoop()
       this.AnimationController.animate()
@@ -127,16 +144,51 @@ class kleczewskyWorld {
       // todo: split to animation and other(raycast) or raycast on mouse event
       this.InputController.update()
 
+      this._CalculateAvgFramerate()
+
       if (this.debugMode) {
         this.stats.update()
       }
     })
   }
 
-  // simple 30 Hz logic loop
-  _LogicLoop(){
-    setInterval(()=>{
-    }, 33)
+  _LogicLoop() {
+    // performance regression loop
+    this.peformanceLoop = setInterval(() => {
+      const fps = +(1000 / this.filteredFrameTime)
+
+      if (this.fpsRecords.unshift(fps) > 5) {
+        this.fpsRecords.pop()
+      }
+
+      if(this.fpsRecords.length < 4) return
+
+      const avgFps = mean(this.fpsRecords)
+      if (avgFps < 30) {
+        console.warn('Low average framereate detected: ', avgFps)
+
+        if (this.effectComposers.finalComposer.passes[1].enabled) {
+          this.effectComposers.finalComposer.passes[1].enabled = false
+          this.fpsRecords = []
+          console.log('Disabled SSRPass')
+        } else {
+          this.AnimationController.showPosterSection('error-section')
+          this.shouldRender = false
+          clearInterval(this.peformanceLoop)
+        }
+
+      }
+      
+      
+
+    }, 1000)
+  }
+
+  _CalculateAvgFramerate() {
+    this.currentRender = performance.now()
+    const lastFrameTime = this.currentRender - this.lastRender;
+    this.filteredFrameTime += (lastFrameTime - this.filteredFrameTime) / 2;
+    this.lastRender = this.currentRender;
   }
 
   _LoadModels() {
@@ -263,7 +315,7 @@ class kleczewskyWorld {
 
     // Generate materials to be animated later
     Object.values(this.AnimationController.letterColors).forEach((color) => {
-      const material = new THREE.MeshPhongMaterial({
+      const material = new THREE.MeshLambertMaterial({
         color: '#000000',
         emissive:'#000000',
       })
@@ -300,8 +352,8 @@ class kleczewskyWorld {
       const xPos = lightCoordinates[i]?.x ?? (Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter))
       const zPos = lightCoordinates[i]?.y ?? (Math.random()> .5 ? random(clearRange, scatter) : -random(clearRange, scatter))
 
-      obj.position.set(xPos, 0, zPos)
-      light.position.set(xPos, 0, zPos)
+      obj.position.set(xPos, 0.1, zPos)
+      light.position.set(xPos, 0.1, zPos)
       obj.layers.enable(this.BLOOM_LAYER)
 
       this.scene.add(obj)
