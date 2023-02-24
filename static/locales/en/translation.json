@@ -40,5 +40,7 @@
   "Użyj scrolla, aby poruszać się po sekcjach": "Use the scroll wheel to move through the sections",
   "Skontaktujmy się": "Let`s get in touch",
   "Jestem full stack developerem. Główne technologie, których używam to Laravel i React. Pracuję z dbałością o szczegóły, aby dostarczać i ulepszać funkcje, z których sam byłbym dumny. Staram się poprawić doświadczenia ludzi korzystających z sieci poprzez zrozumienie ich potrzeb i nawyków. Czerpię ogromną przyjemność z pracy z nowymi technologiami, stawiam sobie za cel doskonalenie siebie i swoich umiejętności. Zawsze jestem wdzięczny ludziom, którzy dzielą się swoją wiedzą.": "I`m a full stack developer. Main technologies that I use are Laravel and React. I work with attention to detail to deliver and enhance features that I would be proud of. I strive to improve experiences of people using the web by understanding their needs and their habits. I take great pleasure working with new technologies, I make it my goal to improve myself and my skills. Always grateful for people that share their knowledge.",
-  "Close Controls": "Close Controls"
+  "Close Controls": "Close Controls",
+  "Jeżeli korzystasz z przeglądarki na laptopie, upewnij się, że przeglądarka jest włączona w trybie wydajności oraz korzysta z głównego GPU (jeżeli to możliwe)": "If you are using a browser on a laptop, make sure the browser is enabled in performance mode and using the main GPU (if possible)",
+  "W innym przypadku zapraszam Cię na moją stronę webstory - dostępną również na dużych ekranach": "Otherwise, I invite you to visit my webstory page - also available on large screens"
 }
