@@ -1,0 +1,64 @@
+.frame {
+  position: fixed;
+  /* Flush, not inset. --frame-inset is how far inside the viewport the
+       CHROME sits, not where the frame sits. */
+  inset: 0;
+  z-index: var(--z-frame);
+  pointer-events: none;
+  /* Clips the flood below to the screen. Without it the shadow paints
+     a hundred viewports of red in every direction. */
+  overflow: hidden;
+}
+
+.frame::after {
+  content: "";
+  position: absolute;
+  /* The hole. Its edge is where the chrome lines up, which is why
+     --frame-inset and --frame-weight are the same number. */
+  inset: var(--frame-weight);
+  border-radius: var(--frame-radius);
+  box-shadow:
+    /* The band: everything outside the hole, in one spread. */
+    0 0 0 100vmax var(--primary),
+    /* And the bloom, thrown inward off the band's inner edge, so the
+       frame reads as lit rather than as ruled. */
+    inset 0 0 14px rgb(255 0 39 / 0.28);
+}
+
+/* Registration crosshairs on the field. */
+.frame-mark {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4px 0 0 -4px;
+  opacity: 0.5;
+}
+
+.frame-mark::before,
+.frame-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--ink-faint);
+}
+
+.frame-mark::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.frame-mark::after {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+/* The frame's own geometry tightens in tokens.css; see the note
+   there. */
+@media (max-width: 640px) {
+  .frame-mark {
+    display: none;
+  }
+}

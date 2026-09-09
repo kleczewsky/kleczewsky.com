@@ -1,0 +1,158 @@
+.rail-zone {
+  position: fixed;
+  right: 0;
+  top: calc(var(--rail-top) - 6svh);
+  height: calc(var(--rail-height) + 12svh);
+  width: 28px;
+  z-index: var(--z-overlay);
+  pointer-events: auto;
+  cursor: default;
+  touch-action: none;
+}
+
+.rail-zone--idle {
+  display: none;
+}
+
+.rail {
+  position: fixed;
+  /* On the frame's inner edge. --frame-inset is how far inside the
+     viewport the chrome sits, which is exactly where this belongs. */
+  right: var(--frame-inset);
+  top: var(--rail-top);
+  height: var(--rail-height);
+  width: var(--rail-width);
+  z-index: var(--z-overlay);
+  pointer-events: none;
+
+  /* Hidden is translate(100%, 0) about a right-hand origin, so the
+     housing parks inside the frame's own stroke rather than off. */
+  transform-origin: 100% 50%;
+  translate: 100% 0;
+  transition: translate 100ms cubic-bezier(0.5, 0, 0.75, 0) 100ms;
+}
+
+.rail--live {
+  translate: 0 0;
+}
+
+.rail--idle {
+  display: none;
+}
+
+/* Rounded on the LEFT only: the right-hand side is the frame, not an
+   edge. The box-shadow carries the fill into the stroke's last pixel. */
+.rail-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 8px;
+  background: var(--primary);
+  border-radius: 6px 0 0 6px;
+  box-shadow: 1px 0 0 0 var(--primary);
+}
+
+/* The channel the thumb runs in: inset from the plate's own rounded
+   ends so the two radii never fight. */
+.rail-track {
+  position: relative;
+  height: 100%;
+  width: calc(100% - 6px);
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.rail-thumb {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  border-radius: 4px;
+  background: #dce8e4;
+  /* No transition: position is a direct function of scroll offset, so
+     easing it means animating toward a place the page has left. */
+  will-change: transform;
+}
+
+.rail--held .rail-body {
+  box-shadow:
+    1px 0 0 0 var(--primary),
+    0 0 14px rgb(255 0 39 / 0.55);
+}
+
+/* Without these the border steps out at a right angle and the housing
+   reads as a box parked on the line, not a bump in it. */
+.rail-chamfer {
+  position: absolute;
+  right: -2px;
+  width: var(--rail-chamfer);
+  height: var(--rail-chamfer);
+  background: var(--primary);
+  pointer-events: none;
+}
+
+/* Above the housing: full at the frame edge, running out to nothing
+   at the inner corner. */
+.rail-chamfer--up {
+  top: calc(0px - var(--rail-chamfer) + 3px);
+  clip-path: polygon(100% 100%, 100% 0, 0 100%);
+  filter: drop-shadow(0 1px 0 var(--primary)) drop-shadow(1px 0 0 var(--primary));
+}
+
+.rail-chamfer--dn {
+  bottom: calc(0px - var(--rail-chamfer) + 3px);
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  filter: drop-shadow(0 -1px 0 var(--primary)) drop-shadow(1px 0 0 var(--primary));
+}
+
+/* --rail-travel is written once by measure(); .rail--timeline is only
+   added after it has been, or the keyframes run to an unset value. */
+@keyframes rail-run {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, var(--rail-travel, 0px), 0);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .rail--timeline .rail-thumb {
+    animation: rail-run linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+/* The native bar goes. Keyboard, wheel and trackpad are untouched. */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Coarse pointers keep the platform's own overlay scrollbar; the
+   approach zone means nothing without hover. */
+@media (pointer: coarse) {
+  .rail,
+  .rail-zone {
+    display: none;
+  }
+
+  html {
+    scrollbar-width: auto;
+  }
+
+  html::-webkit-scrollbar {
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail {
+    transition: none;
+  }
+}

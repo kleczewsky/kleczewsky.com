@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-server
+.DS_Store
+*.local
+.vite
+*.stackdump
+CLAUDE.md
+.claude/
+
+# Blender working files: source script is committed, outputs are not
+blender/*.blend
+blender/*.blend1
+blender/*.png

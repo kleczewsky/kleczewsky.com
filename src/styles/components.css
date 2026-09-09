@@ -1,0 +1,580 @@
+/* Shared components: used on more than one page, too small to own a
+   file. Page-specific rules live with the page. */
+
+/* Section */
+.section {
+  padding-block: var(--section);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.section--full {
+  min-height: 100svh;
+  justify-content: center;
+}
+
+.section-mark {
+  margin-bottom: var(--s5);
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s5);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-dim);
+  text-decoration: none;
+  background: transparent;
+  font-family: var(--f-mono);
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  transition:
+    color var(--d-fast) var(--e-out),
+    border-color var(--d-fast) var(--e-out),
+    background-color var(--d-fast) var(--e-out);
+}
+
+.btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+  background: rgb(255 255 255 / 0.05);
+}
+
+.btn:active {
+  background: rgb(255 255 255 / 0.1);
+}
+
+/* Solid fill. The reference uses a filled red button for its one
+   conversion action and hairlines for everything else. */
+.btn-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--ink);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hot);
+  border-color: var(--primary-hot);
+  color: var(--ink);
+}
+
+.btn-primary:active {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* Hairline in the accent, for a secondary action that still needs to
+   read as interactive. */
+.btn-ghost {
+  border-color: var(--primary-edge);
+  color: var(--primary);
+}
+
+.btn-ghost:hover {
+  color: var(--primary-hot);
+  border-color: var(--primary);
+  background: var(--primary-wash);
+}
+
+/* Readout */
+.readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.readout dt {
+  color: var(--ink-faint);
+}
+
+.readout dd {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Prose */
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  margin-top: var(--s6);
+  color: var(--ink-dim);
+}
+
+.prose-lead {
+  margin-top: var(--s5);
+}
+
+.about-now {
+  margin-top: var(--s8);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+/* Contact */
+.contact-block {
+  margin-top: var(--s7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.contact-block dd {
+  margin: 0;
+}
+
+.contact-email {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--primary-edge);
+}
+
+.contact-email:hover {
+  color: var(--primary-hot);
+  border-bottom-color: var(--primary);
+}
+
+.contact-profiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s5);
+}
+
+.contact-note {
+  margin-top: var(--s7);
+  color: var(--ink-faint);
+}
+
+/* Chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 3px var(--s3) 4px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-dim);
+}
+
+.chip--primary {
+  border-color: var(--primary-edge);
+  color: var(--primary);
+}
+
+.chip-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* The one place a pulse is allowed: it reports a fact that changes. */
+.chip--live {
+  border-color: rgb(0 210 148 / 0.45);
+  color: var(--ok);
+}
+
+.chip--live .chip-dot {
+  animation: pulse 2.4s var(--e-in-out) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip--live .chip-dot {
+    animation: none;
+  }
+}
+
+/* Corner Ticks */
+.ticked {
+  position: relative;
+}
+
+.ticked::before,
+.ticked::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--primary-edge);
+  pointer-events: none;
+}
+
+.ticked::before {
+  top: -1px;
+  left: -1px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.ticked::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+/* Dotted Leader Row */
+.leader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  width: 100%;
+}
+
+.leader-fill {
+  flex: 1;
+  /* Real dots: a 1px dotted border at 20% white disappears on this
+     ground. */
+  height: 1px;
+  align-self: center;
+  background-image: radial-gradient(circle, var(--rule-solid) 1px, transparent 1px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+}
+
+.leader-value {
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* Section Head */
+.head {
+  /* .section uses align-items: flex-start, which collapses a child to
+     its content width without this. */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  text-align: center;
+  margin-bottom: var(--s8);
+}
+
+/* Bracket ornament: a rule with a tick turned down at each end. Two
+   pseudo-elements, and it does the job an icon would have done. */
+.head-rule {
+  position: relative;
+  width: min(560px, 70%);
+  height: 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.head-rule::before,
+.head-rule::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  width: 1px;
+  height: 10px;
+  background: var(--rule);
+}
+
+.head-rule::before {
+  left: 0;
+}
+
+.head-rule::after {
+  right: 0;
+}
+
+.head-title {
+  color: var(--primary);
+  text-shadow: var(--display-glow);
+}
+
+/* Corner crop marks. */
+.head-title--marked {
+  position: relative;
+  padding: 0.14em 0.44em;
+}
+
+.head-title--marked::before,
+.head-title--marked::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--primary-edge);
+}
+
+.head-title--marked::before {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.head-title--marked::after {
+  right: 0;
+  bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+
+.head-lead {
+  color: var(--ink-dim);
+  max-width: 46ch;
+}
+
+/* Card */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition:
+    border-color var(--d-base) var(--e-out),
+    transform var(--d-base) var(--e-out);
+}
+
+.card:hover {
+  border-color: var(--primary-edge);
+  transform: translateY(-2px);
+}
+
+.card-well {
+  display: grid;
+  place-items: center;
+  padding: var(--s5) var(--s4);
+  background: var(--card-sunk);
+  border: 1px solid var(--card-edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-well svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  flex: 1;
+}
+
+.card-text {
+  color: var(--ink-dim);
+}
+
+/* Meta row. */
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--card-edge);
+  border-radius: 3px;
+  background: rgb(0 0 0 / 0.2);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.pill--primary {
+  border-color: var(--primary-edge);
+  color: var(--primary);
+}
+
+.meta-push {
+  margin-inline-start: auto;
+}
+
+/* Slab */
+.slab {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  padding: var(--s5);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer),
+    100% 100%,
+    var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer))
+  );
+}
+
+@media (min-width: 720px) {
+  .slab {
+    padding: var(--s6);
+    min-height: 430px;
+  }
+}
+
+/* The watermark. Barely there on purpose — it is texture behind the
+   type, and the moment you can read it as a picture it competes. */
+.slab-mark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.45;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 76%);
+}
+
+.slab-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.slab-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-height: inherit;
+}
+
+.slab-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.slab-tabs {
+  display: flex;
+  gap: var(--s2);
+}
+
+.slab-tab {
+  min-width: 26px;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition:
+    color var(--d-fast) var(--e-out),
+    border-color var(--d-fast) var(--e-out),
+    background-color var(--d-fast) var(--e-out);
+}
+
+.slab-tab[aria-selected="true"] {
+  border-color: var(--rule-strong);
+  background: rgb(255 255 255 / 0.06);
+  color: var(--ink);
+}
+
+/* Dotted leader. The same device as the work index, so the page has
+   one way of saying "these two things are related across a gap". */
+.slab-lead-line {
+  flex: 1;
+  height: 1px;
+  background-image: radial-gradient(circle, var(--rule-solid) 1px, transparent 1px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+}
+
+.slab-title {
+  margin-top: var(--s6);
+}
+
+.slab-text {
+  color: var(--ink-dim);
+  max-width: 62ch;
+}
+
+.slab-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: auto;
+  padding-top: var(--s4);
+}
+
+.slab-nav {
+  display: flex;
+  gap: var(--s2);
+  margin-inline-start: auto;
+}
+
+.slab-nav button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--card-sunk);
+  border: 1px solid var(--card-edge);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition:
+    border-color var(--d-fast) var(--e-out),
+    color var(--d-fast) var(--e-out);
+}
+
+.slab-nav button:hover {
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+/* Definition Grid */
+.defs {
+  width: 100%;
+  display: grid;
+  gap: var(--s6) var(--s5);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.def-term {
+  display: block;
+  color: var(--ink);
+  margin-bottom: var(--s2);
+}
+
+.def-desc {
+  color: var(--ink-faint);
+}
+
+/* Glowing Call To Action */
+.btn-glow {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgb(255 0 39 / 0.35),
+    0 0 18px rgb(255 0 39 / 0.45);
+}
+
+.btn-glow:hover {
+  background: var(--primary-hot);
+  border-color: var(--primary-hot);
+  box-shadow:
+    0 0 0 1px rgb(255 77 104 / 0.45),
+    0 0 26px rgb(255 77 104 / 0.55);
+}

@@ -1,0 +1,273 @@
+/* Reset, document defaults, and the type scale utilities. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+/* body is the containing block for the stage. */
+body {
+  position: relative;
+  min-height: 100svh;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  font-weight: 400;
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--tr-body);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.22em;
+  transition:
+    color var(--d-fast) var(--e-out),
+    text-decoration-color var(--d-fast) var(--e-out);
+}
+
+a:hover {
+  color: var(--primary);
+  text-decoration-color: var(--primary-edge);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--ink);
+}
+
+/* Square, offset, accent — matches the hardware vocabulary rather
+   than the browser default ring. */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Type Primitives */
+/* Teko sits high on the em box and carries a lot of internal
+   leading, so display blocks need negative margins to sit on their
+   own baseline. */
+.t-hero,
+.t-display {
+  font-family: var(--f-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tr-display);
+  text-wrap: balance;
+  margin-block: -0.12em -0.08em;
+}
+
+.t-hero {
+  font-size: var(--t-hero);
+  line-height: var(--lh-hero);
+}
+
+.t-display {
+  font-size: var(--t-display);
+  line-height: var(--lh-display);
+}
+
+.t-title {
+  font-family: var(--f-sans);
+  font-weight: 600;
+  font-size: var(--t-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--tr-title);
+  text-wrap: balance;
+}
+
+.t-lead {
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: var(--measure);
+}
+
+.t-body {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  max-width: var(--measure);
+}
+
+.t-small {
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+
+/* The system voice. Every structural element — section marks, tags,
+   dates, nav — is set in this. */
+.t-label {
+  font-family: var(--f-mono);
+  font-weight: 500;
+  font-size: var(--t-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+}
+
+/* HUD readouts only. Tabular so columns of live values do not jitter
+   as the digits change. */
+.t-micro {
+  font-family: var(--f-mono);
+  font-weight: 400;
+  font-size: var(--t-micro);
+  line-height: var(--lh-label);
+  letter-spacing: var(--tr-micro);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-dim {
+  color: var(--ink-dim);
+}
+
+.t-faint {
+  color: var(--ink-faint);
+}
+
+.t-primary {
+  color: var(--primary);
+}
+
+/* Layout Primitives */
+/* Content rides above the fixed scene layer. */
+main {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  width: 100%;
+}
+
+.panel {
+  background: var(--panel-glass);
+  border: 1px solid var(--rule);
+  backdrop-filter: blur(8px);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Skip link stays out of the way until focused, then lands in the
+   top-left as a solid panel over the scene. */
+.skip {
+  position: absolute;
+  top: var(--s4);
+  left: var(--s4);
+  z-index: var(--z-overlay);
+  padding: var(--s3) var(--s4);
+  background: var(--panel);
+  border: 1px solid var(--primary);
+  transform: translateY(-200%);
+  transition: transform var(--d-fast) var(--e-out);
+}
+
+.skip:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The Page Ground */
+main {
+  position: relative;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+}

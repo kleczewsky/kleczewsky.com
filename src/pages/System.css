@@ -1,0 +1,202 @@
+/* Living style guide. Not shipped in the primary nav. */
+
+.sys {
+  align-items: stretch;
+}
+
+.sys-intro {
+  margin-top: var(--s5);
+}
+
+.sys-section {
+  margin-top: var(--s9);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+}
+
+.sys-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s4);
+  margin-bottom: var(--s6);
+}
+
+.sys-group {
+  margin-bottom: var(--s7);
+}
+
+.sys-group:last-child {
+  margin-bottom: 0;
+}
+
+.sys-note {
+  margin-top: var(--s2);
+  max-width: var(--measure);
+}
+
+.sys-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s6);
+  margin-top: var(--s4);
+}
+
+/* ---- swatches ---- */
+
+.sw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+
+/* Several tokens in this system are near-black by design. The
+   border is what makes them readable against the page ground, so it
+   carries real weight rather than being a hairline nicety. */
+.sw-chip {
+  height: 68px;
+  border: 1px solid var(--rule-strong);
+}
+
+.sw-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--s2);
+}
+
+.sw-token {
+  color: var(--ink-dim);
+}
+
+.sw-role {
+  margin-top: var(--s1);
+}
+
+/* ---- type ---- */
+
+.sys-type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+}
+
+.sys-spec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding-bottom: var(--s5);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sys-spec:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sys-spec-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+}
+
+.sys-width {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s7);
+  margin-top: var(--s4);
+}
+
+.sys-width > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+/* ---- space ---- */
+
+.sys-space {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.sys-space-row {
+  display: grid;
+  grid-template-columns: 5.5rem 4rem 1fr;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.sys-space-bar {
+  height: 10px;
+  background: var(--primary);
+  display: block;
+}
+
+/* ---- motion ---- */
+
+.sys-motion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  margin-top: var(--s4);
+}
+
+.sys-motion-row {
+  display: grid;
+  grid-template-columns: 6.5rem 4rem 11rem 1fr;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.sys-motion-track {
+  position: relative;
+  height: 2px;
+  background: var(--rule);
+  display: block;
+  min-width: 120px;
+}
+
+.sys-motion-dot {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  transition: left var(--dur) var(--e-mech);
+}
+
+.sys-motion-row:hover .sys-motion-dot,
+.sys-motion-row:focus-within .sys-motion-dot {
+  left: calc(100% - 8px);
+}
+
+/* ---- panel ---- */
+
+.sys-panel {
+  padding: var(--s5);
+  max-width: var(--measure);
+  margin-top: var(--s4);
+}
+
+.sys-panel .rule {
+  margin-block: var(--s4);
+}
+
+@media (max-width: 720px) {
+  .sys-space-row {
+    grid-template-columns: 5.5rem 3.5rem 1fr;
+    gap: var(--s3);
+  }
+
+  .sys-motion-row {
+    grid-template-columns: 6.5rem 1fr;
+    row-gap: var(--s2);
+  }
+
+  .sys-motion-track {
+    grid-column: 1 / -1;
+  }
+}

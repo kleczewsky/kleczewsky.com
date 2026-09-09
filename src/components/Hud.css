@@ -1,0 +1,357 @@
+/* The bar used to carry a red hairline of its own, which made two
+   horizontal lines five pixels apart. */
+.hud-top {
+  position: fixed;
+  top: var(--frame-inset);
+  right: var(--frame-inset);
+  left: var(--frame-inset);
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: stretch;
+  /* No gap: every plate carries its own padding and dividing rule. A
+       flex gap on top of that pushed the action wedge off the right of
+       the viewport. */
+  height: 46px;
+  padding-inline-start: var(--gutter);
+  padding-inline-end: 0;
+}
+
+/* Corners follow the frame: a square fill at a 16px corner pokes out
+   past the arc. */
+.hud-top::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -1.6rem 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: var(--frame-radius) var(--frame-radius) 0 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(1 4 1 / 0.94) 0%,
+    rgb(1 4 1 / 0.9) 62%,
+    rgb(1 4 1 / 0) 100%
+  );
+}
+
+/* The rule under the bar proper, stopping where the mark plate drops
+   through it so the plate reads as sitting IN the bar. */
+.hud-top::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: var(--rule);
+  pointer-events: none;
+}
+
+.hud-plate {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 0 var(--s4);
+  text-decoration: none;
+}
+
+.hud-mark {
+  align-self: flex-start;
+  height: calc(100% + 12px);
+  margin-inline-start: calc(var(--gutter) * -1);
+  padding-inline-start: var(--gutter);
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  background: linear-gradient(to bottom, rgb(22 26 24 / 0.9), rgb(9 11 10 / 0.9));
+  border-inline-end: 1px solid var(--primary-edge);
+  /* Bleeds to the left edge, so its own top-left corner has to sit on
+     the frame's arc. */
+  border-top-left-radius: var(--frame-radius);
+  /* Bottom right corner cut, so the tab reads as a plate the bar was
+     notched for rather than as a rectangle sitting on it. */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%
+  );
+  transition: color var(--d-fast) var(--e-out);
+}
+
+.hud-mark:hover {
+  color: var(--primary);
+}
+
+/* The live dot. Same red, same idea as the mast beacon below, at a
+   size where it reads as a status lamp on a panel. */
+.hud-mark-dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  background: var(--primary);
+  box-shadow: 0 0 7px var(--primary);
+}
+
+.hud-mark-tld {
+  /* Tracking puts a space after every glyph including the last one,
+     which reads as a word break in front of the suffix. Take it back. */
+  margin-inline-start: -0.1em;
+  color: var(--ink-faint);
+}
+
+.hud-nav {
+  display: flex;
+  margin-inline-start: auto;
+}
+
+.hud-nav a {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--s4);
+  color: var(--ink-dim);
+  text-decoration: none;
+  border-inline-start: 1px solid var(--rule);
+  transition: color var(--d-fast) var(--e-out);
+}
+
+.hud-nav a span {
+  position: relative;
+}
+
+/* The underline is on the SPAN, so it is the width of the word and
+   not the width of the cell. */
+.hud-nav a span::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -6px 0;
+  height: 1px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--d-base) var(--e-mech);
+}
+
+.hud-nav a:hover,
+.hud-nav a[aria-current="page"] {
+  color: var(--ink);
+}
+
+.hud-nav a:hover span::after,
+.hud-nav a[aria-current="page"] span::after {
+  transform: scaleX(1);
+}
+
+.hud-lang {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding-inline: var(--s4);
+  border-inline-start: 1px solid var(--rule);
+}
+
+.hud-lang a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  padding: 2px 4px;
+  transition: color var(--d-fast) var(--e-out);
+}
+
+.hud-lang a:hover {
+  color: var(--ink-dim);
+}
+
+.hud-lang a.is-current {
+  color: var(--primary);
+}
+
+.hud-go {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--gutter) 0 calc(var(--s4) + var(--chamfer));
+  margin-inline-start: var(--s4);
+  color: var(--ground);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--primary);
+  /* clip-path and border-radius compose, so the wedge keeps its cut and
+       still sits on the frame's arc. */
+  border-top-right-radius: var(--frame-radius);
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% 100%, 0 100%);
+  transition: background var(--d-fast) var(--e-out);
+}
+
+.hud-go:hover {
+  background: var(--ink);
+}
+
+.hud-go:focus-visible {
+  outline-offset: -3px;
+}
+
+.hud-bottom::before {
+  content: "";
+  position: absolute;
+  inset: -3.5rem 0 0 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 0 0 var(--frame-radius) var(--frame-radius);
+  background: linear-gradient(
+    to top,
+    rgb(1 4 1 / 0.94) 0%,
+    rgb(1 4 1 / 0.9) 46%,
+    rgb(1 4 1 / 0) 100%
+  );
+}
+
+.hud-bottom {
+  position: fixed;
+  bottom: var(--frame-inset);
+  right: var(--frame-inset);
+  left: var(--frame-inset);
+  z-index: var(--z-hud);
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  padding: var(--s4) var(--gutter);
+  color: var(--ink-faint);
+}
+
+.hud-bottom b {
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+
+/* Live bearings change constantly; a fixed width stops the row from
+   shuffling sideways as digits gain and lose a place. */
+.hud-bottom b {
+  display: inline-block;
+  min-width: 3.6em;
+}
+
+.hud-tier b {
+  min-width: 0;
+}
+
+/* Fixed interval, no easing, ignores input. Stops entirely under
+   reduced motion, where --beacon-cycle is 0ms. */
+.hud-beacon {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex: none;
+  animation: beacon var(--beacon-cycle) steps(1, end) infinite;
+}
+
+@keyframes beacon {
+  0%,
+  10% {
+    opacity: 1;
+    box-shadow: 0 0 6px var(--primary);
+  }
+  11%,
+  100% {
+    opacity: 0.15;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-beacon {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* Below 640px the inline nav moves into a full-height sheet. The
+   language switch keeps its place at every width. */
+
+.hud-menu {
+  display: none;
+  align-items: center;
+  padding: 0 var(--s4);
+  background: none;
+  border: 0;
+  border-inline-start: 1px solid var(--rule);
+  color: var(--ink-dim);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.hud-menu:hover {
+  color: var(--ink);
+}
+
+.hud-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s4);
+  padding: var(--s9) var(--gutter) var(--s8);
+  background: var(--ground);
+}
+
+/* [hidden] sets display:none at attribute specificity, which the
+   .hud-sheet display:flex above would otherwise win against. */
+.hud-sheet[hidden] {
+  display: none;
+}
+
+.hud-sheet a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.hud-sheet a:hover,
+.hud-sheet a:focus-visible {
+  color: var(--primary);
+}
+
+/* The wedge goes first: everything else has an intrinsic width and
+   the navigation absorbs the remainder, so below a laptop there is
+   none left over. */
+@media (max-width: 1060px) {
+  .hud-go {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hud-nav {
+    display: none;
+  }
+
+  .hud-menu {
+    display: flex;
+  }
+
+  .hud-mark {
+    letter-spacing: 0.06em;
+  }
+
+  .hud-bottom {
+    gap: var(--s4);
+  }
+}
+
+/* Above the breakpoint the inline nav is present, so the sheet is
+   never reachable and must never paint. */
+@media (min-width: 641px) {
+  .hud-sheet {
+    display: none;
+  }
+}
+
+/* On a phone only the two readouts a visitor cares about fit. */
+@media (max-width: 640px) {
+  .hud-loc,
+  .hud-tier {
+    display: none;
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "kleczewsky",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "kleczewsky.com — portfolio",
+  "author": "Eryk Kleczewski",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:client && npm run build:server && npm run prerender",
+    "build:client": "vite build --outDir dist",
+    "build:server": "vite build --outDir dist-server --ssr src/entry-server.tsx",
+    "prerender": "node scripts/prerender.mjs",
+    "preview": "vite preview --outDir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
+    "@react-three/postprocessing": "^3.1.1",
+    "postprocessing": "^6.39.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.3.1",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

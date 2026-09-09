@@ -1,0 +1,191 @@
+/* ONE accent: --primary. Semantic colours are a separate axis and
+   never stand in for it. Display type is set BELOW its own size,
+   see --lh-display. */
+
+:root {
+  /* Ground and surfaces. Panels step up from the ground in small
+       increments; more than two steps apart reads as a different
+       material. */
+  --ground: #010401;
+  --panel: #0d1110;
+  --panel-raised: #161918;
+  --panel-sunk: #080c0b;
+  --panel-glass: rgb(13 17 16 / 0.72);
+
+  /* A card is an outer panel stepping UP from the ground around an
+       inner well stepping back DOWN. The inversion is what makes them
+       read as objects with something set into them. */
+  --card: #161a18;
+  --card-sunk: #0f1211;
+  --card-edge: #1b1f1c;
+
+  /* Scene colours, read by the WebGL hero and by no UI. */
+  --sky-zenith: #04060f;
+  --sky-upper: #0a1128;
+  --sky-horizon: #22304e;
+  --sky-haze: #35486e;
+
+  --facade: #2b3346;
+  --lamp-warm: #ffb257;
+  --lamp-cool: #cfe0ff;
+  --street: #ff9036;
+
+  --hull: #070a0f;
+  --hull-edge: #dbe6ff;
+
+  --ink: #fafafa;
+  --ink-dim: #b8c6c2;
+  --ink-faint: #808987;
+
+  /* The single accent. Interactive affordances, live values, the
+       active chapter, section eyebrows. Never large fills or body
+       text. */
+  --primary: #ff0027;
+  --primary-hot: #ff4d68;
+  --primary-dark: #a3001f;
+  --primary-dim: #710515;
+  --primary-wash: rgb(255 0 39 / 0.08);
+  --primary-edge: rgb(255 0 39 / 0.38);
+  --primary-bloom: 0 0 2px rgb(255 0 39 / 0.5), 0 0 16px rgb(255 0 39 / 0.45);
+
+  --warning: #f6f655;
+  --ok: #00d294;
+  --error: #fb2c36;
+
+  --rule: rgb(255 255 255 / 0.1);
+  --rule-strong: rgb(255 255 255 / 0.2);
+  --rule-solid: #4f5553;
+  --rule-dark: #181c1a;
+
+  /* Type. Teko is very tall on the body, so --lh-display sits at 0.82
+       rather than the 0.75 the reference runs; below 0.80 the caps
+       collide with the line above. */
+  --f-display: "Teko", "Oswald", "Arial Narrow", sans-serif;
+  --f-sans: "Spline Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --t-hero: clamp(3.5rem, 11vw, 8.5rem);
+  --t-display: clamp(2.75rem, 6.5vw, 4.5rem);
+  --t-title: clamp(1.5rem, 2.4vw, 2rem);
+  --t-lead: clamp(1.0625rem, 1.4vw, 1.25rem);
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+  --t-label: 0.6875rem;
+  --t-micro: 0.625rem;
+
+  /* Measured: display 72px on 54px leading at -3% tracking; body 20px
+       on 25px at -2%. The compression is where the punch comes from. */
+  --lh-hero: 0.8;
+  --lh-display: 0.82;
+  --lh-title: 1.05;
+  --lh-body: 1.6;
+  --lh-label: 1.4;
+
+  --tr-display: -0.03em;
+  --tr-title: -0.02em;
+  --tr-body: -0.01em;
+  --tr-label: 0.14em;
+  --tr-micro: 0.2em;
+
+  /* Space, on a 4px base. --gutter is the only fluid value. */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+  --s8: 4rem;
+  --s9: 6rem;
+  --s10: 8rem;
+
+  /* A fixed gutter matters: a fluid one that opens to 3rem on a wide
+       screen makes the page feel like it is drifting apart. */
+  --gutter: clamp(1.25rem, 3vw, 1.5rem);
+  --section: clamp(4.5rem, 9vw, 7.5rem);
+  --maxw: 1280px;
+  --measure: 64ch;
+  --grid-gap: 12px;
+
+  /* Panels are chamfered, not rounded. The reference carries a small
+     radius; a chamfer reads as hardware and costs the same. */
+  --radius: 0.525rem;
+  --chamfer: 18px;
+
+  /* Section titles are set in the accent and lit. Two layers: a tight
+       core so the letterforms stay sharp, and a wide halo. */
+  --display-glow: 0 0 2px rgb(255 0 39 / 0.45), 0 0 11px rgb(255 0 39 / 0.68);
+
+  --d-instant: 90ms;
+  --d-fast: 160ms;
+  --d-base: 280ms;
+  --d-slow: 600ms;
+  --d-cine: 1200ms;
+
+  --e-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-mech: cubic-bezier(0.33, 0, 0, 1);
+
+  /* The viewport frame is a fixed overlay at inset 0, FLUSH to the
+       screen. --frame-inset is not where the frame sits; it is how far
+       inside the viewport the chrome sits. */
+  --frame-inset: 3px;
+  --frame-weight: 3px;
+  /* The frame's only radius, and it is the INNER one: the frame is a
+       solid band with a rounded hole punched in it, so its outer corners
+       are square and filled. */
+  --frame-radius: 16px;
+
+  /* Where the scrollbar housing sits on the right-hand edge. */
+  --rail-top: 36svh;
+  --rail-height: 28svh;
+  --rail-width: 14px;
+  /* The 45-degree run-out at each end of the housing. */
+  --rail-chamfer: 15px;
+
+  --z-scene: 0;
+  --z-content: 20;
+  --z-hud: 40;
+  --z-nav: 50;
+  /* The frame is above the nav: under it, the top bar's scrim covered
+       the top stroke and both upper corners. */
+  --z-frame: 55;
+  --z-overlay: 60;
+}
+
+/* Must live in this file: App.tsx imports components before
+   stylesheets, so an override in a component file is emitted first
+   and silently beaten by the unconditional value below. */
+@media (max-width: 640px) {
+  :root {
+    --frame-radius: 10px;
+  }
+}
+
+/* Quality tiers, set as data-tier on <html> by the device probe.
+   Layout and content are identical; only motion, scene fidelity and
+   post-processing change. */
+:root[data-tier="c"] {
+  --d-slow: 0ms;
+  --d-cine: 0ms;
+}
+
+/* Reduced motion collapses the cinematic timings but keeps the short
+   ones, so interfaces still acknowledge input. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-slow: 120ms;
+    --d-cine: 120ms;
+  }
+}
+
+/* Raise the dim ramp rather than the accent — the accent already
+   clears the ground comfortably, the greys are what get tight. */
+@media (prefers-contrast: more) {
+  :root {
+    --ink-dim: #d6e0dd;
+    --ink-faint: #a8b2af;
+    --rule: rgb(255 255 255 / 0.22);
+    --rule-strong: rgb(255 255 255 / 0.4);
+  }
+}

@@ -1,0 +1,108 @@
+/* Absolute rather than fixed: a fixed full-viewport WebGL canvas
+   stays in the compositor for the whole page, and every scroll frame
+   had to blend it — that was the stutter. */
+
+.stage {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100svh;
+  z-index: var(--z-scene);
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+/* Fly mode, dev only. The layer is inert for a visitor: a canvas that
+   swallows clicks over a call to action is a bug that only turns up on
+   someone else's machine. */
+.stage--fly {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.stage--fly:active {
+  cursor: grabbing;
+}
+
+.stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Tier C sees this and nothing else, so it is the same composition as
+   the shader rather than a placeholder colour. */
+.stage--fallback {
+  background:
+    radial-gradient(
+      120% 38% at 50% 50%,
+      rgb(53 72 110 / 0.5) 0%,
+      rgb(34 48 78 / 0.26) 44%,
+      transparent 76%
+    ),
+    linear-gradient(
+      to bottom,
+      #04060f 0%,
+      #0a1128 30%,
+      #22304e 48%,
+      #0b1018 56%,
+      #05070b 74%,
+      var(--ground) 100%
+    );
+}
+
+/* A soft top-and-bottom scrim. */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(1 4 1 / 0.55) 0%,
+    rgb(1 4 1 / 0.1) 16%,
+    transparent 40%,
+    transparent 62%,
+    rgb(1 4 1 / 0.2) 86%,
+    rgb(1 4 1 / 0.45) 100%
+  );
+}
+
+.glstat {
+  position: fixed;
+  right: 8px;
+  bottom: 34px;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 8px;
+  background: rgb(1 4 1 / 0.82);
+  border: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-family: var(--f-mono);
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: pre;
+}
+
+.glstat span:first-child {
+  color: var(--ok);
+}
+
+.glstat-page {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-dim);
+}
+
+/* drei's <Stats> appends stats.js to document.body with inline
+   position: fixed. Move it beside our own counters. */
+.glstat-panel {
+  top: auto !important;
+  left: auto !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  z-index: var(--z-overlay);
+  opacity: 0.9;
+}

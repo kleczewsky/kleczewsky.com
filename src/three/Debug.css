@@ -1,0 +1,151 @@
+/* Scene panel, dev only. Top left, because the counters are bottom
+   right and the composition being tuned is in the middle. */
+
+.dbg {
+  position: fixed;
+  /* Clear of the site's own fixed bar, which is 46px and has a scrim
+     under it. */
+  top: 58px;
+  left: 8px;
+  z-index: var(--z-overlay);
+  width: 258px;
+  max-height: calc(100svh - 74px);
+  display: flex;
+  flex-direction: column;
+  background: rgb(1 4 1 / 0.88);
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  font-family: var(--f-mono);
+  backdrop-filter: blur(3px);
+}
+
+.dbg--shut {
+  width: auto;
+}
+
+.dbg-bar {
+  display: flex;
+  gap: 1px;
+  flex: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dbg--shut .dbg-bar {
+  border-bottom: 0;
+}
+
+.dbg-bar button {
+  flex: 1;
+  padding: 4px 8px;
+  background: none;
+  border: 0;
+  color: var(--ink-faint);
+  font: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.dbg-bar button:hover {
+  color: var(--primary);
+}
+
+.dbg-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dbg-group {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+  padding: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dbg-group legend {
+  padding: 0 4px 0 0;
+  color: var(--primary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dbg-row {
+  display: grid;
+  grid-template-columns: 5.4em 1fr 3.1em;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.dbg-row--toggle {
+  grid-template-columns: auto 1fr;
+}
+
+.dbg-name {
+  color: var(--ink-faint);
+  /* Two-word labels wrapped and threw every row below out of line. */
+  white-space: nowrap;
+}
+
+.dbg-val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* The native range track differs in every engine. */
+.dbg-row input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  background: none;
+  cursor: pointer;
+}
+
+.dbg-row input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.dbg-row input[type="range"]::-moz-range-track {
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.dbg-row input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 3px;
+  height: 11px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 0;
+  background: var(--primary);
+}
+
+.dbg-row input[type="range"]::-moz-range-thumb {
+  width: 3px;
+  height: 11px;
+  border: 0;
+  border-radius: 0;
+  background: var(--primary);
+}
+
+.dbg-row input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 11px;
+  height: 11px;
+}
+
+.dbg-hint {
+  border-top: 1px solid var(--rule);
+  padding-top: 4px;
+  color: var(--ink-faint);
+  line-height: 1.5;
+}

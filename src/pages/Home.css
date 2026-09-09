@@ -1,0 +1,194 @@
+/* The hero is one viewport, a picture with one thing on it. Anything
+   that has to be READ sits in the bar along the bottom. */
+
+.home-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline: var(--gutter);
+}
+
+/* The wordmark's baseline lands on the scene's horizon, which the
+   scene puts on the eye line. On tier A and B the ink here is
+   transparent and the scene draws it out in the city instead. */
+.home-crest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform: translateY(-4svh);
+}
+
+.home-name {
+  color: var(--ink);
+  /* Display leading is 0.80, so the caps overflow their own line box. */
+  padding-top: 0.16em;
+  text-shadow:
+    0 2px 30px rgb(1 4 1 / 0.85),
+    0 0 90px rgb(1 4 1 / 0.7);
+}
+
+.home-name span {
+  color: var(--primary);
+  text-shadow: var(--display-glow);
+}
+
+/* opacity, not visibility: the box has to keep holding its space,
+   and the scene re-measures this element on resize. */
+[data-scene-mark] .home-name {
+  opacity: 0;
+}
+
+.home-name {
+  transition: opacity var(--d-slow, 420ms) var(--e-out, ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-name {
+    transition: none;
+  }
+}
+
+.home-stack {
+  color: var(--ink-dim);
+}
+
+.home-say {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s3);
+}
+
+.home-status {
+  align-self: flex-start;
+}
+
+/* The Bar */
+.home-bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding-block: var(--s5) var(--s7);
+  background: linear-gradient(to top, var(--ground) 42%, rgb(1 4 1 / 0.72) 78%, transparent);
+  border-top: 1px solid var(--rule);
+}
+
+.home-bar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+  align-items: flex-start;
+}
+
+@media (min-width: 860px) {
+  .home-bar-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s7);
+  }
+}
+
+.home-intro {
+  color: var(--ink-dim);
+  max-width: 56ch;
+}
+
+.home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  flex: none;
+}
+
+.home-scroll {
+  position: absolute;
+  top: 50%;
+  right: var(--gutter);
+  transform: translateY(6svh);
+}
+
+@media (max-width: 859px) {
+  .home-scroll {
+    display: none;
+  }
+}
+
+/* Service Cards */
+.home-cards {
+  width: 100%;
+  display: grid;
+  gap: var(--grid-gap);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) {
+  .home-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Work Index */
+.home-index {
+  width: 100%;
+  margin-top: var(--s7);
+  border-top: 1px solid var(--rule);
+}
+
+.home-index li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.home-index-link {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s4);
+  padding: var(--s5) 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    padding-inline-start var(--d-base) var(--e-mech),
+    color var(--d-fast) var(--e-out);
+}
+
+.home-index-link:hover {
+  padding-inline-start: var(--s3);
+  color: var(--primary);
+}
+
+.home-index-mark {
+  flex: none;
+  width: 2.5ch;
+}
+
+.work-status {
+  flex: none;
+  color: var(--ink-faint);
+}
+
+.work-status--live {
+  color: var(--ok);
+}
+
+/* Centred Tails */
+.home-centre {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  text-align: center;
+}
+
+.home-contact .contact-email {
+  word-break: break-word;
+}
