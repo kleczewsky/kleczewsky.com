@@ -10,6 +10,10 @@ import { LOCALES, href, match, type Locale } from "./routes";
 
 export const SITE = "https://kleczewsky.com";
 
+const OG_IMAGE = "/og.png";
+
+const OG_LOCALE: Record<Locale, string> = { en: "en_GB", pl: "pl_PL" };
+
 export function render(url: string): string {
   return renderToString(
     <StrictMode>
@@ -40,6 +44,8 @@ export function head(url: string): string {
     title = `${dict.meta.siteName} · ${dict.meta.tagline}`;
   }
 
+  const ogAlt = `${dict.meta.siteName} · ${dict.meta.tagline}`;
+
   const alternates = LOCALES.map(
     (code) => `<link rel="alternate" hreflang="${code}" href="${alternateFor(code)}" />`,
   ).join("\n    ");
@@ -54,7 +60,15 @@ export function head(url: string): string {
     `<meta property="og:description" content="${escape(description)}" />`,
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${SITE}${url}" />`,
+    `<meta property="og:site_name" content="${escape(dict.meta.siteName)}" />`,
+    `<meta property="og:locale" content="${OG_LOCALE[locale]}" />`,
+    `<meta property="og:image" content="${SITE}${OG_IMAGE}" />`,
+    `<meta property="og:image:type" content="image/png" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
+    `<meta property="og:image:alt" content="${escape(ogAlt)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:image" content="${SITE}${OG_IMAGE}" />`,
   ]
     .filter(Boolean)
     .join("\n    ");

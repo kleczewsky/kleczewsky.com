@@ -86,8 +86,15 @@ export default function Hud() {
     <>
       <header className="hud-top">
         <RouteLink to="home" className="hud-plate hud-mark t-label">
-          <span className="hud-mark-dot" aria-hidden="true" />
-          kleczewsky<span className="hud-mark-tld">.com</span>
+          {/* The same file <link rel="icon"> points at, so the mark has
+              one definition. */}
+          <img className="hud-mark-k" src="/favicon.svg" width="32" height="32" alt="" />
+          {/* One flex item, or .hud-plate's gap lands between the
+              syllables and breaks the word. */}
+          <span>
+            kleczew<span className="hud-mark-sky">sky</span>
+            <span className="hud-mark-tld">.com</span>
+          </span>
         </RouteLink>
 
         <nav className="hud-nav t-label" aria-label="Primary">

@@ -54,17 +54,17 @@
 
 .hud-mark {
   align-self: flex-start;
-  height: calc(100% + 12px);
+  position: relative;
+  /* Above .hud-top::after, so the bar's rule stops at the plate's
+     trailing edge instead of striking across it. */
+  z-index: 1;
+  height: 100%;
   margin-inline-start: calc(var(--gutter) * -1);
   padding-inline-start: var(--gutter);
   color: var(--ink);
   font-weight: 500;
   letter-spacing: 0.1em;
   background: linear-gradient(to bottom, rgb(22 26 24 / 0.9), rgb(9 11 10 / 0.9));
-  border-inline-end: 1px solid var(--primary-edge);
-  /* Bleeds to the left edge, so its own top-left corner has to sit on
-     the frame's arc. */
-  border-top-left-radius: var(--frame-radius);
   /* Bottom right corner cut, so the tab reads as a plate the bar was
      notched for rather than as a rectangle sitting on it. */
   clip-path: polygon(
@@ -78,17 +78,20 @@
 }
 
 .hud-mark:hover {
+  color: inherit !important;
+}
+
+.hud-mark-k {
+  width: 25px;
+  height: 25px;
+}
+
+.hud-mark-sky {
   color: var(--primary);
 }
 
-/* The live dot. Same red, same idea as the mast beacon below, at a
-   size where it reads as a status lamp on a panel. */
-.hud-mark-dot {
-  width: 5px;
-  height: 5px;
-  flex: none;
-  background: var(--primary);
-  box-shadow: 0 0 7px var(--primary);
+.hud-mark:hover .hud-mark-tld {
+  color: var(--ink-dim);
 }
 
 .hud-mark-tld {
