@@ -38,11 +38,14 @@ export function probeTier(): Tier {
   if (nav.connection?.saveData) return "c";
   if (!hasWebGL2()) return "c";
 
-  const memory = nav.deviceMemory ?? 4;
   const cores = nav.hardwareConcurrency ?? 4;
   const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
 
-  if (coarsePointer || memory <= 4 || cores <= 4) return "b";
+  // deviceMemory is not read here: Chrome caps and quantizes it hard
+  // on public origins (max bucket 8, often lower) while reporting the
+  // real value on localhost, so it made every desktop visitor to the
+  // deployed site read as low-memory regardless of actual hardware.
+  if (coarsePointer || cores <= 4) return "b";
   return "a";
 }
 

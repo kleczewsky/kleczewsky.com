@@ -49,6 +49,44 @@ const CITY_FRAG = /* glsl */ `
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   }
 
+  // A pulse train from a to b in each period, box filtered over a
+  // footprint w wide: its running integral differenced across the pixel.
+  float pulse(float x, float a, float b, float w) {
+    float lo = x - 0.5 * w;
+    float hi = x + 0.5 * w;
+    float run = (floor(hi) - floor(lo)) * (b - a) + clamp(fract(hi), a, b) - clamp(fract(lo), a, b);
+    return run / w;
+  }
+
+  vec3 windowAt(vec2 c, vec2 w) {
+    float win = pulse(c.x, 0.18, 0.8, w.x) * pulse(c.y, 0.22, 0.82, w.y);
+    if (win <= 0.0) return vec3(0.0);
+    vec2 id = floor(c);
+
+    float k = hash(id + vSeed * 37.0);
+    float self = hash(id + vSeed);
+    // Roughly a third of the windows. Real towers at night are
+    // mostly dark, and the ones that are not are what you look at.
+    float lit = step(0.68, k);
+
+    float floorRun = step(0.84, hash(vec2(id.y, vSeed * 9.0)));
+    lit = max(lit, floorRun * step(0.35, self));
+
+    // NB: active, filter, input, output and sample are reserved
+    // words in GLSL ES and will not compile.
+    float swaps = step(0.92, hash(id.yx + vSeed * 3.0));
+    float slot = floor(uTime * 0.12 + self * 40.0);
+    lit = mix(lit, step(0.45, hash(id + slot * 1.7)), swaps);
+
+    // Amber, with a minority of cool-white offices. NEVER red. Red
+    // windows read as alarm, and red here belongs to the obstruction
+    // lights, the ceiling strip and the wordmark alone.
+    vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
+    float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
+
+    return lamp * win * lit * bright;
+  }
+
   void main() {
     float toward = 0.5 + 0.5 * smoothstep(-1.0, 1.0, -vNrm.z);
     float isRoof = step(0.5, abs(vNrm.y));
@@ -68,40 +106,28 @@ const CITY_FRAG = /* glsl */ `
     // gives the wordmark a ridge to stand on.
     float far = smoothstep(500.0, 2100.0, vDepth);
 
+    // Derivatives are taken out here: inside the branch below the spec
+    // leaves them undefined, whatever a given driver happens to do.
+    float across = abs(vNrm.x) > 0.5 ? vLocal.z : vLocal.x;
+    vec2 cell = vec2(across / 2.5, vLocal.y / 2.8);
+    vec2 fw = max(fwidth(cell), vec2(1e-3));
+
     // Windows cost eight sin()-based hashes and are invisible once
     // depth has crushed them; gating both is the cheapest win here.
     if (isRoof < 0.5 && far < 0.9) {
-      float across = abs(vNrm.x) > 0.5 ? vLocal.z : vLocal.x;
-      vec2 cell = vec2(across / 2.5, vLocal.y / 2.8);
-      vec2 id = floor(cell);
-      vec2 f = fract(cell);
-
-      float win =
-        step(0.18, f.x) * step(f.x, 0.8) *
-        step(0.22, f.y) * step(f.y, 0.82);
-
-      float k = hash(id + vSeed * 37.0);
-      float self = hash(id + vSeed);
-      // Roughly a third of the windows. Real towers at night are
-      // mostly dark, and the ones that are not are what you look at.
-      float lit = step(0.68, k);
-
-      float floorRun = step(0.84, hash(vec2(id.y, vSeed * 9.0)));
-      lit = max(lit, floorRun * step(0.35, self));
-
-      // NB: active, filter, input, output and sample are reserved
-      // words in GLSL ES and will not compile.
-      float swaps = step(0.92, hash(id.yx + vSeed * 3.0));
-      float slot = floor(uTime * 0.12 + self * 40.0);
-      lit = mix(lit, step(0.45, hash(id + slot * 1.7)), swaps);
-
-      // Amber, with a minority of cool-white offices. NEVER red. Red
-      // windows read as alarm, and red here belongs to the obstruction
-      // lights, the ceiling strip and the wordmark alone.
-      vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
-      float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
-
-      col += lamp * win * lit * bright * 1.05 * uDim;
+      // Edge-on, one sample per pixel flickers and the true average reads
+      // as a lit slab. Keep one window in every 2^n cells instead, n set so
+      // a pixel covers under half a kept cell; two levels blend at seams.
+      float lod = log2(max(fw.x / 0.25, 1.0));
+      float n = floor(lod);
+      vec2 w = vec2(fw.x, fw.y);
+      vec3 near = windowAt(vec2(cell.x / pow(2.0, n), cell.y), w / vec2(pow(2.0, n), 1.0));
+      vec3 lights = near;
+      if (lod > 0.001) {
+        vec3 wide = windowAt(vec2(cell.x / pow(2.0, n + 1.0), cell.y), w / vec2(pow(2.0, n + 1.0), 1.0));
+        lights = mix(near, wide, fract(lod));
+      }
+      col += lights * 1.05 * uDim;
     }
 
     col *= mix(1.0, 0.07, far);
