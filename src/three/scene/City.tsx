@@ -11,7 +11,9 @@ const CITY_VERT = /* glsl */ `
   attribute float seed;
   varying vec3 vLocal;
   varying vec3 vNrm;
-  varying float vSeed;
+  // flat: the window hash amplifies the seed about 1e9x, so the one-ulp error some
+  // GPUs put on an interpolated constant turned every window on and off in motion.
+  flat varying float vSeed;
   varying float vDepth;
   varying float vTop;
 
@@ -33,7 +35,7 @@ const CITY_FRAG = /* glsl */ `
   precision highp float;
   varying vec3 vLocal;
   varying vec3 vNrm;
-  varying float vSeed;
+  flat varying float vSeed;
   varying float vDepth;
   varying float vTop;
 
@@ -73,40 +75,60 @@ const CITY_FRAG = /* glsl */ `
     // the lit set whenever the pixel ratio steps, which differs per machine.
     float seen = smoothstep(0.08, 0.5, abs(dot(normalize(cameraPosition - vLocal), vNrm)));
 
+    // Derivatives out here: inside the branch below the spec leaves them
+    // undefined, whatever a given driver happens to do.
+    float across = abs(vNrm.x) > 0.5 ? vLocal.z : vLocal.x;
+    vec2 cell = vec2(across / 2.5, vLocal.y / 2.8);
+    vec2 fw = fwidth(cell);
+
     // Windows cost eight sin()-based hashes and are invisible once
     // depth has crushed them; gating both is the cheapest win here.
     if (isRoof < 0.5 && far < 0.9 && seen > 0.01) {
-      float across = abs(vNrm.x) > 0.5 ? vLocal.z : vLocal.x;
-      vec2 cell = vec2(across / 2.5, vLocal.y / 2.8);
-      vec2 id = floor(cell);
-      vec2 f = fract(cell);
+      // At a pixel ratio of 1 a window is about a pixel, so one sample per
+      // pixel flips under any sub-pixel camera move. Integrate the pixel's
+      // footprint over the cells it covers; lit state still comes per cell.
+      vec2 w = clamp(fw, vec2(1e-4), vec2(4.0, 2.0));
+      vec2 lo = cell - 0.5 * w;
+      vec2 hi = cell + 0.5 * w;
+      vec3 sum = vec3(0.0);
 
-      float win =
-        step(0.18, f.x) * step(f.x, 0.8) *
-        step(0.22, f.y) * step(f.y, 0.82);
+      for (int b = 0; b < 3; b++) {
+        float j = floor(lo.y) + float(b);
+        if (j > hi.y) break;
+        float oy = max(0.0, min(hi.y, j + 0.82) - max(lo.y, j + 0.22));
+        if (oy <= 0.0) continue;
+        float floorRun = step(0.84, hash(vec2(j, vSeed * 9.0)));
 
-      float k = hash(id + vSeed * 37.0);
-      float self = hash(id + vSeed);
-      // Roughly a third of the windows. Real towers at night are
-      // mostly dark, and the ones that are not are what you look at.
-      float lit = step(0.68, k);
+        for (int a = 0; a < 5; a++) {
+          float i = floor(lo.x) + float(a);
+          if (i > hi.x) break;
+          float ox = max(0.0, min(hi.x, i + 0.8) - max(lo.x, i + 0.18));
+          if (ox <= 0.0) continue;
+          vec2 id = vec2(i, j);
 
-      float floorRun = step(0.84, hash(vec2(id.y, vSeed * 9.0)));
-      lit = max(lit, floorRun * step(0.35, self));
+          float k = hash(id + vSeed * 37.0);
+          float self = hash(id + vSeed);
+          // Roughly a third of the windows. Real towers at night are
+          // mostly dark, and the ones that are not are what you look at.
+          float lit = max(step(0.68, k), floorRun * step(0.35, self));
 
-      // NB: active, filter, input, output and sample are reserved
-      // words in GLSL ES and will not compile.
-      float swaps = step(0.92, hash(id.yx + vSeed * 3.0));
-      float slot = floor(uTime * 0.12 + self * 40.0);
-      lit = mix(lit, step(0.45, hash(id + slot * 1.7)), swaps);
+          // NB: active, filter, input, output and sample are reserved
+          // words in GLSL ES and will not compile.
+          float swaps = step(0.92, hash(id.yx + vSeed * 3.0));
+          float slot = floor(uTime * 0.12 + self * 40.0);
+          lit = mix(lit, step(0.45, hash(id + slot * 1.7)), swaps);
 
-      // Amber, with a minority of cool-white offices. NEVER red. Red
-      // windows read as alarm, and red here belongs to the obstruction
-      // lights, the ceiling strip and the wordmark alone.
-      vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
-      float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
+          // Amber, with a minority of cool-white offices. NEVER red. Red
+          // windows read as alarm, and red here belongs to the obstruction
+          // lights, the ceiling strip and the wordmark alone.
+          vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
+          float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
 
-      col += lamp * win * lit * bright * 1.05 * uDim * seen;
+          sum += lamp * lit * bright * ox * oy;
+        }
+      }
+
+      col += sum / (w.x * w.y) * 1.05 * uDim * seen;
     }
 
     col *= mix(1.0, 0.07, far);
