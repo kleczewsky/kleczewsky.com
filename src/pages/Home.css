@@ -49,6 +49,12 @@
   text-shadow:
     0 2px 30px rgb(1 4 1 / 0.85),
     0 0 90px rgb(1 4 1 / 0.7);
+  /* Stays in the DOM at opacity 0 over the canvas once the scene is
+     ready, so a touch-drag on the scene must not land a selection on
+     invisible text underneath it. */
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .home-name span {
