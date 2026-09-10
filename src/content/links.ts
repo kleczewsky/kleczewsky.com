@@ -1,5 +1,3 @@
-/* EMAIL is still a placeholder: the address is not real. */
-
 export const EMAIL = "hello@kleczewsky.com";
 
 export interface Profile {

@@ -97,27 +97,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Prose */
-.prose {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s4);
-  margin-top: var(--s6);
-  color: var(--ink-dim);
-}
-
 .prose-lead {
   margin-top: var(--s5);
-}
-
-.about-now {
-  margin-top: var(--s8);
-  padding-top: var(--s5);
-  border-top: 1px solid var(--rule);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s3);
 }
 
 /* Contact */
@@ -508,6 +489,7 @@
 }
 
 .slab-foot {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

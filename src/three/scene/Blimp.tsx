@@ -107,7 +107,8 @@ export function Blimp({
       // from before the pause parked in the future forever.
       const t = clock.elapsedTime;
       const since = t - volley.current;
-      if ((since < 0 || since > FIRE_RUN) && hit.over(e.clientX, e.clientY, true)) volley.current = t;
+      if ((since < 0 || since > FIRE_RUN) && hit.over(e.clientX, e.clientY, true))
+        volley.current = t;
     };
 
     window.addEventListener("click", click);

@@ -31,8 +31,7 @@ src/three/      the hero scene (R3F). knobs.ts holds every tuned value.
 src/components/ chrome: frame, top and bottom bars, scrollbar.
 src/pages/      one file per route. /system is the living token reference.
 src/styles/     tokens, base, shared components.
-src/i18n/       en + pl. pl.ts is typed against en.ts, so a missing key
-                fails typecheck.
+src/i18n/       en + pl. pl.ts is typed against en.ts
 ```
 
 ## Scene

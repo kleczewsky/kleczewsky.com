@@ -283,10 +283,7 @@ export function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) 
           >
             <planeGeometry args={[0.075, GLASS_HALF_H * 3]} />
           </mesh>
-          <mesh
-            position={[side * mull - side * 0.046, EYE, GLASS_Z + 0.008]}
-            material={s.edge}
-          >
+          <mesh position={[side * mull - side * 0.046, EYE, GLASS_Z + 0.008]} material={s.edge}>
             <planeGeometry args={[0.014, GLASS_HALF_H * 3]} />
           </mesh>
         </group>

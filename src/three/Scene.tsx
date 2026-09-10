@@ -25,7 +25,8 @@ export default function Scene({
   // a single ratio from the device tier is a guess, since the same
   // laptop on its own panel vs. a 4K display differs 4x in fragments.
   const base = tier === "a" ? { min: 1, max: 1.75 } : { min: 0.75, max: 1.25 };
-  const [dpr, setDpr] = useState(base.min);
+  /** What the monitor last asked for, before the range is applied. */
+  const [wanted, setWanted] = useState(base.min);
 
   // Cost is fragments, so both bounds follow the canvas, not the
   // device. Letterboxed to a band it is a quarter the area of a
@@ -48,11 +49,10 @@ export default function Scene({
     return () => ro.disconnect();
   }, []);
 
-  // The monitor only moves the ratio on its own schedule, so carry it
-  // into a new range rather than waiting for the next incline.
-  useEffect(() => {
-    setDpr((v) => Math.min(Math.max(v, range.min), range.max));
-  }, [range.min, range.max]);
+  // Clamped here rather than stored clamped: the monitor only moves the
+  // ratio on its own schedule, so a resize would otherwise leave the
+  // old range's value in place until the next incline.
+  const dpr = Math.min(Math.max(wanted, range.min), range.max);
 
   // No scroll listener: the observer watches the stage element itself,
   // so it fires whatever height --scene-h gives it.
@@ -124,9 +124,9 @@ export default function Scene({
             bounds={(refresh) => [Math.min(refresh * 0.7, 45), Math.min(refresh * 0.92, 70)]}
             flipflops={3}
             onChange={({ factor }) =>
-              setDpr(Math.round((range.min + factor * (range.max - range.min)) * 4) / 4)
+              setWanted(Math.round((range.min + factor * (range.max - range.min)) * 4) / 4)
             }
-            onFallback={() => setDpr(range.min)}
+            onFallback={() => setWanted(range.min)}
           />
         )}
         <Content

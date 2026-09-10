@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 /* Runs before paint and sets data-tier on <html>: a = full scene,
    b = reduced, c = no WebGL, three.js chunk never requested. */
 
@@ -46,5 +48,19 @@ export function probeTier(): Tier {
 
 export function applyTier(tier: Tier = probeTier()): Tier {
   document.documentElement.dataset.tier = tier;
+  return tier;
+}
+
+export function readTier(): Tier {
+  return (document.documentElement.dataset.tier as Tier) ?? "c";
+}
+
+/** Null until after hydration. The flag is written to <html> before
+ * React boots, so reading it during render would make the server and
+ * client disagree on the first pass. */
+export function useTier(): Tier | null {
+  const [tier, setTier] = useState<Tier | null>(null);
+  // oxlint-disable-next-line react/set-state-in-effect
+  useEffect(() => setTier(readTier()), []);
   return tier;
 }

@@ -26,7 +26,12 @@ const MARK_WIDTH = 0.56;
  * drag-resize must not run one per frame. */
 const RESIZE_SETTLE = 180;
 
-function buildWordmark(width: number, height: number, tokens: Tokens, d: DebugState): Mark | null {
+/** The three knobs the mark is actually drawn from. Passed as values
+ * rather than the whole DebugState so the memo below can list exactly
+ * what it depends on. */
+type MarkKnobs = Pick<DebugState, "markDepth" | "markScale" | "markGlow">;
+
+function buildWordmark(width: number, height: number, tokens: Tokens, d: MarkKnobs): Mark | null {
   // h1, not just the attribute: the flag this sets lives on <html>,
   // and [data-wordmark] alone matched the root element first.
   const el = document.querySelector<HTMLElement>("h1[data-wordmark]");
@@ -165,9 +170,14 @@ export function useWordmark(tokens: Tokens, d: DebugState) {
     };
   }, []);
 
+  const { markDepth, markScale, markGlow } = d;
+
   const mark = useMemo(
-    () => buildWordmark(size.width, size.height, tokens, d),
-    [size.width, size.height, tokens, fonts, d.markDepth, d.markScale, d.markGlow],
+    // fonts is not read in here. It flips once when Teko lands, and
+    // the glyph metrics measured inside change with it.
+    () => buildWordmark(size.width, size.height, tokens, { markDepth, markScale, markGlow }),
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [size.width, size.height, tokens, fonts, markDepth, markScale, markGlow],
   );
 
   // Says only that the scene HAS a mark. Whether the DOM heading may

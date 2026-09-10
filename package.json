@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "kleczewsky.com — portfolio",
+  "description": "kleczewsky.com portfolio",
   "author": "Eryk Kleczewski",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,11 @@
     "build:server": "vite build --outDir dist-server --ssr src/entry-server.tsx",
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview --outDir dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm run format:check"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
@@ -28,6 +32,8 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.82.0",
+    "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"
   }

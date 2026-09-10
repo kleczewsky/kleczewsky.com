@@ -65,12 +65,12 @@
   opacity: 0;
 }
 
-/* Delayed, and shorter than the canvas fade it hands over to. Started
-   together the heading was already half gone while the canvas was
-   still near transparent, and the wordmark visibly thinned in the
-   middle of the handover. */
+/* No delay, and far shorter than the canvas fade it hands over to.
+   The scene draws this word wider than the stylesheet sets it, so any
+   overlap between the two shows as a ghost around the letters. Gone
+   inside 160ms, while the canvas is still climbing. */
 .home-name {
-  transition: opacity var(--d-slow, 420ms) var(--e-out, ease-out) var(--d-base, 280ms);
+  transition: opacity var(--d-fast, 160ms) var(--e-out, ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -186,4 +186,341 @@
 
 .home-contact .contact-email {
   word-break: break-word;
+}
+
+/* About */
+.about {
+  width: 100%;
+  display: grid;
+  gap: var(--s7);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+  .about {
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: var(--s8);
+    align-items: start;
+  }
+
+  .about-plate {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--s5));
+  }
+}
+
+.about-plate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding: var(--s5);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer),
+    100% 100%,
+    var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer))
+  );
+}
+
+/* The clip-path eats the border along both chamfers. Redrawing the
+   lower one in the accent is the cheapest way to make the cut read as
+   deliberate; the bar is the hypotenuse, so root two. */
+.about-plate::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: var(--chamfer);
+  width: calc(var(--chamfer) * 1.4143);
+  height: 1px;
+  background: var(--primary);
+  transform-origin: left bottom;
+  transform: rotate(45deg);
+}
+
+.about-plate-top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+}
+
+.about-plate-id {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+/* Home.css is emitted before base.css, so a bare .about-plate-name
+   loses to .t-display on equal specificity. */
+.about-plate .about-plate-name {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  color: var(--ink);
+}
+
+.about-specs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding-block: var(--s4);
+  border-block: 1px solid var(--rule);
+}
+
+.about-specs dd {
+  margin: 0;
+}
+
+.about-specs .about-live {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--ok);
+}
+
+.about-live .chip-dot {
+  animation: pulse 2.4s var(--e-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-live .chip-dot {
+    animation: none;
+  }
+}
+
+.about-plate-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.about-stack {
+  color: var(--ink-dim);
+}
+
+.about-plate-cta {
+  align-self: flex-start;
+  margin-top: var(--s2);
+}
+
+/* The log: each paragraph tagged with what it answers, so the block
+   can be scanned instead of read. */
+.about-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s8);
+  min-width: 0;
+}
+
+.about-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+}
+
+.about-log li {
+  position: relative;
+  display: grid;
+  gap: var(--s2);
+  padding-inline-start: var(--s5);
+  border-inline-start: 1px solid var(--rule);
+}
+
+.about-log li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -1px;
+  top: 0;
+  width: 1px;
+  height: 1.6em;
+  background: var(--primary);
+}
+
+.about-log-mark {
+  color: var(--ink-faint);
+}
+
+.about-log-text {
+  color: var(--ink-dim);
+}
+
+@media (min-width: 1120px) {
+  .about-log li {
+    grid-template-columns: 128px minmax(0, 1fr);
+    gap: var(--s5);
+    align-items: start;
+  }
+
+  .about-log-mark {
+    padding-top: 0.3em;
+  }
+}
+
+/* Figures */
+.about-figures {
+  display: grid;
+  gap: var(--grid-gap);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .about-figures {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.about-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4) var(--s4) var(--s5);
+  background: var(--card-sunk);
+  border: 1px solid var(--card-edge);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+  transition: border-color var(--d-base) var(--e-out);
+}
+
+.about-figure:hover {
+  border-color: var(--primary-edge);
+}
+
+.about-figure .about-figure-value {
+  font-size: clamp(2.25rem, 3.6vw, 3rem);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.about-figure-label {
+  max-width: 26ch;
+}
+
+/* Now */
+.about-now {
+  width: 100%;
+  margin-top: var(--s8);
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s5);
+  background: var(--panel-sunk);
+  border: 1px solid var(--rule);
+  border-inline-start: 2px solid var(--primary);
+  /* Chamfered on the trailing corners only: clipping the leading edge
+     would take the accent bar with it. */
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer),
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%
+  );
+}
+
+@media (min-width: 760px) {
+  .about-now {
+    grid-template-columns: 128px minmax(0, 1fr);
+    gap: var(--s5);
+    align-items: baseline;
+    padding: var(--s5) var(--s6);
+  }
+}
+
+.about-now-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--ok);
+}
+
+.about-now-mark .chip-dot {
+  animation: pulse 2.4s var(--e-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-now-mark .chip-dot {
+    animation: none;
+  }
+}
+
+.about-now .about-now-text {
+  color: var(--ink);
+  max-width: 72ch;
+}
+
+/* Scroll-linked reveal, compositor-driven and progressive: without
+   view() support the section is simply already there. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-tier="c"]) .about-log li,
+    :root:not([data-tier="c"]) .about-figure,
+    :root:not([data-tier="c"]) .about-now {
+      animation: about-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 24%;
+    }
+  }
+}
+
+@keyframes about-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The client stamp, pressed into the card: a dark recess through a
+   CSS mask, with a lip catching the light below it. The mask is what
+   makes a supplied logo monotone whatever colours it ships with, and
+   it keeps the file out of the bundle.
+
+   Hung off the top of the foot, which already holds the slab's spare
+   height open, and behind the content so the copy stays legible over
+   it. */
+.slab-stamp-zone {
+  position: absolute;
+  z-index: -1;
+  inset-inline-end: 0;
+  bottom: 100%;
+  width: min(64%, 260px);
+  height: 78px;
+  pointer-events: none;
+  /* The lip lives on the zone, not the mark: the light stays level
+     while the stamp itself sits off-square. */
+  filter: drop-shadow(0 2px 0 rgb(255 255 255 / 0.16)) drop-shadow(0 -1px 0 rgb(0 0 0 / 0.9));
+}
+
+.slab-stamp {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgb(1 4 1 / 0.42);
+  transform: rotate(-13deg);
+  -webkit-mask-image: var(--stamp);
+  mask-image: var(--stamp);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: right center;
+  mask-position: right center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+@media (min-width: 720px) {
+  .slab-stamp-zone {
+    width: min(48%, 360px);
+    height: 116px;
+  }
 }

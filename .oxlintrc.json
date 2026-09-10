@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn"],
+  "env": { "browser": true, "es2024": true },
+  "categories": { "correctness": "error", "suspicious": "warn" },
+  "ignorePatterns": ["dist", "dist-server", "node_modules"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/no-unknown-property": "off",
+    "react/immutability": "off"
+  }
+}

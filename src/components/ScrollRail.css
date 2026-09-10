@@ -34,6 +34,11 @@
 
 .rail--live {
   translate: 0 0;
+  /* The delay on .rail is for the retract only. Inherited here it also
+     held the bar back a tenth of a second after the first wheel notch,
+     which read as the bar being slow rather than as a linger. */
+  transition-delay: 0s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rail--idle {

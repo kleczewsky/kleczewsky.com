@@ -80,6 +80,15 @@ function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
         </div>
 
         <div className="slab-foot">
+          {study.mark ? (
+            <div className="slab-stamp-zone" aria-hidden="true">
+              <span
+                className="slab-stamp"
+                style={{ "--stamp": `url(${study.mark})` } as React.CSSProperties}
+              />
+            </div>
+          ) : null}
+
           {study.links?.map((link, n) => (
             <a
               key={link.url}
@@ -102,6 +111,95 @@ function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** The about section is a dossier: a spec plate that stays put, a
+    tagged log beside it, and three figures the prose only mentions. */
+function AboutPlate() {
+  const { t } = useLocale();
+
+  return (
+    <aside className="about-plate">
+      <div className="about-plate-top">
+        <span className="t-micro t-primary">{t.about.dossier}</span>
+        <span className="leader-fill" aria-hidden="true" />
+        <span className="t-micro t-faint">EK / 01</span>
+      </div>
+
+      <div className="about-plate-id">
+        <p className="t-display about-plate-name">Eryk Kleczewski</p>
+        <p className="t-label t-dim">{t.meta.tagline}</p>
+      </div>
+
+      <dl className="about-specs">
+        <div className="leader">
+          <dt className="t-micro t-faint">{t.about.baseLabel}</dt>
+          <span className="leader-fill" aria-hidden="true" />
+          <dd className="t-micro leader-value">{t.status.location}</dd>
+        </div>
+        <div className="leader">
+          <dt className="t-micro t-faint">{t.about.statusLabel}</dt>
+          <span className="leader-fill" aria-hidden="true" />
+          <dd className="t-micro leader-value about-live">
+            <span className="chip-dot" />
+            {t.status.available}
+          </dd>
+        </div>
+      </dl>
+
+      <div className="about-plate-stack">
+        <p className="t-micro t-faint">{t.about.stackLabel}</p>
+        <p className="t-small about-stack">{t.home.stack}</p>
+      </div>
+
+      <a href="#contact" className="btn btn-glow about-plate-cta">
+        {t.home.toContact}
+      </a>
+    </aside>
+  );
+}
+
+function AboutSection() {
+  const { t } = useLocale();
+
+  return (
+    <section className="section wrap" id="about">
+      <Head mark="01" title={t.nav.about} lead={t.about.lead} />
+
+      <div className="about">
+        <AboutPlate />
+
+        <div className="about-column">
+          <ol className="about-log" role="list">
+            {t.about.body.map((entry) => (
+              <li key={entry.mark}>
+                <p className="t-micro about-log-mark">{entry.mark}</p>
+                <p className="t-body about-log-text">{entry.text}</p>
+              </li>
+            ))}
+          </ol>
+
+          <ul className="about-figures" role="list">
+            {t.about.figures.map((figure) => (
+              <li key={figure.label} className="about-figure">
+                <span className="t-micro t-primary">{figure.kicker}</span>
+                <span className="t-display about-figure-value">{figure.value}</span>
+                <span className="t-small t-faint about-figure-label">{figure.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/*<div className="about-now">*/}
+      {/*  <h3 className="t-micro about-now-mark">*/}
+      {/*    <span className="chip-dot" />*/}
+      {/*    {t.about.nowHeading}*/}
+      {/*  </h3>*/}
+      {/*  <p className="t-lead about-now-text">{t.about.now}</p>*/}
+      {/*</div>*/}
+    </section>
   );
 }
 
@@ -147,20 +245,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="section wrap" id="about">
-        <Head mark="01" title={t.nav.about} lead={t.about.lead} />
-        <div className="prose">
-          {t.about.body.map((paragraph) => (
-            <p key={paragraph.slice(0, 24)} className="t-body">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-        <section className="about-now">
-          <h2 className="t-label t-dim">{t.about.nowHeading}</h2>
-          <p className="t-body">{t.about.now}</p>
-        </section>
-      </section>
+      <AboutSection />
 
       {/* Freelance readers stop at the first section they can act on,
           so the offer goes above the proof. */}

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import type { Tier } from "../lib/tier";
+import { useTier } from "../lib/tier";
 import { useDebug } from "./knobs";
 import "./StageCanvas.css";
 
@@ -49,8 +49,7 @@ function Readout() {
       setLine(document.documentElement.dataset.gl ?? "");
 
       const nav = performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
+        PerformanceNavigationTiming | undefined;
       const paint = performance.getEntriesByName("first-contentful-paint")[0];
       // Chrome only, and behind a flag in some builds; treat as optional.
       const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
@@ -79,20 +78,16 @@ function Readout() {
 }
 
 export default function Stage() {
-  const [tier, setTier] = useState<Tier | null>(null);
-  const [progress, setProgress] = useState(0);
+  const tier = useTier();
+  const [reached, setReached] = useState(0);
   const [ready, setReady] = useState(false);
   const [lost, setLost] = useState(false);
   const d = useDebug();
 
-  useEffect(() => {
-    setTier((document.documentElement.dataset.tier as Tier) ?? "c");
-  }, []);
-
-  useEffect(() => {
-    if (tier === null) return;
-    setProgress(tier === "c" ? DONE : AT_TIER);
-  }, [tier]);
+  // The bar only ever moves forward, so it is the furthest milestone
+  // reached against what the tier alone already tells us.
+  const fromTier = tier === null ? 0 : tier === "c" ? DONE : AT_TIER;
+  const progress = Math.max(reached, fromTier);
 
   // The wordmark handoff waits for the reveal. Fading the DOM heading
   // the moment its texture was built swapped a lit headline for a
@@ -116,11 +111,11 @@ export default function Stage() {
 
         {gl ? (
           <Suspense fallback={null}>
-            <Mounted onMount={() => setProgress((p) => Math.max(p, AT_CHUNK))} />
+            <Mounted onMount={() => setReached((p) => Math.max(p, AT_CHUNK))} />
             <Scene
               tier={tier}
               onReady={() => {
-                setProgress(DONE);
+                setReached(DONE);
                 setReady(true);
               }}
               onLost={() => {

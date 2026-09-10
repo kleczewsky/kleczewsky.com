@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { LOCALES, NAV_ITEMS, href, match, type Locale } from "../routes";
 import { RouteLink, rememberLocale, useLocale } from "../lib/locale";
+import { useTier } from "../lib/tier";
 import "./Hud.css";
 
 /* The bottom strip only ever shows values that are actually true:
@@ -54,23 +55,15 @@ function LanguageSwitch() {
   );
 }
 
-/** Reads the tier the device probe actually settled on. */
-function useTier() {
-  const [tier, setTier] = useState("c");
-  useEffect(() => {
-    setTier(document.documentElement.dataset.tier ?? "c");
-  }, []);
-  return tier;
-}
-
 export default function Hud() {
   const { t, locale } = useLocale();
   const time = useClock();
-  const tier = useTier();
+  const tier = useTier() ?? "c";
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
 
   // Any navigation closes the sheet, including back/forward.
+  // oxlint-disable-next-line react/set-state-in-effect, react/exhaustive-effect-dependencies
   useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {

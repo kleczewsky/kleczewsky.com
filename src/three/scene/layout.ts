@@ -151,8 +151,15 @@ export function useSuburbs(count: number, tokens: Tokens): Lots {
     const base = tokens.facade.clone().multiplyScalar(0.34);
     const haze = tokens.haze.clone().multiplyScalar(0.34);
 
-    const lots: { x: number; y: number; z: number; w: number; h: number; d: number; c: THREE.Color }[] =
-      [];
+    const lots: {
+      x: number;
+      y: number;
+      z: number;
+      w: number;
+      h: number;
+      d: number;
+      c: THREE.Color;
+    }[] = [];
 
     for (let i = 0; i < count; i++) {
       // Overlaps downtown's tail, laid out strictly behind it, the

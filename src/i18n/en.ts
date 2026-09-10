@@ -108,10 +108,32 @@ const en = {
   },
   about: {
     lead: "I turn complex business requirements into scalable, high-performing products: from healthcare platforms for a national retail brand to a SaaS system carrying 200k monthly users.",
+    dossier: "Profile",
+    baseLabel: "Base",
+    stackLabel: "Stack",
+    statusLabel: "Status",
     body: [
-      "Most of what I build is PHP and Laravel, with FilamentPHP and clean architecture underneath. On the frontend I adapt to what the project needs: React, or Laravel's own Blade and Livewire.",
-      "I like problems where the constraint is real. A booking widget that has to render correctly inside a stranger's stylesheet. A directory of several hundred entries where the whole product is whether someone can find the right one. A payment flow where the failure mode is somebody's medication.",
-      "I focus on measurable outcomes: I've cut load times by 80% on a core booking flow, cleared out years of legacy technical debt, and taken features from the first sketch through to production. I read the docs, write the tests for the paths that carry money, and put error reporting in before the first incident rather than after it.",
+      {
+        mark: "Stack",
+        text: "Most of what I build is PHP and Laravel, with FilamentPHP and clean architecture underneath. On the frontend I adapt to what the project needs: React, or Laravel's own Blade and Livewire.",
+      },
+      {
+        mark: "Constraints",
+        text: "I like problems where the constraint is real. A booking widget that has to render correctly inside a stranger's stylesheet. A directory of several hundred entries where the whole product is whether someone can find the right one. A payment flow where the failure mode is somebody's medication.",
+      },
+      {
+        mark: "Outcomes",
+        text: "I focus on measurable outcomes: I've cut load times by 80% on a core booking flow, cleared out years of legacy technical debt, and taken features from the first sketch through to production. I read the docs, write the tests for the paths that carry money, and put error reporting in before the first incident rather than after it.",
+      },
+    ],
+    figures: [
+      { kicker: "Scale", value: "200K", label: "Monthly users on the SaaS platform I work on." },
+      { kicker: "Speed", value: "80%", label: "Cut from a core booking flow's load time." },
+      {
+        kicker: "Triage",
+        value: "15 min",
+        label: "To clear a problem that had blocked a team for weeks.",
+      },
     ],
     nowHeading: "Now",
     now: "Driving backend architecture and performance work on a high-traffic SaaS platform (150k to 200k monthly users) as a senior full-stack developer.",

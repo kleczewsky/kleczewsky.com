@@ -108,10 +108,36 @@ const pl: Dict = {
   },
   about: {
     lead: "Zamieniam złożone wymagania biznesowe w skalowalne, wydajne produkty: od platform zdrowotnych dla ogólnopolskiej marki po system SaaS obsługujący 200 tysięcy użytkowników miesięcznie.",
+    dossier: "Profil",
+    baseLabel: "Baza",
+    stackLabel: "Stack",
+    statusLabel: "Status",
     body: [
-      "Większość tego, co buduję, to PHP i Laravel, z FilamentPHP i czystą architekturą pod spodem. Na froncie dopasowuję się do potrzeb projektu: React albo własny ekosystem Laravela, Blade i Livewire.",
-      "Lubię problemy z prawdziwym ograniczeniem. Widget rezerwacyjny, który musi renderować się poprawnie w cudzym CSS. Katalog kilkuset pozycji, w którym całym produktem jest to, czy ktoś znajdzie właściwą. Płatność, w której trybem awarii jest czyjś lek.",
-      "Skupiam się na mierzalnych efektach: skróciłem czas ładowania kluczowego flow rezerwacji o 80%, wyczyściłem lata zaległego długu technicznego i prowadziłem funkcje od pierwszego szkicu aż po produkcję. Czytam dokumentację, piszę testy dla ścieżek, którymi idą pieniądze, i wdrażam raportowanie błędów przed pierwszą awarią, a nie po niej.",
+      {
+        mark: "Stack",
+        text: "Większość tego, co buduję, to PHP i Laravel, z FilamentPHP i czystą architekturą pod spodem. Na froncie dopasowuję się do potrzeb projektu: React albo własny ekosystem Laravela, Blade i Livewire.",
+      },
+      {
+        mark: "Ograniczenia",
+        text: "Lubię problemy z prawdziwym ograniczeniem. Widget rezerwacyjny, który musi renderować się poprawnie w cudzym CSS. Katalog kilkuset pozycji, w którym całym produktem jest to, czy ktoś znajdzie właściwą. Płatność, w której trybem awarii jest czyjś lek.",
+      },
+      {
+        mark: "Efekty",
+        text: "Skupiam się na mierzalnych efektach: skróciłem czas ładowania kluczowego flow rezerwacji o 80%, wyczyściłem lata zaległego długu technicznego i prowadziłem funkcje od pierwszego szkicu aż po produkcję. Czytam dokumentację, piszę testy dla ścieżek, którymi idą pieniądze, i wdrażam raportowanie błędów przed pierwszą awarią, a nie po niej.",
+      },
+    ],
+    figures: [
+      {
+        kicker: "Skala",
+        value: "200 tys.",
+        label: "Użytkowników miesięcznie na platformie SaaS, którą rozwijam.",
+      },
+      { kicker: "Szybkość", value: "80%", label: "Krócej ładuje się kluczowe flow rezerwacji." },
+      {
+        kicker: "Diagnoza",
+        value: "15 min",
+        label: "Tyle zajęło rozwiązanie problemu, który blokował zespół od tygodni.",
+      },
     ],
     nowHeading: "Teraz",
     now: "Rozwijam architekturę backendu i wydajność systemu SaaS o dużym ruchu (150 do 200 tysięcy użytkowników miesięcznie) jako senior full-stack developer.",

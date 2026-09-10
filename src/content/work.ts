@@ -8,21 +8,20 @@ export interface CaseStudy {
   /** Display name. Not translated: it is a product name. */
   name: string;
   status: "live" | "offline" | null;
+  /** Monotone stamp on the slab, served from /marks. Omit and the
+      slab carries its skyline watermark alone. */
+  mark?: string;
   /** External links. More than one when a project spans properties. */
   links?: { label: string; url: string }[];
   summary: Text;
 }
-
-const PLACEHOLDER: Text = {
-  en: "Placeholder: real copy pending.",
-  pl: "Placeholder: właściwy opis w przygotowaniu.",
-};
 
 export const WORK: CaseStudy[] = [
   {
     id: "zjedzmy",
     index: "01",
     name: "Zjedz.my",
+    mark: "/marks/zjedzmy.svg",
     status: "live",
     links: [{ label: "zjedz.my", url: "https://zjedz.my" }],
     summary: {
@@ -34,17 +33,22 @@ export const WORK: CaseStudy[] = [
     id: "slinger",
     index: "02",
     name: "Slinger",
+    mark: "/marks/slinger.svg",
     status: "live",
     links: [
       { label: "slingerstore.com", url: "https://slingerstore.com" },
       { label: "portalstrzelca.pl", url: "https://portalstrzelca.pl" },
     ],
-    summary: PLACEHOLDER,
+    summary: {
+      en: "My own product, from design to sale: 3D-printed magnetic mounts that reorganise a gun safe without drilling into it. I design the parts and run the Shopify storefront. Portal Strzelca sits alongside it as the way customers arrive: a catalogue of 715 shooting ranges across 533 towns, filterable by type, distance and opening hours, with an exam calendar in progress.",
+      pl: "Mój własny produkt, od projektu po sprzedaż: uchwyty magnetyczne drukowane w 3D, które porządkują sejf na broń bez wiercenia w nim. Projektuję części i prowadzę sklep na Shopify. Obok działa Portal Strzelca, przez który trafiają do niego klienci: katalog 715 strzelnic w 533 miastach, z filtrowaniem po rodzaju, dystansie i godzinach otwarcia, oraz kalendarz egzaminów w przygotowaniu.",
+    },
   },
   {
     id: "plusrecepta",
     index: "03",
     name: "PlusRecepta",
+    mark: "/marks/plusrecepta.svg",
     status: "offline",
     summary: {
       en: "An online prescription and consultation platform built for Super-Pharm, a 45-year-old Polish health and beauty chain. I led development from the ground up and consulted on the wider technology stack.",
@@ -55,6 +59,7 @@ export const WORK: CaseStudy[] = [
     id: "superpharm",
     index: "04",
     name: "Super-Pharm",
+    mark: "/marks/superpharm.svg",
     status: null,
     summary: {
       en: "Internal tools for Super-Pharm's business operations: automated marketing management, billing, and other back-office workflows. Along the way I ran Git and version-control training, sanity-checked external contractors' work, and once cleared a problem others had been stuck on for weeks in about fifteen minutes.",

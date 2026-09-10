@@ -87,7 +87,7 @@ export const DEBUG: DebugState = {
   trafficDensity: 0.55,
 
   fireBurst: 150,
-  fireGlow: 400,
+  fireGlow: 100,
   fireDim: 0.74,
 
   blimpAlt: 230,

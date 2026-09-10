@@ -65,6 +65,9 @@ export function Starfield({ tier, brightness }: { tier: Tier; brightness: number
       col.setXYZ(i, v * 0.84, v * 0.89, v);
     }
     col.needsUpdate = true;
+    // count is not read here: drei rebuilds the geometry when it
+    // changes, and the rewrite below has to follow.
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
   }, [brightness, count]);
 
   if (brightness <= 0) return null;
