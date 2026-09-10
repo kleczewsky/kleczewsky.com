@@ -1,4 +1,4 @@
-/* EMAIL is still a placeholder — the address is not real. */
+/* EMAIL is still a placeholder: the address is not real. */
 
 export const EMAIL = "hello@kleczewsky.com";
 

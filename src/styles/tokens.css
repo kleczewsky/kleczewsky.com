@@ -211,7 +211,7 @@
   }
 }
 
-/* Raise the dim ramp rather than the accent — the accent already
+/* Raise the dim ramp rather than the accent. The accent already
    clears the ground comfortably, the greys are what get tight. */
 @media (prefers-contrast: more) {
   :root {

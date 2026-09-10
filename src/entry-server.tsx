@@ -27,7 +27,7 @@ export function render(url: string): string {
 const escape = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** hreflang is what gets both language versions indexed — GitHub
+/** hreflang is what gets both language versions indexed. GitHub
  * Pages cannot redirect crawlers by Accept-Language. */
 export function head(url: string): string {
   const found = match(url);

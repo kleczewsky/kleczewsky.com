@@ -57,13 +57,20 @@
 }
 
 /* opacity, not visibility: the box has to keep holding its space,
-   and the scene re-measures this element on resize. */
-[data-scene-mark] .home-name {
+   and the scene re-measures this element on resize. Both flags are
+   needed: the mark existing is not the same as the canvas being up,
+   and fading on the first alone left the heading gone while the
+   scene was still linking shaders. */
+[data-scene-mark][data-scene="ready"] .home-name {
   opacity: 0;
 }
 
+/* Delayed, and shorter than the canvas fade it hands over to. Started
+   together the heading was already half gone while the canvas was
+   still near transparent, and the wordmark visibly thinned in the
+   middle of the handover. */
 .home-name {
-  transition: opacity var(--d-slow, 420ms) var(--e-out, ease-out);
+  transition: opacity var(--d-slow, 420ms) var(--e-out, ease-out) var(--d-base, 280ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -156,45 +163,6 @@
   .home-cards {
     grid-template-columns: repeat(3, 1fr);
   }
-}
-
-/* Work Index */
-.home-index {
-  width: 100%;
-  margin-top: var(--s7);
-  border-top: 1px solid var(--rule);
-}
-
-.home-index li {
-  border-bottom: 1px solid var(--rule);
-}
-
-.home-index-link {
-  width: 100%;
-  display: flex;
-  align-items: baseline;
-  gap: var(--s4);
-  padding: var(--s5) 0;
-  background: none;
-  border: none;
-  font: inherit;
-  color: inherit;
-  text-align: start;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    padding-inline-start var(--d-base) var(--e-mech),
-    color var(--d-fast) var(--e-out);
-}
-
-.home-index-link:hover {
-  padding-inline-start: var(--s3);
-  color: var(--primary);
-}
-
-.home-index-mark {
-  flex: none;
-  width: 2.5ch;
 }
 
 .work-status {

@@ -189,23 +189,6 @@ export default function Home() {
       <section className="section wrap" id="work">
         <Head mark="03" title={t.nav.work} lead={t.work.lead} />
         <WorkSlab i={i} setI={setI} />
-        {/* Unused for now */}
-        {/*<ol className="home-index" role="list">*/}
-        {/*  {WORK.map((study, n) => (*/}
-        {/*    <li key={study.id}>*/}
-        {/*      <button type="button" className="home-index-link" onClick={() => setI(n)}>*/}
-        {/*        <span className="t-label t-faint home-index-mark">{study.index}</span>*/}
-        {/*        <span className="t-title">{study.name}</span>*/}
-        {/*        <span className="leader-fill" aria-hidden="true" />*/}
-        {/*        {study.status ? (*/}
-        {/*          <span className={`t-micro work-status work-status--${study.status}`}>*/}
-        {/*            {study.status === "live" ? t.work.live : t.work.offline}*/}
-        {/*          </span>*/}
-        {/*        ) : null}*/}
-        {/*      </button>*/}
-        {/*    </li>*/}
-        {/*  ))}*/}
-        {/*</ol>*/}
       </section>
 
       {/* Facts, listed rather than sold. This is the section a tech

@@ -5,7 +5,7 @@ export type Text = Record<Locale, string>;
 export interface CaseStudy {
   id: string;
   index: string;
-  /** Display name. Not translated — it is a product name. */
+  /** Display name. Not translated: it is a product name. */
   name: string;
   status: "live" | "offline" | null;
   /** External links. More than one when a project spans properties. */

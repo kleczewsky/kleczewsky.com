@@ -50,6 +50,6 @@ export function rememberLocale(locale: Locale) {
   try {
     localStorage.setItem(STORAGE_KEY, locale);
   } catch {
-    /* private mode — the URL still carries the choice for this visit */
+    /* private mode: the URL still carries the choice for this visit */
   }
 }

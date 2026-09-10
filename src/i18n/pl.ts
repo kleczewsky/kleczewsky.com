@@ -1,7 +1,7 @@
 import type { Dict } from "./en";
 
 /* Typed against the English dictionary: a missing key fails
-   `npm run typecheck`. Polish runs 15-20% longer than English —
+   `npm run typecheck`. Polish runs 15-20% longer than English,
    where that breaks a layout, fix the layout, not the translation. */
 
 const pl: Dict = {

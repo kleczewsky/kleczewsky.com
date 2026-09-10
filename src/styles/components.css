@@ -436,7 +436,7 @@
   }
 }
 
-/* The watermark. Barely there on purpose — it is texture behind the
+/* The watermark. Barely there on purpose: it is texture behind the
    type, and the moment you can read it as a picture it competes. */
 .slab-mark {
   position: absolute;

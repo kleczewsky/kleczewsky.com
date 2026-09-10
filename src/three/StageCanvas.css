@@ -1,6 +1,6 @@
 /* Absolute rather than fixed: a fixed full-viewport WebGL canvas
    stays in the compositor for the whole page, and every scroll frame
-   had to blend it — that was the stutter. */
+   had to blend it. That was the stutter. */
 
 .stage {
   position: absolute;
@@ -25,15 +25,12 @@
   cursor: grabbing;
 }
 
-.stage canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
-
-/* Tier C sees this and nothing else, so it is the same composition as
-   the shader rather than a placeholder colour. */
-.stage--fallback {
+/* The gradient stays under the canvas for the whole session instead of
+   being swapped out for it. Tier C sees only this, so it is the same
+   composition as the shader rather than a placeholder colour. */
+.stage-base {
+  position: absolute;
+  inset: 0;
   background:
     radial-gradient(
       120% 38% at 50% 50%,
@@ -52,6 +49,25 @@
     );
 }
 
+/* Held transparent until every program has linked and the scene has
+   actually drawn, then brought up over the gradient. */
+.stage-gl {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--d-cine) var(--e-out);
+}
+
+.stage-gl--ready {
+  opacity: 1;
+}
+
+.stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 /* A soft top-and-bottom scrim. */
 .stage::after {
   content: "";
@@ -66,6 +82,52 @@
     rgb(1 4 1 / 0.2) 86%,
     rgb(1 4 1 / 0.45) 100%
   );
+}
+
+/* Load bar. Narrow: this is an instrument reading, not a download
+   dialog. Placed against the composition rather than at a round
+   fraction. On the band the heading fills the middle, so it goes
+   under it; on the full-bleed hero the bar below is what it has to
+   stay clear of. */
+.stage-load {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 10%;
+  translate: -50% 0;
+  width: min(148px, 34vw);
+  transition:
+    opacity var(--d-base) var(--e-out),
+    translate var(--d-base) var(--e-out);
+}
+
+@media (min-width: 860px) {
+  .stage-load {
+    top: 62%;
+    bottom: auto;
+  }
+}
+
+.stage-load--done {
+  opacity: 0;
+  translate: -50% 6px;
+}
+
+.stage-load-track {
+  display: block;
+  height: 1px;
+  background: var(--rule-strong);
+  overflow: hidden;
+}
+
+.stage-load-fill {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  box-shadow: var(--primary-bloom);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform var(--d-slow) var(--e-mech);
 }
 
 .glstat {

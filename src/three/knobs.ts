@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 /* Plain module object with a subscription, read per frame by the
    scene. Production never mounts the debug panel, so the defaults
-   below ARE the scene — copy a tuned panel value back here. */
+   below ARE the scene: copy a tuned panel value back here. */
 
 export type DebugState = {
   /** Free camera. WASD to move, drag to look, R and F for up and down. */
@@ -62,7 +62,7 @@ export const DEBUG: DebugState = {
   lockDpr: false,
   dpr: 1,
 
-  /* Threshold 0.76 admits only lit windows and obstruction lights —
+  /* Threshold 0.76 admits only lit windows and obstruction lights,
      the whole list of things in frame meant to read as sources. */
   bloom: 0.16,
   bloomThreshold: 0.76,

@@ -29,7 +29,7 @@ export function href(id: string, locale: Locale): string {
 
 const normalise = (p: string) => p.replace(/\/+$/, "") || "/";
 
-/** Anchors on the home page rather than routes of their own — about,
+/** Anchors on the home page rather than routes of their own: about,
  * work and contact live in Home's sections. Lab is a real route. */
 export interface NavItem {
   id: string;

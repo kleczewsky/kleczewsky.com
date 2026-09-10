@@ -91,7 +91,7 @@ a:hover {
   color: var(--ink);
 }
 
-/* Square, offset, accent — matches the hardware vocabulary rather
+/* Square, offset, accent, matches the hardware vocabulary rather
    than the browser default ring. */
 :focus-visible {
   outline: 2px solid var(--primary);
@@ -153,8 +153,8 @@ a:hover {
   line-height: 1.55;
 }
 
-/* The system voice. Every structural element — section marks, tags,
-   dates, nav — is set in this. */
+/* The system voice. Every structural element (section marks, tags,
+   dates, nav) is set in this. */
 .t-label {
   font-family: var(--f-mono);
   font-weight: 500;
