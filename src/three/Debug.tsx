@@ -41,6 +41,40 @@ const GROUPS: { title: string; rows: Row[] }[] = [
     ],
   },
   {
+    title: "beacons",
+    rows: [
+      { kind: "slider", key: "beaconSize", label: "size", min: 0, max: 8000, step: 50 },
+      { kind: "slider", key: "beaconCount", label: "count", min: 0, max: 90, step: 1 },
+    ],
+  },
+  {
+    title: "city",
+    rows: [
+      { kind: "slider", key: "trafficSpeed", label: "traffic", min: 0, max: 120, step: 1 },
+      { kind: "slider", key: "trafficGlow", label: "streaks", min: 0, max: 3, step: 0.02 },
+      { kind: "slider", key: "trafficDensity", label: "density", min: 0, max: 1, step: 0.02 },
+      { kind: "slider", key: "fireBurst", label: "burst", min: 20, max: 400, step: 5 },
+      { kind: "slider", key: "fireGlow", label: "spark", min: 0.2, max: 24, step: 0.2 },
+      { kind: "slider", key: "fireDim", label: "dim", min: 0, max: 1, step: 0.02 },
+    ],
+  },
+  {
+    title: "blimp",
+    rows: [
+      { kind: "slider", key: "blimpAlt", label: "alt", min: -60, max: 400, step: 5 },
+      { kind: "slider", key: "blimpSize", label: "size", min: 40, max: 600, step: 10 },
+      { kind: "slider", key: "blimpSpeed", label: "speed", min: 0, max: 160, step: 1 },
+    ],
+  },
+  {
+    title: "blinds",
+    rows: [
+      { kind: "slider", key: "blindDrop", label: "drop", min: 0, max: 0.8, step: 0.005 },
+      { kind: "slider", key: "blindPitch", label: "pitch", min: 0.008, max: 0.06, step: 0.001 },
+      { kind: "slider", key: "blindLight", label: "light", min: 0, max: 2, step: 0.01 },
+    ],
+  },
+  {
     title: "wordmark",
     rows: [
       { kind: "slider", key: "markDepth", label: "depth", min: -3200, max: -60, step: 10 },

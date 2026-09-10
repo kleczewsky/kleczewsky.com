@@ -4,8 +4,9 @@
 
 .stage {
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 100svh;
+  inset-inline: 0;
+  top: var(--scene-top);
+  height: var(--scene-h);
   z-index: var(--z-scene);
   pointer-events: none;
   overflow: hidden;

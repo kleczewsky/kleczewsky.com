@@ -11,7 +11,7 @@
   /* No gap: every plate carries its own padding and dividing rule. A
        flex gap on top of that pushed the action wedge off the right of
        the viewport. */
-  height: 46px;
+  height: var(--nav-h);
   padding-inline-start: var(--gutter);
   padding-inline-end: 0;
 }

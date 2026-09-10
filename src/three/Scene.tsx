@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { Canvas, advance, useFrame, useThree } from "@react-three/fiber";
 import {
   FlyControls,
@@ -34,7 +34,11 @@ const CAM_Z = 2.2;
 const GLASS_HALF_H = GLASS_DIST * Math.tan(((FOV / 2) * Math.PI) / 180);
 
 /** Ground level. The tallest towers still cross the eye line. */
-const CITY_FLOOR = -230;
+const CITY_FLOOR = -170;
+
+/** CSS area a full-height canvas covers, and the reference the pixel
+ * ratio ceiling is scaled from. */
+const RATIO_AREA = 500_000;
 
 /** Street block size, in world units. Also the window bay module. */
 const BLOCK = 42;
@@ -43,9 +47,17 @@ const SITES = 520;
 const MAST_LIMIT = 90;
 const ROOF_LIMIT = 150;
 
+/** One volley: shells, sparks each, then a finale on its own with more
+ * of them. FIRE_RUN is the length in seconds, which the window dim and
+ * the retrigger cooldown are both timed against. */
+const SHELLS = 6;
+const SPARKS = 110;
+const HEART = 260;
+const FIRE_RUN = 10;
+
 /** Far-field filler: past two kilometres nothing survives but the
  * outline, so these carry no windows, setbacks or shader at all. */
-const SUBURBS = 2400;
+const SUBURBS = 2000;
 
 /** Overlap between stacked tiers, and into the ground. Without it the
     coplanar faces z-fight at grazing angles. */
@@ -62,6 +74,7 @@ const ORDER = {
   sky: 100,
   /** Transparent, in depth order out to in. */
   stars: 1,
+  blimp: 1,
   wordmark: 2,
   beacons: 3,
   glass: 4,
@@ -139,85 +152,12 @@ function smoothstep(a: number, b: number, x: number) {
   return t * t * (3 - 2 * t);
 }
 
-const NIGHT_FRAG = /* glsl */ `
-  precision mediump float;
-  varying vec3 vDir;
-  uniform vec3 uGlow;
-  uniform float uTime;
-
-  float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(41.3, 289.1))) * 43758.5453);
-  }
-
-  void main() {
-    vec3 d = normalize(vDir);
-    float h = clamp(d.y, -1.0, 1.0);
-
-    // Sky glow from the city below. Pale and cold, NOT red: this is the
-    // sky scattering streetlight, and from up here that reads as a lift
-    // in the blue rather than as a colour of its own.
-    float glow = exp(-max(h, 0.0) * 13.0) * step(-0.03, h);
-    float ahead = smoothstep(-0.5, 1.0, -d.z);
-    vec3 col = uGlow * glow * mix(0.06, 0.34, ahead);
-
-    // The stars are drei's now, as a real point cloud. What is left
-    // here is the horizon lift and the dither, which is all a
-    // full-screen shader should ever have been doing.
-    col += hash(gl_FragCoord.xy + uTime) * 0.012;
-
-    gl_FragColor = vec4(col, 1.0);
-  }
-`;
-
-function NightSky({ tokens }: { tokens: Tokens }) {
-  const mat = useRef<THREE.ShaderMaterial>(null);
-
-  const uniforms = useMemo(
-    () => ({
-      uGlow: { value: tokens.skyHorizon.clone() },
-      uTime: { value: 0 },
-    }),
-    [tokens],
-  );
-
-  useFrame((state) => {
-    const u = mat.current?.uniforms.uTime;
-    if (u) u.value = state.clock.elapsedTime;
-  });
-
-  // BackSide alone turns the sphere inside out. Do not also flip the
-  // scale — the two cancel out and the sky disappears entirely.
-  return (
-    <mesh renderOrder={ORDER.stars} frustumCulled={false}>
-      <sphereGeometry args={[3800, 32, 16]} />
-      <shaderMaterial
-        ref={mat}
-        vertexShader={
-          /* glsl */ `
-          varying vec3 vDir;
-          void main() {
-            vDir = position;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `
-        }
-        fragmentShader={NIGHT_FRAG}
-        uniforms={uniforms}
-        transparent
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-        fog={false}
-        side={THREE.BackSide}
-      />
-    </mesh>
-  );
-}
 
 /* drei's vertex shader transforms points with w = 0.5, doubling the
    effective radius — the shell has to be placed short of where you
    want it or the field lands past the far plane. */
 const STAR_RADIUS = 2400;
-const STAR_DEPTH = 300;
+const STAR_DEPTH = 200;
 
 function Starfield({ tier, brightness }: { tier: Tier; brightness: number }) {
   const ref = useRef<THREE.Points>(null);
@@ -266,11 +206,62 @@ const GROUND_FRAG = /* glsl */ `
   uniform vec3 uDark;
   uniform vec3 uStreet;
   uniform vec3 uHaze;
+  uniform vec3 uCool;
+  uniform vec3 uTail;
   uniform float uBlock;
   uniform float uTime;
+  uniform float uTraffic;
+  uniform float uTrafficGlow;
+  uniform float uTrafficDensity;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
+
+  // One head with a short tail, running along a street. The exponent is
+  // the dash length, held at a pixel or wider so it cannot strobe once
+  // the spacing goes sub-pixel down the avenue.
+  float dash(float along, float dir, float salt, float pitch, float lane) {
+    float pace = 0.55 + 0.9 * hash(vec2(lane, 41.0));
+    float u = along / pitch * dir - uTime * uTraffic * pace / pitch + salt;
+    float px = max(fwidth(along) / pitch, 1e-5);
+
+    // A car is a contour of constant u, so floor(u) is its identity and
+    // holds while it runs. Empty slots and uneven brightness are what
+    // stop the stream reading as a dotted line: how full a street is
+    // varies too, so some run heavy and some nearly clear.
+    float car = hash(vec2(floor(u), lane));
+    float full = 0.34 + 0.3 * hash(vec2(lane, 3.3));
+    float on = step(full, car) * (0.3 + 0.7 * fract(car * 7.31));
+
+    return pow(fract(u), clamp(0.5 / px, 1.0, 12.0)) * on;
+  }
+
+  // Avenues only. The side streets are under a pixel across out here
+  // and a streak on them is noise, not traffic.
+  vec3 traffic(vec2 p, float period) {
+    vec2 q = p / period;
+    vec2 g = fwidth(q) * 0.8 + 1e-4;
+    vec2 d = abs(fract(q + 0.5) - 0.5);
+    vec2 m = (1.0 - smoothstep(vec2(0.0), g + 0.022, d)) * clamp(0.022 / g, 0.0, 1.0);
+
+    vec2 id = floor(q + 0.5);
+    float sz = hash(vec2(id.x, 1.7));
+    float sx = hash(vec2(id.y, 8.3));
+    float pitch = period * 2.2;
+
+    // Only some avenues are running. Every street carrying a stream at
+    // once reads as a texture over the whole grid, not as traffic.
+    float cut = 1.0 - uTrafficDensity;
+    m.x *= step(cut, hash(vec2(id.x, 17.3)));
+    m.y *= step(cut, hash(vec2(id.y, 29.1)));
+
+    float a = m.x * dash(p.y, sz < 0.5 ? -1.0 : 1.0, hash(vec2(id.x, 3.1)) * 9.0, pitch, id.x);
+    float b = m.y * dash(p.x, sx < 0.5 ? -1.0 : 1.0, hash(vec2(id.y, 5.9)) * 9.0, pitch, id.y);
+
+    // Colour follows the direction of travel: headlights one way down
+    // the avenue, tail lights the other.
+    return mix(uCool, uTail, step(0.5, sz)) * a + mix(uCool, uTail, step(0.5, sx)) * b;
   }
 
   // fwidth AA so a sub-pixel street dims instead of flickering, and
@@ -315,6 +306,11 @@ const GROUND_FRAG = /* glsl */ `
       );
 
       col += uStreet * lamp * flow * vis * 0.34;
+
+      // Traffic gives out well before the lamps do: the dashes are the
+      // first thing to cross a pixel.
+      float near = 1.0 - smoothstep(900.0, 2600.0, vD);
+      if (near > 0.004) col += traffic(vW.xz, uBlock) * near * vis * uTrafficGlow;
     }
 
     // Complete before the far plane, so the last visible row of ground
@@ -327,16 +323,22 @@ const GROUND_FRAG = /* glsl */ `
 
 function Ground({ tokens }: { tokens: Tokens }) {
   const mat = useRef<THREE.ShaderMaterial>(null);
+  const d = useDebug();
 
   const uniforms = useMemo(
     () => ({
       uDark: { value: tokens.ground.clone().lerp(tokens.facade, 0.14) },
       uStreet: { value: tokens.street.clone() },
       uHaze: { value: tokens.haze.clone() },
+      uCool: { value: tokens.cool.clone() },
+      uTail: { value: tokens.primary.clone().lerp(tokens.street, 0.25) },
       uBlock: { value: BLOCK },
       uTime: { value: 0 },
+      uTraffic: { value: d.trafficSpeed },
+      uTrafficGlow: { value: d.trafficGlow },
+      uTrafficDensity: { value: d.trafficDensity },
     }),
-    [tokens],
+    [tokens, d.trafficSpeed, d.trafficGlow, d.trafficDensity],
   );
 
   useFrame((state) => {
@@ -414,6 +416,7 @@ const CITY_FRAG = /* glsl */ `
   uniform vec3 uHaze;
   uniform float uTime;
   uniform float uFloor;
+  uniform float uDim;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -471,7 +474,7 @@ const CITY_FRAG = /* glsl */ `
       vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
       float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
 
-      col += lamp * win * lit * bright * 1.05;
+      col += lamp * win * lit * bright * 1.05 * uDim;
     }
 
     col *= mix(1.0, 0.07, far);
@@ -499,10 +502,8 @@ function useCityLayout(sites: number) {
     // order and never sort themselves, so this is what lets early-Z
     // throw away the back of downtown.
     const pieces: { m: THREE.Matrix4; seed: number; d: number }[] = [];
-    const masts: THREE.Matrix4[] = [];
     const roofs: THREE.Matrix4[] = [];
-    const beacons: number[] = [];
-    const phases: number[] = [];
+    const mastSites: { m: THREE.Matrix4; tip: [number, number, number]; phase: number }[] = [];
     const m = new THREE.Matrix4();
 
     for (let i = 0; i < sites; i++) {
@@ -583,37 +584,50 @@ function useCityLayout(sites: number) {
         }
       }
 
-      if (total > 100 && masts.length < MAST_LIMIT) {
+      if (total > 100) {
         const mh = 8 + rnd() * 26;
         const h = mh + OVERLAP;
         m.makeScale(0.85, h, 0.85);
         m.setPosition(x, base + mh - h / 2, z);
-        masts.push(m.clone());
-        beacons.push(x, base + mh, z);
-        phases.push(rnd());
+        mastSites.push({ m: m.clone(), tip: [x, base + mh, z], phase: rnd() });
       }
     }
 
     pieces.sort((a, b) => a.d - b.d);
 
+    // Tallest first, then capped. Taken in generation order the limit
+    // went to the 100-unit filler, which left every beacon buried in
+    // the middle of the skyline behind the towers in front of it.
+    mastSites.sort((a, b) => b.tip[1] - a.tip[1]);
+    mastSites.length = Math.min(mastSites.length, MAST_LIMIT);
+
     return {
       matrices: pieces.map((p) => p.m),
       seeds: new Float32Array(pieces.map((p) => p.seed)),
-      masts,
+      masts: mastSites.map((s) => s.m),
       roofs,
-      beacons: new Float32Array(beacons),
-      phases: new Float32Array(phases),
+      beacons: new Float32Array(mastSites.flatMap((s) => s.tip)),
+      phases: new Float32Array(mastSites.map((s) => s.phase)),
     };
   }, [sites]);
 }
 
 type Layout = ReturnType<typeof useCityLayout>;
 
-function City({ tokens, layout }: { tokens: Tokens; layout: Layout }) {
+function City({
+  tokens,
+  layout,
+  volley,
+}: {
+  tokens: Tokens;
+  layout: Layout;
+  volley: RefObject<number>;
+}) {
   const mesh = useRef<THREE.InstancedMesh>(null);
   const mastMesh = useRef<THREE.InstancedMesh>(null);
   const roofMesh = useRef<THREE.InstancedMesh>(null);
   const mat = useRef<THREE.ShaderMaterial>(null);
+  const d = useDebug();
 
   const uniforms = useMemo(
     () => ({
@@ -623,13 +637,20 @@ function City({ tokens, layout }: { tokens: Tokens; layout: Layout }) {
       uHaze: { value: tokens.haze.clone() },
       uTime: { value: 0 },
       uFloor: { value: CITY_FLOOR },
+      uDim: { value: 1 },
     }),
     [tokens],
   );
 
   useFrame((state) => {
-    const u = mat.current?.uniforms.uTime;
-    if (u) u.value = state.clock.elapsedTime;
+    const u = mat.current?.uniforms;
+    if (!u) return;
+    const t = state.clock.elapsedTime;
+    if (u.uTime) u.uTime.value = t;
+
+    const since = t - volley.current;
+    const fall = smoothstep(0, 0.7, since) * smoothstep(FIRE_RUN, FIRE_RUN - 2.4, since);
+    if (u.uDim) u.uDim.value = 1 - d.fireDim * fall;
   });
 
   useEffect(() => {
@@ -776,6 +797,8 @@ function Suburbs({ lots }: { lots: Lot[] }) {
 
 function Beacons({ tokens, layout, tier }: { tokens: Tokens; layout: Layout; tier: Tier }) {
   const mat = useRef<THREE.ShaderMaterial>(null);
+  const d = useDebug();
+  const dpr = useThree((s) => s.viewport.dpr);
 
   const geo = useMemo(() => {
     const g = new THREE.BufferGeometry();
@@ -786,13 +809,23 @@ function Beacons({ tokens, layout, tier }: { tokens: Tokens; layout: Layout; tie
 
   useEffect(() => () => geo.dispose(), [geo]);
 
+  // Tips are stored tallest first, so a draw range thins the field
+  // from the low end up without touching the buffer.
+  useEffect(() => {
+    geo.setDrawRange(0, Math.min(d.beaconCount, layout.phases.length));
+  }, [geo, d.beaconCount, layout]);
+
   const uniforms = useMemo(
     () => ({
       uColor: { value: tokens.primary.clone() },
       uTime: { value: 0 },
-      uScale: { value: tier === "a" ? 320 : 230 },
+      // Beacons sit 700-2200 out, so uScale/distance is the whole size
+      // range. Under about 2000 every one lands on the lower clamp and
+      // the field reads as one flat row of identical dots.
+      uScale: { value: d.beaconSize * (tier === "a" ? 1 : 0.78) },
+      uDpr: { value: dpr },
     }),
-    [tokens, tier],
+    [tokens, tier, dpr, d.beaconSize],
   );
 
   useFrame((state) => {
@@ -817,6 +850,7 @@ function Beacons({ tokens, layout, tier }: { tokens: Tokens; layout: Layout; tie
           varying float vOn;
           uniform float uTime;
           uniform float uScale;
+          uniform float uDpr;
           void main() {
             float period = 1.5 + phase * 1.3;
             float cyc = fract(uTime / period + phase);
@@ -825,14 +859,13 @@ function Beacons({ tokens, layout, tier }: { tokens: Tokens; layout: Layout; tie
             // between flashes; it never goes fully dark.
             vOn = max(flash, 0.3);
             vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            gl_PointSize = clamp(uScale / max(1.0, -mv.z), 1.4, 7.0);
+            gl_PointSize = clamp(uScale / max(1.0, -mv.z), 1.4, 4.2) * uDpr;
             gl_Position = projectionMatrix * mv;
           }
         `
         }
         fragmentShader={
           /* glsl */ `
-          precision mediump float;
           varying float vOn;
           uniform vec3 uColor;
           void main() {
@@ -841,6 +874,423 @@ function Beacons({ tokens, layout, tier }: { tokens: Tokens; layout: Layout; tie
             if (d > 0.5) discard;
             float core = smoothstep(0.5, 0.0, d);
             gl_FragColor = vec4(uColor, core * core * vOn * 0.85);
+          }
+        `
+        }
+      />
+    </points>
+  );
+}
+
+/** Behind the wordmark plane, so the letters cross in front of it. */
+const BLIMP_Z = -2100;
+
+/** Where it stands at t = 0, as a share of the half width. The mark
+ * reaches 0.42 either side, so this is just outside the K, closing. */
+const BLIMP_START = -0.56;
+
+/** Hull profile, x running tail to nose over -1 to 1. The exponents
+ * are how blunt each end is; unequal, they put the widest point a
+ * third back from the nose, and 1.0772 is the maximum they reach,
+ * which normalises r to 1. */
+function hullRadius(x: number) {
+  return (Math.pow(1 - x, 0.42) * Math.pow(1 + x, 0.85)) / 1.0772;
+}
+
+function Blimp({
+  tokens,
+  tier,
+  volley,
+}: {
+  tokens: Tokens;
+  tier: Tier;
+  volley: RefObject<number>;
+}) {
+  const group = useRef<THREE.Group>(null);
+  const lamp = useRef<THREE.MeshBasicMaterial>(null);
+  const d = useDebug();
+  const { size, camera, gl, clock } = useThree();
+
+  const hull = useMemo(() => {
+    const pts: THREE.Vector2[] = [];
+    for (let i = 0; i <= 18; i++) {
+      const x = -1 + i / 9;
+      pts.push(new THREE.Vector2(Math.max(hullRadius(x), 1e-4) * 0.085, x * 0.5));
+    }
+    const g = new THREE.LatheGeometry(pts, 14);
+    g.rotateZ(-Math.PI / 2);
+    return g;
+  }, []);
+
+  const skin = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: tokens.ground, fog: false, toneMapped: false }),
+    [tokens],
+  );
+
+  useEffect(
+    () => () => {
+      hull.dispose();
+      skin.dispose();
+      document.body.style.cursor = "";
+    },
+    [hull, skin],
+  );
+
+  // A 6:1 hull is nine pixels tall on the band. Pick against a padded
+  // box rather than the geometry, or it cannot be hit while moving.
+  const grab = useRef(new THREE.Vector3());
+  useEffect(() => {
+    grab.current.set(d.blimpSize, d.blimpSize * 0.42, d.blimpSize * 0.42);
+  }, [d.blimpSize]);
+
+  // main paints over the stage with a background of its own, so a click
+  // never reaches the canvas and r3f never picks. Its eventSource prop
+  // is the supported way round that, but it drops the canvas offset and
+  // every hit lands --scene-top too high. Own raycast off the rect.
+  useEffect(() => {
+    const ray = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const box = new THREE.Box3();
+
+    const over = (e: MouseEvent) => {
+      const g = group.current;
+      if (!g) return false;
+      const r = gl.domElement.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      if (Math.abs(ndc.x) > 1 || Math.abs(ndc.y) > 1) return false;
+      ray.setFromCamera(ndc, camera);
+      box.setFromCenterAndSize(g.position, grab.current);
+      return ray.ray.intersectsBox(box);
+    };
+
+    const move = (e: MouseEvent) => {
+      const want = over(e) ? "pointer" : "";
+      if (document.body.style.cursor !== want) document.body.style.cursor = want;
+    };
+    const click = (e: MouseEvent) => {
+      // A second trigger mid-volley snaps the window dim back to full
+      // and teleports every spark, so the run has to finish first.
+      // Negative counts as finished: r3f zeroes clock.elapsedTime every
+      // time the frameloop resumes, which otherwise leaves a start time
+      // from before the pause parked in the future forever.
+      const t = clock.elapsedTime;
+      const since = t - volley.current;
+      if ((since < 0 || since > FIRE_RUN) && over(e)) volley.current = t;
+    };
+
+    window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("click", click);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("click", click);
+    };
+  }, [camera, gl, clock, volley]);
+
+  // Wrap at the frame edge for the aspect actually in use, so a wide
+  // band does not lose it off screen for minutes at a time.
+  const { span, start } = useMemo(() => {
+    const halfH = (CAM_Z - BLIMP_Z) * Math.tan(((FOV / 2) * Math.PI) / 180);
+    const halfW = halfH * (size.width / Math.max(1, size.height));
+    return { span: halfW + d.blimpSize, start: halfW * BLIMP_START };
+  }, [size.width, size.height, d.blimpSize]);
+
+  useFrame((state) => {
+    const g = group.current;
+    if (!g) return;
+    // Reduced motion lands on tier c, where it holds station instead.
+    const t = tier === "c" ? 0 : state.clock.elapsedTime;
+
+    g.position.x = ((t * d.blimpSpeed + span + start) % (span * 2)) - span;
+    g.position.y = d.blimpAlt + Math.sin(t * 0.11) * 4;
+    g.rotation.z = Math.sin(t * 0.09) * 0.02;
+
+    const m = lamp.current;
+    if (!m) return;
+    const cyc = t / 2.2 - Math.floor(t / 2.2);
+    m.opacity = Math.max(smoothstep(0.4, 0.26, cyc) * smoothstep(0, 0.05, cyc), 0.25) * 0.9;
+  });
+
+  const l = d.blimpSize;
+
+  return (
+    <group ref={group} position={[0, d.blimpAlt, BLIMP_Z]}>
+      <mesh geometry={hull} material={skin} scale={l} renderOrder={ORDER.city} />
+      <mesh material={skin} renderOrder={ORDER.city} position={[-l * 0.4, 0, 0]}>
+        <boxGeometry args={[l * 0.13, l * 0.16, l * 0.005]} />
+      </mesh>
+      <mesh material={skin} renderOrder={ORDER.city} position={[-l * 0.4, 0, 0]}>
+        <boxGeometry args={[l * 0.13, l * 0.005, l * 0.16]} />
+      </mesh>
+      <mesh material={skin} renderOrder={ORDER.city} position={[l * 0.13, -l * 0.095, 0]}>
+        <boxGeometry args={[l * 0.15, l * 0.035, l * 0.045]} />
+      </mesh>
+      <mesh position={[-l * 0.05, -l * 0.105, 0]} renderOrder={ORDER.blimp}>
+        <circleGeometry args={[l * 0.022, 10]} />
+        <meshBasicMaterial
+          ref={lamp}
+          color={tokens.primary}
+          transparent
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          fog={false}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+/** The lamp tokens sit near white at their own lightness, and a near
+ * white base cannot read as coloured once the gain multiplies it: every
+ * channel clips together. Same hue, dropped to where it is chromatic. */
+function shellTint(c: THREE.Color, l: number) {
+  const hsl = { h: 0, s: 0, l: 0 };
+  c.getHSL(hsl, THREE.SRGBColorSpace);
+  return new THREE.Color().setHSL(hsl.h, 1, l, THREE.SRGBColorSpace);
+}
+
+/** The usual parametric heart, x over 16 and y over 13 to 17, so both
+ * come back inside a unit or so. y sits low on its own range; the shift
+ * is what centres the shape on the burst point. */
+function heart(t: number): [number, number] {
+  const x = (16 * Math.pow(Math.sin(t), 3)) / 17;
+  const y = (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 17;
+  return [x, y + 0.117];
+}
+
+/** Shells climb from a mast, then burst on a drag-and-sag model. All
+ * of it is struck from uTime in the vertex shader, so a volley is one
+ * draw call and no per-frame work on the CPU. */
+function useShells(layout: Layout) {
+  return useMemo(() => {
+    const rnd = makeRandom(20260910);
+    const n = SHELLS * SPARKS + HEART;
+    const origin = new Float32Array(n * 3);
+    const apex = new Float32Array(n * 3);
+    const dir = new Float32Array(n * 3);
+    const shell = new Float32Array(n);
+    const seed = new Float32Array(n);
+
+    // Middle distance only: launched from the front row the burst
+    // clears the top of the frame before it opens.
+    const tips: [number, number, number][] = [];
+    for (let i = 0; i < layout.beacons.length; i += 3) {
+      const z = layout.beacons[i + 2] ?? 0;
+      if (-z > 700 && -z < 2000) tips.push([layout.beacons[i] ?? 0, layout.beacons[i + 1] ?? 0, z]);
+    }
+
+    for (let s = 0; s < SHELLS; s++) {
+      const tip = tips[Math.floor(rnd() * tips.length)] ?? [0, 60, -1200];
+      // Apex as a share of the depth, not an absolute height: one climb
+      // reads as a third of the frame near and a sliver far.
+      const top = -tip[2] * (0.13 + rnd() * 0.06);
+      const drift = (rnd() - 0.5) * 40;
+
+      for (let i = 0; i < SPARKS; i++) {
+        const k = s * SPARKS + i;
+        origin[k * 3] = tip[0];
+        origin[k * 3 + 1] = tip[1] - 18;
+        origin[k * 3 + 2] = tip[2];
+        apex[k * 3] = tip[0] + drift;
+        apex[k * 3 + 1] = top;
+        apex[k * 3 + 2] = tip[2];
+
+        const u = rnd() * 2 - 1;
+        const a = rnd() * Math.PI * 2;
+        const r = Math.sqrt(Math.max(0, 1 - u * u)) * (0.5 + rnd() * 0.5);
+        dir[k * 3] = Math.cos(a) * r;
+        dir[k * 3 + 1] = u * (0.5 + rnd() * 0.5);
+        dir[k * 3 + 2] = Math.sin(a) * r;
+
+        shell[k] = s;
+        seed[k] = rnd();
+      }
+    }
+
+    // The finale goes up from whichever mast stands nearest the axis,
+    // and higher, so the shape opens above the skyline in clear sky
+    // rather than over the middle of downtown.
+    let mid = tips[0] ?? [0, 60, -1400];
+    for (const tip of tips) if (Math.abs(tip[0]) < Math.abs(mid[0])) mid = tip;
+
+    // Clear sky in this frame is a band from just over the wordmark to
+    // just under the blinds. The apex is a share of the depth so it
+    // lands mid-band whatever mast it went up from, and the spread is
+    // scaled by the same depth so the shape is the same size on screen.
+    const top = -mid[2] * 0.155;
+    const reach = -mid[2] / 1400;
+
+    for (let i = 0; i < HEART; i++) {
+      const k = SHELLS * SPARKS + i;
+      origin[k * 3] = mid[0];
+      origin[k * 3 + 1] = mid[1] - 18;
+      origin[k * 3 + 2] = mid[2];
+      apex[k * 3] = mid[0];
+      apex[k * 3 + 1] = top;
+      apex[k * 3 + 2] = mid[2];
+
+      // Most of them on the outline: a shell is a shell, and a filled
+      // blob loses the shape the moment it starts to spread.
+      const [hx, hy] = heart((i / HEART) * Math.PI * 2);
+      const on = (0.84 + rnd() * 0.16) * reach;
+      dir[k * 3] = hx * on;
+      dir[k * 3 + 1] = hy * on;
+      dir[k * 3 + 2] = (rnd() - 0.5) * 0.12 * reach;
+
+      shell[k] = SHELLS;
+      seed[k] = rnd();
+    }
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(origin, 3));
+    g.setAttribute("aApex", new THREE.BufferAttribute(apex, 3));
+    g.setAttribute("aDir", new THREE.BufferAttribute(dir, 3));
+    g.setAttribute("aShell", new THREE.BufferAttribute(shell, 1));
+    g.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
+    return g;
+  }, [layout]);
+}
+
+function Fireworks({
+  tokens,
+  layout,
+  tier,
+  volley,
+}: {
+  tokens: Tokens;
+  layout: Layout;
+  tier: Tier;
+  volley: RefObject<number>;
+}) {
+  const geo = useShells(layout);
+  const points = useRef<THREE.Points>(null);
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const d = useDebug();
+  const dpr = useThree((s) => s.viewport.dpr);
+
+  useEffect(() => () => geo.dispose(), [geo]);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uStart: { value: -1e4 },
+      uBurst: { value: d.fireBurst },
+      // Only tier a has the composer and its half-float target. Below
+      // that the gain has nowhere to go but clip, taking the colour.
+      uGlow: { value: d.fireGlow * (tier === "a" ? 1 : 0.4) },
+      uScale: { value: 5200 },
+      uDpr: { value: dpr },
+      uFinale: { value: SHELLS },
+      // Red, gold and ice come off the site's own tokens; green and
+      // violet have no token to come from and are set by hue.
+      uTints: {
+        value: [
+          tokens.primary.clone(),
+          shellTint(tokens.warm, 0.52),
+          shellTint(tokens.cool, 0.56),
+          new THREE.Color().setHSL(0.35, 1, 0.46, THREE.SRGBColorSpace),
+          new THREE.Color().setHSL(0.78, 1, 0.62, THREE.SRGBColorSpace),
+        ],
+      },
+    }),
+    [tokens, dpr, tier, d.fireBurst, d.fireGlow],
+  );
+
+  useFrame((state) => {
+    const p = points.current;
+    const u = mat.current?.uniforms;
+    if (!p || !u) return;
+    const t = state.clock.elapsedTime;
+    const since = t - volley.current;
+    // Between volleys there is nothing to draw, and the vertex shader
+    // is the whole cost of this.
+    p.visible = since >= 0 && since < FIRE_RUN;
+    if (!p.visible) return;
+    if (u.uTime) u.uTime.value = t;
+    if (u.uStart) u.uStart.value = volley.current;
+  });
+
+  return (
+    <points ref={points} geometry={geo} renderOrder={ORDER.beacons} frustumCulled={false}>
+      <shaderMaterial
+        ref={mat}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        fog={false}
+        vertexShader={
+          /* glsl */ `
+          attribute vec3 aApex;
+          attribute vec3 aDir;
+          attribute float aShell;
+          attribute float aSeed;
+          varying float vOn;
+          varying vec3 vTint;
+          uniform float uTime;
+          uniform float uStart;
+          uniform float uBurst;
+          uniform float uScale;
+          uniform float uDpr;
+          uniform float uFinale;
+          uniform vec3 uTints[5];
+
+          void main() {
+            // The finale waits for the rest to clear, opens wider, burns
+            // longer and barely sags, so the shape stays legible.
+            float fin = step(uFinale - 0.5, aShell);
+            float age = uTime - uStart - aShell * 0.45 - fin * 1.3;
+            float rise = 1.3 + fract(aSeed * 7.13) * 0.4 + fin * 0.25;
+            float burn = 2.6 + fin * 1.2;
+
+            // A tenth of the sparks fly the shell up as its trail; the
+            // rest sit at the launch point until it opens.
+            float trail = step(fract(aSeed * 11.0), 0.09);
+            float lag = trail * fract(aSeed * 23.0) * 0.25;
+            float k = clamp(age / rise - lag, 0.0, 1.0);
+            vec3 climb = mix(position, aApex, k * (2.0 - k));
+
+            float b = clamp(age - rise, 0.0, burn + 0.5);
+            vec3 spread = aDir * uBurst * (1.0 + fin * 0.45) * (1.0 - exp(-b * 1.8)) / 1.8;
+            spread.y -= 11.0 * b * b * (1.0 - fin * 0.72);
+
+            float open = step(rise, age);
+            vec3 world = mix(climb, aApex + spread, open);
+
+            float on = mix(trail * (1.0 - lag * 3.0), smoothstep(burn, burn * 0.25, b), open);
+            vOn = step(0.0, age) * on * (0.55 + 0.45 * sin(uTime * 26.0 + aSeed * 120.0));
+
+            vTint = mix(uTints[int(mod(aShell, 5.0))], uTints[0], fin);
+
+            vec4 mv = modelViewMatrix * vec4(world, 1.0);
+            gl_PointSize = clamp(uScale * (1.0 + fin * 0.35) / max(1.0, -mv.z), 1.6, 9.0) * uDpr;
+            gl_Position = projectionMatrix * mv;
+          }
+        `
+        }
+        fragmentShader={
+          /* glsl */ `
+          varying float vOn;
+          varying vec3 vTint;
+          uniform float uGlow;
+          void main() {
+            vec2 p = gl_PointCoord - 0.5;
+            float r = length(p);
+            if (r > 0.5) discard;
+            float core = smoothstep(0.5, 0.0, r);
+
+            // Nothing tone maps, so anything over one clips, and a disc
+            // that is hot all the way across clips in every channel and
+            // comes out white. Only the last eighth of the radius is
+            // allowed over: the rest stays chromatic and takes the gain
+            // past the 0.76 bloom threshold in its own hue.
+            float white = pow(core, 8.0);
+            vec3 col = mix(vTint, vec3(1.0), white * 0.85);
+
+            // A wide skirt under the head, so a spark carries its own
+            // halo at every tier rather than relying on the composer.
+            float body = pow(core, 3.0) + core * 0.3;
+            gl_FragColor = vec4(col * uGlow, body * vOn);
           }
         `
         }
@@ -1072,15 +1522,65 @@ const GLASS_FRAG = /* glsl */ `
   }
 `;
 
+/* Raised venetian blinds. Slats are struck from world Y rather than
+   from uv, so one material serves bays of three different drops. */
+const BLIND_VERT = /* glsl */ `
+  varying vec2 vUv;
+  varying float vY;
+  void main() {
+    vUv = uv;
+    vec4 world = modelMatrix * vec4(position, 1.0);
+    vY = world.y;
+    gl_Position = projectionMatrix * viewMatrix * world;
+  }
+`;
+
+const BLIND_FRAG = /* glsl */ `
+  varying vec2 vUv;
+  varying float vY;
+  uniform vec3 uSlat;
+  uniform vec3 uLight;
+  uniform float uPitch;
+  uniform float uGlow;
+
+  void main() {
+    // fwidth of a wrapped value spikes at the seam, so slat width in
+    // pixels comes off the unwrapped coordinate.
+    float px = fwidth(vY) / uPitch;
+    float f = fract(vY / uPitch);
+
+    // A cosine lobe is smooth across the wrap where a sawtooth is not,
+    // which is the difference between still slats and crawling ones.
+    float face = pow(0.5 - 0.5 * cos(6.2831853 * f), 1.35);
+    float seam = smoothstep(0.0, clamp(px * 2.0, 0.04, 0.5), min(f, 1.0 - f));
+    float lit = face * mix(0.3, 1.0, seam);
+
+    // Past half a pixel per slat the pattern cannot be resolved at all,
+    // so settle on its mean rather than keep point-sampling it.
+    lit = mix(lit, 0.36, smoothstep(0.25, 0.5, px));
+
+    float wash = mix(0.5, 1.0, vUv.y);
+    gl_FragColor = vec4(uSlat + uLight * lit * wash * uGlow, 1.0);
+  }
+`;
+
+/** Blind drop per bay: left, centre, right, as a share of blindDrop. */
+const BAY_DROP = [1, 0.66, 0.82] as const;
+
+/** Headrail depth, and half the mullion width the bays inset by. */
+const RAIL = 0.05;
+const MULL_HALF = 0.038;
+
 function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
   const { size } = useThree();
+  const d = useDebug();
 
   const aspect = Math.max(0.42, size.width / size.height);
   const halfW = GLASS_HALF_H * aspect;
 
-  // Head dropped from 0.74: the site's own fixed bar covers the top
-  // seventy pixels of the stage, which left the soffit looking cropped.
-  const head = EYE + 0.64 * GLASS_HALF_H;
+  // 0.85 puts the blind headrail level with the bottom of the site's
+  // fixed bar on the full-bleed layout; higher shows no more blind.
+  const head = EYE + 0.85 * GLASS_HALF_H;
   const sill = EYE - 0.7 * GLASS_HALF_H;
 
   // Two thirds out, or clear of the wordmark, whichever is further.
@@ -1199,6 +1699,22 @@ function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
     [tokens],
   );
 
+  const blind = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: BLIND_VERT,
+        fragmentShader: BLIND_FRAG,
+        uniforms: {
+          uSlat: { value: tokens.hull.clone().lerp(tokens.facade, 0.2) },
+          uLight: { value: tokens.warm.clone().lerp(tokens.hullEdge, 0.45) },
+          uPitch: { value: d.blindPitch },
+          uGlow: { value: d.blindLight },
+        },
+        fog: false,
+      }),
+    [tokens, d.blindPitch, d.blindLight],
+  );
+
   const rampDown = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -1226,12 +1742,23 @@ function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
 
   useEffect(
     () => () => {
-      [shell, trim, seam, cove, coveGlow, edge, lamp, glass, rampDown, rampUp].forEach((m) =>
+      [shell, trim, seam, cove, coveGlow, edge, lamp, glass, blind, rampDown, rampUp].forEach((m) =>
         m.dispose(),
       );
     },
-    [shell, trim, seam, cove, coveGlow, edge, lamp, glass, rampDown, rampUp],
+    [shell, trim, seam, cove, coveGlow, edge, lamp, glass, blind, rampDown, rampUp],
   );
+
+  const bays = useMemo(() => {
+    const outer = halfW * 1.6;
+    const inner = mull + MULL_HALF;
+    const side = outer - inner;
+    return [
+      { key: "l", x: -(outer + inner) / 2, w: side, drop: d.blindDrop * BAY_DROP[0] },
+      { key: "c", x: 0, w: (mull - MULL_HALF) * 2, drop: d.blindDrop * BAY_DROP[1] },
+      { key: "r", x: (outer + inner) / 2, w: side, drop: d.blindDrop * BAY_DROP[2] },
+    ];
+  }, [halfW, mull, d.blindDrop]);
 
   return (
     <group>
@@ -1243,34 +1770,16 @@ function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
       <mesh position={[0, head + 3, GLASS_Z]} material={trim} renderOrder={ORDER.frame}>
         <planeGeometry args={[halfW * 4, 6]} />
       </mesh>
-      {/* Everything above here must finish before EYE + GLASS_HALF_H
-          (0.34 above head at this FOV) — past that these ran off the
-          top of the frame and the soffit read as cropped. */}
+      {/* The ramp is transparent at its far end, so it may run off the
+          top; the cove line is what has to stay in frame. */}
       <mesh position={[0, head + 0.15, GLASS_Z + 0.006]} material={rampUp}>
         <planeGeometry args={[halfW * 4, 0.3]} />
       </mesh>
-      {/* Ceiling joints. A large flat interior surface has no scale at
-          all without them. */}
-      {[0.09, 0.2].map((y) => (
-        <mesh
-          key={y}
-          position={[0, head + y, GLASS_Z + 0.004]}
-          material={seam}
-          renderOrder={ORDER.frame}
-        >
-          <planeGeometry args={[halfW * 4, 0.016]} />
-        </mesh>
-      ))}
       <mesh position={[0, head + 0.045, GLASS_Z + 0.01]} material={coveGlow}>
-        <planeGeometry args={[halfW * 1.9, 0.24]} />
+        <planeGeometry args={[halfW * 4, 0.24]} />
       </mesh>
       <mesh position={[0, head + 0.045, GLASS_Z + 0.014]} material={cove}>
-        <planeGeometry args={[halfW * 1.9, 0.022]} />
-      </mesh>
-
-      {/* The only red in the room. */}
-      <mesh position={[-halfW * 0.42, head + 0.28, GLASS_Z + 0.012]} material={lamp}>
-        <planeGeometry args={[0.42, 0.016]} />
+        <planeGeometry args={[halfW * 4, 0.022]} />
       </mesh>
 
       <mesh position={[0, sill - 3, GLASS_Z]} material={shell} renderOrder={ORDER.frame}>
@@ -1282,6 +1791,35 @@ function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
       <mesh position={[0, sill - 0.008, GLASS_Z + 0.012]} material={edge}>
         <planeGeometry args={[halfW * 4, 0.02]} />
       </mesh>
+
+      {bays.map((bay) => (
+        <group key={bay.key} position={[bay.x, 0, 0]}>
+          <mesh
+            position={[0, head - RAIL - bay.drop / 2, GLASS_Z + 0.002]}
+            material={blind}
+            renderOrder={ORDER.frame}
+          >
+            <planeGeometry args={[bay.w, bay.drop]} />
+          </mesh>
+          <mesh
+            position={[0, head - RAIL / 2 + 0.006, GLASS_Z + 0.003]}
+            material={trim}
+            renderOrder={ORDER.frame}
+          >
+            <planeGeometry args={[bay.w, RAIL + 0.012]} />
+          </mesh>
+          <mesh
+            position={[0, head - RAIL - bay.drop, GLASS_Z + 0.003]}
+            material={trim}
+            renderOrder={ORDER.frame}
+          >
+            <planeGeometry args={[bay.w, 0.032]} />
+          </mesh>
+          <mesh position={[0, head - RAIL - bay.drop - 0.021, GLASS_Z + 0.006]} material={edge}>
+            <planeGeometry args={[bay.w, 0.012]} />
+          </mesh>
+        </group>
+      ))}
 
       {[-1, 1].map((s) => (
         <group key={s}>
@@ -1404,6 +1942,7 @@ function Counters() {
 function Content({ tier }: { tier: Tier }) {
   const tokens = useTokens();
   const d = useDebug();
+  const volley = useRef(-1e4);
   const layout = useCityLayout(tier === "a" ? SITES : Math.round(SITES * 0.62));
   const lots = useSuburbs(tier === "a" ? SUBURBS : Math.round(SUBURBS * 0.3), tokens);
   const mark = useWordmark(tokens, d);
@@ -1443,14 +1982,15 @@ function Content({ tier }: { tier: Tier }) {
         mieCoefficient={0.006}
         mieDirectionalG={0.86}
       />
-      <NightSky tokens={tokens} />
       <Starfield tier={tier} brightness={d.stars} />
 
       <Window tokens={tokens} mark={mark} />
-      <City tokens={tokens} layout={layout} />
+      <City tokens={tokens} layout={layout} volley={volley} />
       <Suburbs lots={lots} />
       <Ground tokens={tokens} />
       <Beacons tokens={tokens} layout={layout} tier={tier} />
+      <Blimp tokens={tokens} tier={tier} volley={volley} />
+      <Fireworks tokens={tokens} layout={layout} tier={tier} volley={volley} />
       <Wordmark mark={mark} />
 
       {/* Fly mode replaces the resting camera outright: two
@@ -1494,11 +2034,38 @@ export default function Scene({ tier }: { tier: Tier }) {
   // PerformanceMonitor drives the pixel ratio between these bounds:
   // a single ratio from the device tier is a guess, since the same
   // laptop on its own panel vs. a 4K display differs 4x in fragments.
-  const range = tier === "a" ? { min: 1, max: 1.75 } : { min: 0.75, max: 1.25 };
-  const [dpr, setDpr] = useState(range.min);
+  const base = tier === "a" ? { min: 1, max: 1.75 } : { min: 0.75, max: 1.25 };
+  const [dpr, setDpr] = useState(base.min);
 
-  // No scroll listener: the stage is one viewport tall at the top,
-  // so the observer already fires when it leaves.
+  // Cost is fragments, so both bounds follow the canvas, not the
+  // device. Letterboxed to a band it is a quarter the area of a
+  // full-height one, and a quarter the area buys twice the ratio at
+  // the same cost. The floor matters more than the ceiling here: it is
+  // what renders before a frame has been measured.
+  const [area, setArea] = useState(0);
+  const range = useMemo(() => {
+    const gain = Math.max(1, Math.min(2, Math.sqrt(RATIO_AREA / Math.max(area, 1))));
+    return { min: base.min * gain, max: base.max * gain };
+  }, [area, base.min, base.max]);
+
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      if (entry) setArea(entry.contentRect.width * entry.contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // The monitor only moves the ratio on its own schedule, so carry it
+  // into a new range rather than waiting for the next incline.
+  useEffect(() => {
+    setDpr((v) => Math.min(Math.max(v, range.min), range.max));
+  }, [range.min, range.max]);
+
+  // No scroll listener: the observer watches the stage element itself,
+  // so it fires whatever height --scene-h gives it.
   useEffect(() => {
     const el = host.current;
     if (!el) return;

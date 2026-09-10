@@ -136,6 +136,27 @@
        are square and filled. */
   --frame-radius: 16px;
 
+  /* Hero height. Full height in portrait; on wide viewports it caps to
+     an aspect so the frame stays panoramic and the availability line
+     clears the fold. */
+  --hero-h: 100svh;
+
+  /* The scene canvas. A full-height portrait canvas leaves the camera
+     a 19-degree horizontal field, which narrows the window to a slit
+     and takes the skyline with it, so below 860px the canvas
+     letterboxes to the desktop framing instead of filling the hero. */
+  --scene-h: max(210px, 43vw);
+
+  /* The fixed top bar covers the head of the canvas. Full-bleed that
+     is a 6% crop and intended; on the band it hides a fifth of the
+     frame, which puts the horizon and the wordmark visibly above
+     centre, so the band starts below the bar instead. */
+  --scene-top: calc(var(--nav-h) + var(--frame-inset));
+
+  /* Height of the fixed top bar. Read by the bar itself and by
+     anything that has to clear it. */
+  --nav-h: 46px;
+
   /* Where the scrollbar housing sits on the right-hand edge. */
   --rail-top: 36svh;
   --rail-height: 28svh;
@@ -159,6 +180,17 @@
 @media (max-width: 640px) {
   :root {
     --frame-radius: 10px;
+  }
+}
+
+@media (min-width: 860px) {
+  :root {
+    /* 43vw is the framing the design was tuned against. The floor is
+       where the centred wordmark starts colliding with the bar, which
+       happens around 480px. */
+    --hero-h: max(580px, min(100svh, 43vw));
+    --scene-h: var(--hero-h);
+    --scene-top: 0px;
   }
 }
 
