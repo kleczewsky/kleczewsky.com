@@ -136,7 +136,7 @@ export default function Content({
       {d.fly ? (
         <FlyControls movementSpeed={90} rollSpeed={0.45} dragToLook autoForward={false} />
       ) : (
-        <View tier={tier} active={ready} />
+        <View active={ready} />
       )}
 
       <Reveal

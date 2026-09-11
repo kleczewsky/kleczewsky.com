@@ -2,7 +2,16 @@
   position: fixed;
   /* Flush, not inset. --frame-inset is how far inside the viewport the
        CHROME sits, not where the frame sits. */
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* dvh, not the bare inset:0 this replaced: a fixed box with no
+     explicit height tracks the LAYOUT viewport, which mobile browsers
+     only resize once the address-bar animation has settled, so the
+     frame stayed short (hiding under the still-collapsing chrome)
+     for the whole scroll and only snapped open at the end. dvh is the
+     unit that is actually kept live against the visible viewport. */
+  height: 100dvh;
   z-index: var(--z-frame);
   pointer-events: none;
   /* Clips the flood below to the screen. Without it the shadow paints

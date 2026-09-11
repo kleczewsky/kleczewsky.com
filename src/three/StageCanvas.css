@@ -11,6 +11,9 @@
   pointer-events: none;
   overflow: hidden;
   background: var(--ground);
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Fly mode, dev only. The layer is inert for a visitor: a canvas that

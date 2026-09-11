@@ -39,13 +39,16 @@ export function probeTier(): Tier {
   if (!hasWebGL2()) return "c";
 
   const cores = nav.hardwareConcurrency ?? 4;
-  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
 
   // deviceMemory is not read here: Chrome caps and quantizes it hard
   // on public origins (max bucket 8, often lower) while reporting the
   // real value on localhost, so it made every desktop visitor to the
   // deployed site read as low-memory regardless of actual hardware.
-  if (coarsePointer || cores <= 4) return "b";
+  //
+  // pointer: coarse is not read here either: it flags touch input, not
+  // GPU weakness, and gated every phone into tier B outright, flagship
+  // hardware included. Cores is the only capability signal left.
+  if (cores <= 4) return "b";
   return "a";
 }
 
@@ -56,6 +59,14 @@ export function applyTier(tier: Tier = probeTier()): Tier {
 
 export function readTier(): Tier {
   return (document.documentElement.dataset.tier as Tier) ?? "c";
+}
+
+/** Input modality, not capability: a flagship phone is coarse-pointer
+ * and tier A both. Callers that care whether the pointer moves
+ * continuously (mouse) or only on contact (touch) read this instead
+ * of overloading tier for it. */
+export function isCoarsePointer(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 }
 
 /** Null until after hydration. The flag is written to <html> before

@@ -9,6 +9,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scrollbar-color: var(--rule-strong) transparent;
+  /* Mobile Chrome/Safari flash a grey box on any tap target, canvas
+     included; nothing here is a native control that needs it. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body,

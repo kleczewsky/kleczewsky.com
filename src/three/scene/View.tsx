@@ -1,6 +1,6 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import type { Tier } from "../../lib/tier";
+import { isCoarsePointer } from "../../lib/tier";
 import { CAM_Z, EYE } from "./constants";
 import { damp } from "./math";
 import { usePointer } from "./pointer";
@@ -8,10 +8,11 @@ import { usePointer } from "./pointer";
 /** `active` holds the opening move until the canvas is actually being
  * shown, so the settle plays into the reveal rather than finishing
  * behind a transparent canvas while the programs are still linking. */
-export function View({ tier, active }: { tier: Tier; active: RefObject<boolean> }) {
+export function View({ active }: { active: RefObject<boolean> }) {
   const { camera } = useThree();
   const pointer = usePointer();
   const intro = useRef(0);
+  const coarse = useMemo(isCoarsePointer, []);
 
   // R3F aims the default camera at the origin, which pitches it down
   // and puts the horizon off the top of the frame. Zero it once.
@@ -34,9 +35,10 @@ export function View({ tier, active }: { tier: Tier; active: RefObject<boolean> 
     const driftX = Math.sin(t * 0.19) * 0.026 + Math.sin(t * 0.47 + 2.1) * 0.007;
     const driftY = Math.sin(t * 0.15 + 1.4) * 0.018 + Math.sin(t * 0.55) * 0.005;
 
-    // Parallax is cut off tier A, where "pointer" is usually a stale
-    // tap position rather than a hand moving over the scene.
-    const par = tier === "a" ? 1 : 0.35;
+    // Full parallax assumes a hand moving continuously over the scene.
+    // A touch pointer only updates on contact, so a stale tap position
+    // would otherwise swing the camera on every touchstart.
+    const par = coarse ? 0.35 : 1;
 
     camera.position.x = damp(camera.position.x, pointer.x * 0.16 * par + driftX, 2.6, step);
     camera.position.y = damp(camera.position.y, EYE - pointer.y * 0.07 * par + driftY, 2.6, step);
