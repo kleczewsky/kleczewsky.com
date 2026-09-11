@@ -209,7 +209,7 @@
 
 .hud-bottom {
   position: fixed;
-  bottom: var(--frame-inset);
+  bottom: 0;
   right: var(--frame-inset);
   left: var(--frame-inset);
   z-index: var(--z-hud);
