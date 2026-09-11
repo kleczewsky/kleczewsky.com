@@ -71,6 +71,20 @@ const pl: Dict = {
     localTime: "Czas",
     status: "Status",
   },
+  boot: {
+    title: ["Kleczewsky", "uruchamia się"],
+    stages: {
+      start: "Sprawdzam urządzenie",
+      tier: "Pobieram scenę",
+      chunk: "Buduję miasto",
+      link: "Kompiluję shadery",
+      compiled: "Rysuję pierwszą klatkę",
+      ready: "Gotowe",
+      lost: "Scena niedostępna",
+    },
+    skip: "Naciśnij dowolny klawisz, aby pominąć",
+    skipTouch: "Dotknij, aby pominąć",
+  },
   work: {
     lead: "Produkty, które działają, mają realny ruch i wciąż są rozwijane.",
     live: "Działa",

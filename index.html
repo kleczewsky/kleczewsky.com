@@ -3,6 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Before first paint, so the boot screen is in the first frame or never. -->
+    <script>
+      (function () {
+        try {
+          var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+          var lean = navigator.connection && navigator.connection.saveData;
+          if (!calm && !lean) {
+            document.documentElement.dataset.boot = "on";
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

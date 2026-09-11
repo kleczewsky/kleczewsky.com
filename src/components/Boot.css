@@ -1,0 +1,364 @@
+/* Hidden unless the inline script in index.html flagged this load. */
+.boot {
+  display: none;
+}
+
+:root[data-boot] .boot {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-boot);
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  color: var(--primary);
+}
+
+/* JS never took over: clear the prerendered page anyway. */
+:root[data-boot="on"] .boot {
+  animation: boot-bail 400ms ease-out 6s forwards;
+}
+
+:root[data-boot="exit"] .boot {
+  pointer-events: none;
+}
+
+.boot-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--ground);
+}
+
+.boot-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 90svh;
+  padding-inline: var(--gutter);
+  animation: boot-fade-in 600ms ease-out both;
+}
+
+:root[data-boot="exit"] .boot-content {
+  animation: boot-leave 420ms var(--e-out) forwards;
+}
+
+:root[data-boot="exit"] .boot-bg {
+  animation: boot-fade-out 520ms ease-out 240ms forwards;
+}
+
+.boot-signal {
+  position: relative;
+  width: 1px;
+  height: clamp(72px, 16svh, 136px);
+  overflow: hidden;
+  background: linear-gradient(to bottom, transparent, rgb(255 0 39 / 0.6));
+}
+
+.boot-signal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, var(--primary-hot) 50%, transparent 60%);
+  animation: boot-pulse 1.6s var(--e-in-out) infinite;
+}
+
+.boot-mark {
+  width: 28px;
+  height: 28px;
+  margin-top: var(--s2);
+  filter: drop-shadow(0 0 8px rgb(255 0 39 / 0.55));
+}
+
+.boot-title {
+  margin-top: var(--s6);
+  padding-top: 0.16em;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(3.25rem, 14vw, 6.125rem);
+  line-height: var(--lh-hero);
+  letter-spacing: var(--tr-display);
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: var(--display-glow);
+}
+
+.boot-title span {
+  display: block;
+}
+
+.boot-meter {
+  --cell: 24px;
+  --gap: 2px;
+  --bar: calc(var(--cell) * 10 + var(--gap) * 9);
+  position: relative;
+  margin-top: var(--s7);
+}
+
+.boot-cells {
+  display: flex;
+  gap: var(--gap);
+}
+
+.boot-cell {
+  width: var(--cell);
+  height: var(--cell);
+  background: currentColor;
+  opacity: 0.14;
+  transition:
+    opacity var(--d-fast) var(--e-out),
+    box-shadow var(--d-fast) var(--e-out);
+}
+
+.boot-cell[data-on] {
+  opacity: 1;
+  box-shadow: 0 0 10px rgb(255 0 39 / 0.68);
+}
+
+.boot-corner {
+  position: absolute;
+  width: 20px;
+  height: 12px;
+  filter: drop-shadow(0 0 4px rgb(255 0 39 / 0.68));
+}
+
+.boot-corner::before,
+.boot-corner::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.boot-corner::before {
+  inset: 0 0 auto;
+  height: 2px;
+}
+
+.boot-corner::after {
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+}
+
+.boot-corner--tl,
+.boot-corner--bl {
+  right: calc(100% + 2px);
+}
+
+.boot-corner--tr,
+.boot-corner--br {
+  left: calc(100% + 2px);
+}
+
+.boot-corner--tl,
+.boot-corner--tr {
+  bottom: calc(100% + 4px);
+}
+
+.boot-corner--bl,
+.boot-corner--br {
+  top: calc(100% + 4px);
+  scale: 1 -1;
+}
+
+.boot-caret {
+  position: absolute;
+  top: calc(100% + var(--s3));
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  translate: calc(var(--p, 0) * var(--bar)) 0;
+  transform: translateX(-50%);
+}
+
+.boot-caret-tip {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.boot-percent {
+  font-family: var(--f-mono);
+  font-size: var(--t-small);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--display-glow);
+}
+
+.boot-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  margin-top: auto;
+}
+
+.boot-stage span {
+  display: inline-block;
+  animation: boot-flicker 500ms linear both;
+}
+
+.boot-skip {
+  opacity: 0.6;
+}
+
+.boot-skip-tap {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .boot-skip-key {
+    display: none;
+  }
+
+  .boot-skip-tap {
+    display: inline;
+  }
+}
+
+.boot-ticks {
+  display: flex;
+  justify-content: space-between;
+  width: 12rem;
+  height: 12px;
+}
+
+.boot-ticks span {
+  width: 1px;
+  height: 100%;
+  background: currentColor;
+  scale: 1 0.33;
+  animation: boot-wave 1.8s var(--e-in-out) infinite;
+  animation-delay: calc(var(--i) * 100ms);
+}
+
+@media (max-width: 400px) {
+  .boot-meter {
+    --cell: 20px;
+  }
+}
+
+@media (max-height: 520px) {
+  .boot-signal {
+    display: none;
+  }
+
+  .boot-title {
+    margin-top: var(--s3);
+  }
+
+  .boot-meter {
+    margin-top: var(--s6);
+  }
+}
+
+/* The page comes up behind the exit, only on a load that booted. */
+:root[data-boot="exit"] .hud-top {
+  animation: boot-wipe 450ms cubic-bezier(0.2, 0.8, 0.2, 1) 380ms backwards;
+}
+
+:root[data-boot="exit"] .home-say > *,
+:root[data-boot="exit"] .home-cta {
+  animation: boot-rise 520ms var(--e-out) 520ms backwards;
+}
+
+:root[data-boot="exit"] .home-say > :nth-child(2) {
+  animation-delay: 590ms;
+}
+
+:root[data-boot="exit"] .home-say > :nth-child(3) {
+  animation-delay: 660ms;
+}
+
+:root[data-boot="exit"] .home-cta {
+  animation-delay: 730ms;
+}
+
+:root[data-boot="exit"] .home-scroll {
+  animation: boot-flicker 500ms linear 760ms backwards;
+}
+
+@keyframes boot-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes boot-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes boot-bail {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes boot-leave {
+  to {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+
+@keyframes boot-pulse {
+  from {
+    translate: 0 -60%;
+  }
+  to {
+    translate: 0 60%;
+  }
+}
+
+@keyframes boot-wave {
+  50% {
+    scale: 1 1;
+  }
+}
+
+/* The -2rem keeps the bar's scrim, which hangs below its box. */
+@keyframes boot-wipe {
+  from {
+    clip-path: inset(0 100% -2rem 0);
+    opacity: 0.25;
+  }
+  to {
+    clip-path: inset(0 0 -2rem 0);
+  }
+}
+
+@keyframes boot-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+    filter: blur(4px);
+  }
+}
+
+@keyframes boot-flicker {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  22% {
+    opacity: 0.15;
+  }
+  38% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+  64%,
+  100% {
+    opacity: 1;
+  }
+}

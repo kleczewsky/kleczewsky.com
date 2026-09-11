@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import { LOCALES, ROUTES, href } from "./routes";
 import { LocaleProvider, useLocale } from "./lib/locale";
+import Boot from "./components/Boot";
 import Hud from "./components/Hud";
 import Frame from "./components/Frame";
 import ScrollRail from "./components/ScrollRail";
@@ -31,6 +32,7 @@ function Shell() {
       <Frame />
       <ScrollRail />
       <Hud />
+      <Boot />
       <main id="main">
         <Routes>
           {ROUTES.flatMap((route) =>

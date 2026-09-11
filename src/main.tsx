@@ -2,13 +2,19 @@ import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { reach } from "./lib/boot";
 import { applyTier } from "./lib/tier";
 
 // Warms the chunk the moment the tier is known, rather than after
 // hydration has run and Stage's effect has fired. Same module the
 // lazy() in Stage resolves to, so it is one download either way, and
-// tier C still never asks for it.
-if (applyTier() !== "c") void import("./three/Scene");
+// tier C still never asks for it, so it has no boot screen to wait on.
+if (applyTier() === "c") {
+  delete document.documentElement.dataset.boot;
+} else {
+  reach("tier");
+  void import("./three/Scene").then(() => reach("chunk"));
+}
 
 const container = document.getElementById("root");
 if (!container) throw new Error("#root missing");

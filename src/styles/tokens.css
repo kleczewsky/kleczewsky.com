@@ -171,6 +171,8 @@
        the bar its own close button lives in. */
   --z-sheet: 45;
   --z-nav: 50;
+  /* Over the nav, under the frame: the band stays lit through the boot. */
+  --z-boot: 52;
   /* The frame is above the nav: under it, the top bar's scrim covered
        the top stroke and both upper corners. */
   --z-frame: 55;

@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
+import { reach, useBootPhase } from "../lib/boot";
 import { useTier } from "../lib/tier";
 import { useDebug } from "./knobs";
 import "./StageCanvas.css";
@@ -14,29 +15,6 @@ const Scene = lazy(() => import("./Scene"));
    the render leaves the dynamic import reachable at module scope and
    Rollup still emits the chunk. */
 const Panel = import.meta.env.DEV ? lazy(() => import("./Debug")) : null;
-
-/** Progress at each real milestone. Nothing here is on a timer: the
- * bar moves when something has actually happened. */
-const AT_TIER = 0.14;
-const AT_CHUNK = 0.58;
-const DONE = 1;
-
-/** Fires once the lazily-imported chunk has mounted, which is the only
- * honest signal that the download and parse are behind us. */
-function Mounted({ onMount }: { onMount: () => void }) {
-  useEffect(onMount, [onMount]);
-  return null;
-}
-
-function Loader({ progress, done }: { progress: number; done: boolean }) {
-  return (
-    <div className={`stage-load${done ? " stage-load--done" : ""}`} aria-hidden="true">
-      <span className="stage-load-track">
-        <span className="stage-load-fill" style={{ transform: `scaleX(${progress})` }} />
-      </span>
-    </div>
-  );
-}
 
 /** Renderer counters and page load timings, dev only. drei's Stats
  * owns frame time; Scene publishes the rest to <html data-gl>. */
@@ -79,26 +57,24 @@ function Readout() {
 
 export default function Stage() {
   const tier = useTier();
-  const [reached, setReached] = useState(0);
+  const phase = useBootPhase();
   const [ready, setReady] = useState(false);
-  const [lost, setLost] = useState(false);
   const d = useDebug();
 
-  // The bar only ever moves forward, so it is the furthest milestone
-  // reached against what the tier alone already tells us.
-  const fromTier = tier === null ? 0 : tier === "c" ? DONE : AT_TIER;
-  const progress = Math.max(reached, fromTier);
+  // Behind the boot screen the camera's opening move would play out
+  // unseen, so the reveal waits for its exit.
+  const shown = ready && phase !== "pending" && phase !== "active";
 
   // The wordmark handoff waits for the reveal. Fading the DOM heading
   // the moment its texture was built swapped a lit headline for a
   // canvas that had not drawn yet.
   useEffect(() => {
-    if (!ready) return;
+    if (!shown) return;
     document.documentElement.dataset.scene = "ready";
     return () => {
       delete document.documentElement.dataset.scene;
     };
-  }, [ready]);
+  }, [shown]);
 
   const gl = tier !== null && tier !== "c";
 
@@ -111,24 +87,20 @@ export default function Stage() {
 
         {gl ? (
           <Suspense fallback={null}>
-            <Mounted onMount={() => setReached((p) => Math.max(p, AT_CHUNK))} />
             <Scene
               tier={tier}
+              shown={shown}
               onReady={() => {
-                setReached(DONE);
+                reach("ready");
                 setReady(true);
               }}
               onLost={() => {
+                reach("lost");
                 setReady(false);
-                setLost(true);
               }}
             />
           </Suspense>
         ) : null}
-
-        {/* A lost context is not a load in progress: the bar stays
-            down and the gradient carries the frame. */}
-        {gl ? <Loader progress={progress} done={ready || lost} /> : null}
       </div>
 
       {/* Outside .stage: it opens a stacking context at --z-scene, and

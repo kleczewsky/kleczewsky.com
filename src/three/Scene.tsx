@@ -9,16 +9,17 @@ import Content from "./Content";
 
 export default function Scene({
   tier,
+  shown,
   onReady,
   onLost,
 }: {
   tier: Tier;
+  shown: boolean;
   onReady: () => void;
   onLost: () => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [running, setRunning] = useState(true);
-  const [ready, setReady] = useState(false);
   const d = useDebug();
 
   // PerformanceMonitor drives the pixel ratio between these bounds:
@@ -96,7 +97,7 @@ export default function Scene({
   }, []);
 
   return (
-    <div className={`stage-gl${ready ? " stage-gl--ready" : ""}`} ref={host}>
+    <div className={`stage-gl${shown ? " stage-gl--ready" : ""}`} ref={host}>
       <Canvas
         frameloop={running ? "always" : "never"}
         dpr={d.lockDpr ? d.dpr : dpr}
@@ -129,17 +130,7 @@ export default function Scene({
             onFallback={() => setWanted(range.min)}
           />
         )}
-        <Content
-          tier={tier}
-          onReady={() => {
-            setReady(true);
-            onReady();
-          }}
-          onLost={() => {
-            setReady(false);
-            onLost();
-          }}
-        />
+        <Content tier={tier} shown={shown} onReady={onReady} onLost={onLost} />
       </Canvas>
       {import.meta.env.DEV ? <Stats className="glstat-panel" /> : null}
     </div>

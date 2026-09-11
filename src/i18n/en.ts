@@ -69,6 +69,21 @@ const en = {
     localTime: "Local",
     status: "Status",
   },
+  boot: {
+    title: ["Kleczewsky is", "initializing"],
+    /** What is in progress once each milestone has been reached. */
+    stages: {
+      start: "Probing device",
+      tier: "Fetching scene",
+      chunk: "Building city",
+      link: "Linking shaders",
+      compiled: "Drawing first frame",
+      ready: "Ready",
+      lost: "Scene unavailable",
+    },
+    skip: "Press any key to skip",
+    skipTouch: "Tap to skip",
+  },
   work: {
     lead: "Products that are live, carrying real traffic, and still being changed.",
     live: "Live",

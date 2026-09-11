@@ -87,56 +87,6 @@
   );
 }
 
-/* Load bar. Narrow: this is an instrument reading, not a download
-   dialog. Placed against the composition rather than at a round
-   fraction. On the band the heading fills the middle, so it goes
-   under it; on the full-bleed hero the bar below is what it has to
-   stay clear of. */
-.stage-load {
-  position: absolute;
-  z-index: 1;
-  left: 50%;
-  bottom: 10%;
-  translate: -50% 0;
-  width: min(148px, 34vw);
-  transition:
-    opacity var(--d-base) var(--e-out),
-    translate var(--d-base) var(--e-out);
-}
-
-@media (min-width: 860px) {
-  .stage-load {
-    top: 62%;
-    bottom: auto;
-  }
-}
-
-/* The exit waits out the fill below, which is set to the same token.
-   Started together, the bar was pulled off screen about a third of the
-   way to the end and never visibly finished. */
-.stage-load--done {
-  opacity: 0;
-  translate: -50% 6px;
-  transition-delay: var(--d-base);
-}
-
-.stage-load-track {
-  display: block;
-  height: 1px;
-  background: var(--rule-strong);
-  overflow: hidden;
-}
-
-.stage-load-fill {
-  display: block;
-  height: 100%;
-  background: var(--primary);
-  box-shadow: var(--primary-bloom);
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform var(--d-base) var(--e-mech);
-}
-
 .glstat {
   position: fixed;
   right: 8px;

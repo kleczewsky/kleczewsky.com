@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { FlyControls, Sky } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
+import { reach } from "../lib/boot";
 import type { Tier } from "../lib/tier";
 import { useDebug } from "./knobs";
 import { ORDER, SITES, SUBURBS } from "./scene/constants";
@@ -19,6 +20,7 @@ import { Wordmark, useWordmark } from "./scene/Wordmark";
 import { Window } from "./scene/Window";
 import { View } from "./scene/View";
 import { Counters } from "./scene/Counters";
+import { Gauge } from "./scene/Gauge";
 
 /** The composer's passes are not in the scene graph and only link on
  * its first run, so compileAsync alone does not cover them. */
@@ -33,8 +35,11 @@ function Reveal({ onReady, onLost }: { onReady: () => void; onLost: () => void }
 
   useEffect(() => {
     let live = true;
+    reach("link");
     const done = () => {
-      if (live) compiled.current = true;
+      if (!live) return;
+      compiled.current = true;
+      reach("compiled");
     };
     // Fireworks hide themselves on their first frame and compile()
     // walks only visible objects, so this has to run before then.
@@ -69,10 +74,12 @@ function Reveal({ onReady, onLost }: { onReady: () => void; onLost: () => void }
 
 export default function Content({
   tier,
+  shown,
   onReady,
   onLost,
 }: {
   tier: Tier;
+  shown: boolean;
   onReady: () => void;
   onLost: () => void;
 }) {
@@ -82,7 +89,11 @@ export default function Content({
   const layout = useCityLayout(tier === "a" ? SITES : Math.round(SITES * 0.62));
   const lots = useSuburbs(tier === "a" ? SUBURBS : Math.round(SUBURBS * 0.3), tokens);
   const mark = useWordmark(tokens, d);
-  const ready = useRef(false);
+  const active = useRef(false);
+
+  useEffect(() => {
+    active.current = shown;
+  }, [shown]);
 
   const sun = useMemo(
     () => sunVector(d.sunElevation, d.sunAzimuth),
@@ -136,19 +147,11 @@ export default function Content({
       {d.fly ? (
         <FlyControls movementSpeed={90} rollSpeed={0.45} dragToLook autoForward={false} />
       ) : (
-        <View active={ready} />
+        <View active={active} />
       )}
 
-      <Reveal
-        onReady={() => {
-          ready.current = true;
-          onReady();
-        }}
-        onLost={() => {
-          ready.current = false;
-          onLost();
-        }}
-      />
+      <Reveal onReady={onReady} onLost={onLost} />
+      {tier === "a" && !d.fly && !d.lockDpr ? <Gauge active={active} /> : null}
 
       {/* multisampling={0}: the composer defaults to 8x MSAA on its
           own target, which on a 2x display spends milliseconds on
