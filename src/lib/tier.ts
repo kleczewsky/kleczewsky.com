@@ -39,16 +39,19 @@ export function probeTier(): Tier {
   if (!hasWebGL2()) return "c";
 
   const cores = nav.hardwareConcurrency ?? 4;
+  const coarsePointer = isCoarsePointer();
 
   // deviceMemory is not read here: Chrome caps and quantizes it hard
   // on public origins (max bucket 8, often lower) while reporting the
   // real value on localhost, so it made every desktop visitor to the
   // deployed site read as low-memory regardless of actual hardware.
   //
-  // pointer: coarse is not read here either: it flags touch input, not
-  // GPU weakness, and gated every phone into tier B outright, flagship
-  // hardware included. Cores is the only capability signal left.
-  if (cores <= 4) return "b";
+  // hardwareConcurrency gets the same treatment on Android specifically:
+  // Chrome flattens it to a small fixed number there as a fingerprinting
+  // mitigation, a Pixel 7 Pro's real 8 cores included, so it carries no
+  // signal on a coarse pointer device. Trust it only on desktop, where
+  // it still varies with the real machine.
+  if (!coarsePointer && cores <= 4) return "b";
   return "a";
 }
 

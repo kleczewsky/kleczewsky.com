@@ -5,13 +5,13 @@
   top: 0;
   left: 0;
   width: 100%;
-  /* dvh, not the bare inset:0 this replaced: a fixed box with no
-     explicit height tracks the LAYOUT viewport, which mobile browsers
-     only resize once the address-bar animation has settled, so the
-     frame stayed short (hiding under the still-collapsing chrome)
-     for the whole scroll and only snapped open at the end. dvh is the
-     unit that is actually kept live against the visible viewport. */
-  height: 100dvh;
+  /* --vvh (Frame.tsx, from visualViewport) tracks the address-bar
+     animation itself; dvh is the fallback where visualViewport is
+     unavailable. Plain inset:0 sized against the LAYOUT viewport,
+     which mobile browsers only resize once the animation settles, so
+     the frame stayed short through the whole scroll and only snapped
+     open at the end. */
+  height: var(--vvh, 100dvh);
   z-index: var(--z-frame);
   pointer-events: none;
   /* Clips the flood below to the screen. Without it the shadow paints
