@@ -191,7 +191,11 @@
 }
 
 .home-contact .contact-email {
-  word-break: break-word;
+  /* --t-display's own floor (2.75rem) is already wider than a narrow
+     phone screen for a string this long; scale off the viewport
+     directly instead so the address is always one line. */
+  font-size: clamp(1rem, 5.5vw, 3.5rem);
+  white-space: nowrap;
 }
 
 /* About */

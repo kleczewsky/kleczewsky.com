@@ -5,13 +5,16 @@
   top: 0;
   left: 0;
   width: 100%;
-  /* --vvh (Frame.tsx, from visualViewport) tracks the address-bar
-     animation itself; dvh is the fallback where visualViewport is
-     unavailable. Plain inset:0 sized against the LAYOUT viewport,
-     which mobile browsers only resize once the animation settles, so
-     the frame stayed short through the whole scroll and only snapped
-     open at the end. */
-  height: var(--vvh, 100dvh);
+  /* lvh, not dvh/vvh: those track the address bar live, which sounds
+     right but isn't, the browsers here only resize the tracked value
+     once the hide animation finishes, so the frame stayed short for
+     the whole scroll and snapped open at the end. lvh is the largest
+     the viewport ever gets (chrome hidden) and never changes, so
+     there is nothing to resize or snap. With chrome visible, the
+     frame's excess bottom edge sits under it, unseen, which is fine:
+     the moment chrome hides that edge is already exactly where it
+     needs to be. */
+  height: 100lvh;
   z-index: var(--z-frame);
   pointer-events: none;
   /* Clips the flood below to the screen. Without it the shadow paints

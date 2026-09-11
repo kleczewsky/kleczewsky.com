@@ -115,7 +115,12 @@ export default function Hud() {
         </button>
       </header>
 
-      <nav id="hud-sheet" className="hud-sheet" aria-label="Primary" hidden={!open}>
+      <nav
+        id="hud-sheet"
+        className={`hud-sheet${open ? " is-open" : ""}`}
+        aria-label="Primary"
+        aria-hidden={!open}
+      >
         {NAV_ITEMS.map((item) => (
           <a
             key={item.id}

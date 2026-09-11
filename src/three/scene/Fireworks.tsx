@@ -3,8 +3,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Tier } from "../../lib/tier";
 import { useDebug } from "../knobs";
-import { FIRE_RUN, HEART, ORDER, SHELLS, SPARKS } from "./constants";
-import { makeRandom } from "./math";
+import { FIRE_RUN, HEART, ORDER, RATIO_AREA, SHELLS, SPARKS } from "./constants";
+import { makeRandom, smoothstep } from "./math";
 import type { Layout } from "./layout";
 import type { Tokens } from "./tokens";
 
@@ -208,8 +208,20 @@ export function Fireworks({
   const mat = useRef<THREE.ShaderMaterial>(null);
   const d = useDebug();
   const dpr = useThree((s) => s.viewport.dpr);
+  const size = useThree((s) => s.size);
 
   useEffect(() => () => geo.dispose(), [geo]);
+
+  // Bloom's mip chain is a fixed number of downsample steps off
+  // whatever the render target is, so a small buffer, not a low dpr
+  // number, is what makes the same glow read hotter: a phone reports
+  // dpr 2 (higher than a desktop's 1) but its buffer is still smaller,
+  // its CSS-pixel canvas is a fraction of a desktop hero's. Scale off
+  // the actual device-pixel count instead. RATIO_AREA is the CSS-pixel
+  // reference a full-height canvas covers; a phone hero comes in under
+  // it even after its own dpr, a desktop hero clears it comfortably.
+  const pixels = size.width * size.height * dpr * dpr;
+  const glowScale = smoothstep(RATIO_AREA * 0.8, RATIO_AREA * 2.4, pixels);
 
   const uniforms = useMemo(
     () => ({
@@ -218,7 +230,9 @@ export function Fireworks({
       uBurst: { value: d.fireBurst },
       // Only tier a has the composer and its half-float target. Below
       // that the gain has nowhere to go but clip, taking the colour.
-      uGlow: { value: d.fireGlow * (tier === "a" ? 1 : 0.4) },
+      uGlow: {
+        value: d.fireGlow * (tier === "a" ? 0.2 + 0.8 * glowScale : 0.4),
+      },
       uScale: { value: 5200 },
       uDpr: { value: dpr },
       uFinale: { value: SHELLS },
@@ -234,7 +248,7 @@ export function Fireworks({
         ],
       },
     }),
-    [tokens, dpr, tier, d.fireBurst, d.fireGlow],
+    [tokens, dpr, tier, d.fireBurst, d.fireGlow, glowScale],
   );
 
   useFrame((state) => {

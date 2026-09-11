@@ -291,19 +291,32 @@
 .hud-sheet {
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
+  /* Under the nav bar, not above it: the toggle that opens this is the
+     same button that closes it, and it lives in .hud-top. */
+  z-index: var(--z-sheet);
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: var(--s4);
-  padding: var(--s9) var(--gutter) var(--s8);
+  padding: calc(var(--nav-h) + var(--s6)) var(--gutter) var(--s8);
   background: var(--ground);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition:
+    opacity var(--d-base) var(--e-out),
+    transform var(--d-base) var(--e-out),
+    visibility 0s linear var(--d-base);
 }
 
-/* [hidden] sets display:none at attribute specificity, which the
-   .hud-sheet display:flex above would otherwise win against. */
-.hud-sheet[hidden] {
-  display: none;
+.hud-sheet.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity var(--d-base) var(--e-out),
+    transform var(--d-base) var(--e-out),
+    visibility 0s linear 0s;
 }
 
 .hud-sheet a {
@@ -328,6 +341,13 @@
 @media (max-width: 640px) {
   .hud-nav {
     display: none;
+  }
+
+  /* .hud-nav carried this margin to push everything after it to the
+     bar's trailing edge; hidden, it can't, so the language switch and
+     the menu button bunched up right after the mark instead. */
+  .hud-lang {
+    margin-inline-start: auto;
   }
 
   .hud-menu {

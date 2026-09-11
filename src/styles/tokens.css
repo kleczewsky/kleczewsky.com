@@ -167,6 +167,9 @@
   --z-scene: 0;
   --z-content: 20;
   --z-hud: 40;
+  /* Under the nav, not --z-overlay: the mobile sheet must never cover
+       the bar its own close button lives in. */
+  --z-sheet: 45;
   --z-nav: 50;
   /* The frame is above the nav: under it, the top bar's scrim covered
        the top stroke and both upper corners. */
