@@ -199,6 +199,11 @@
 }
 
 /* About */
+.about-field {
+  position: relative;
+  isolation: isolate;
+}
+
 .about {
   width: 100%;
   display: grid;
@@ -214,7 +219,6 @@
   }
 
   .about-plate {
-    position: sticky;
     top: calc(var(--nav-h) + var(--s5));
   }
 }
@@ -235,6 +239,12 @@
     var(--chamfer) 100%,
     0 calc(100% - var(--chamfer))
   );
+}
+
+@media (min-width: 960px) {
+  .about-plate {
+    position: sticky;
+  }
 }
 
 /* The clip-path eats the border along both chamfers. Redrawing the
@@ -526,6 +536,19 @@
   mask-position: right center;
   -webkit-mask-size: contain;
   mask-size: contain;
+}
+
+/* Narrow: the foot reserves the stamp's height instead of hanging it
+   over the copy above. */
+@media (max-width: 719px) {
+  .slab-foot:has(.slab-stamp-zone) {
+    padding-top: calc(78px + var(--s4));
+  }
+
+  .slab-stamp-zone {
+    top: 0;
+    bottom: auto;
+  }
 }
 
 @media (min-width: 720px) {

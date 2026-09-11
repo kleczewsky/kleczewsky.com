@@ -83,7 +83,7 @@
 }
 
 .boot-title span {
-  display: block;
+  display: none;
 }
 
 .boot-meter {

@@ -1,0 +1,33 @@
+.ripple {
+  position: absolute;
+  inset: 0;
+  /* The opaque stage covers this layer throughout the hero. */
+  z-index: var(--z-waves);
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--primary);
+  opacity: 0.6;
+  --ripple-start: calc(var(--scene-top) + var(--scene-h));
+  /* Ease into the document background after the complete hero, including
+     its mobile intro bar. The scene itself remains fully protected. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent var(--ripple-start),
+    rgb(0 0 0 / 0.16) calc(var(--ripple-start) + 48px),
+    rgb(0 0 0 / 0.5) calc(var(--ripple-start) + 96px),
+    rgb(0 0 0 / 0.84) calc(var(--ripple-start) + 144px),
+    #000 calc(var(--ripple-start) + 192px),
+    #000 calc(100% - 96px),
+    transparent
+  );
+}
+
+.ripple canvas {
+  max-width: none;
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .ripple {
+    display: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useDebug } from "../knobs";
@@ -6,14 +6,15 @@ import { EYE, GLASS_HALF_H, GLASS_Z, ORDER } from "./constants";
 import type { Mark } from "./Wordmark";
 import type { Tokens } from "./tokens";
 
-/* Every panel is flat, in the plane z = GLASS_Z facing the camera:
-   built as boxes running away from the glass, every interior surface
-   goes edge-on and renders black. Opaque panels draw first. */
+/* Recessed glazing behind solid frame profiles. Surface lighting is
+   explicit so the room keeps its authored exposure without scene lights. */
 
 const RAMP_VERT = /* glsl */ `
   varying vec2 vUv;
+  varying vec3 vWorld;
   void main() {
     vUv = uv;
+    vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -36,67 +37,51 @@ const RAMP_FRAG = /* glsl */ `
 /* Real glass at night is a half-mirror; leaving it clear is what
    makes a window look like a hole. */
 const GLASS_FRAG = /* glsl */ `
-  precision mediump float;
+  precision highp float;
   varying vec2 vUv;
+  varying vec3 vWorld;
   uniform vec3 uSheen;
   uniform vec3 uWarm;
 
   void main() {
-    vec2 p = vUv - 0.5;
-
-    float a = smoothstep(0.30, 0.0, abs(p.x * 0.55 + p.y - 0.20));
-    float b = smoothstep(0.17, 0.0, abs(p.x * 0.62 + p.y - 0.02));
-    vec3 col = uSheen * (a * 0.028 + b * 0.016);
-
-    float room = smoothstep(0.62, 0.0, length((p - vec2(-0.30, -0.30)) * vec2(1.0, 1.6)));
-    col += uWarm * room * 0.016;
-
-    float grazing = smoothstep(0.18, 0.55, length(p * vec2(1.0, 1.35)));
-    col += uSheen * grazing * 0.009;
-
+    vec3 eye = normalize(cameraPosition - vWorld);
+    float fresnel = pow(1.0 - abs(eye.z), 3.0);
+    // Very faint interior reflection, moving with the actual camera.
+    float streak = 1.0 - smoothstep(0.0, 0.13, abs(vUv.y - 0.87 + eye.y * 0.12));
+    float edge = 1.0 - smoothstep(0.0, 0.035, min(vUv.x, 1.0 - vUv.x));
+    float cove = streak * smoothstep(0.05, 0.2, vUv.x) * (1.0 - smoothstep(0.8, 0.95, vUv.x));
+    vec3 col = uSheen * (fresnel * 0.028 + edge * 0.006);
+    col += uWarm * cove * 0.007;
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
-/* Raised venetian blinds. Slats are struck from world Y rather than
-   from uv, so one material serves bays of three different drops. */
-const BLIND_VERT = /* glsl */ `
-  varying vec2 vUv;
-  varying float vY;
+const METAL_VERT = /* glsl */ `
+  varying vec3 vNormal;
   void main() {
-    vUv = uv;
-    vec4 world = modelMatrix * vec4(position, 1.0);
-    vY = world.y;
-    gl_Position = projectionMatrix * viewMatrix * world;
+    vec4 p = vec4(position, 1.0);
+    vec3 n = normal;
+    #ifdef USE_INSTANCING
+      p = instanceMatrix * p;
+      vec3 scale2 = vec3(dot(instanceMatrix[0].xyz, instanceMatrix[0].xyz),
+                        dot(instanceMatrix[1].xyz, instanceMatrix[1].xyz),
+                        dot(instanceMatrix[2].xyz, instanceMatrix[2].xyz));
+      n = mat3(instanceMatrix) * (n / scale2);
+    #endif
+    vNormal = normalize(mat3(modelMatrix) * n);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * p;
   }
 `;
 
-const BLIND_FRAG = /* glsl */ `
-  varying vec2 vUv;
-  varying float vY;
-  uniform vec3 uSlat;
+const METAL_FRAG = /* glsl */ `
+  varying vec3 vNormal;
+  uniform vec3 uBase;
   uniform vec3 uLight;
-  uniform float uPitch;
-  uniform float uGlow;
-
   void main() {
-    // fwidth of a wrapped value spikes at the seam, so slat width in
-    // pixels comes off the unwrapped coordinate.
-    float px = fwidth(vY) / uPitch;
-    float f = fract(vY / uPitch);
-
-    // A cosine lobe is smooth across the wrap where a sawtooth is not,
-    // which is the difference between still slats and crawling ones.
-    float face = pow(0.5 - 0.5 * cos(6.2831853 * f), 1.35);
-    float seam = smoothstep(0.0, clamp(px * 2.0, 0.04, 0.5), min(f, 1.0 - f));
-    float lit = face * mix(0.3, 1.0, seam);
-
-    // Past half a pixel per slat the pattern cannot be resolved at all,
-    // so settle on its mean rather than keep point-sampling it.
-    lit = mix(lit, 0.36, smoothstep(0.25, 0.5, px));
-
-    float wash = mix(0.5, 1.0, vUv.y);
-    gl_FragColor = vec4(uSlat + uLight * lit * wash * uGlow, 1.0);
+    vec3 n = normalize(vNormal);
+    float facing = max(0.0, dot(n, normalize(vec3(-0.45, 0.75, 0.48))));
+    float sky = max(0.0, n.z) * 0.16;
+    gl_FragColor = vec4(uBase * (0.38 + facing * 1.4) + uLight * (facing * 0.14 + sky), 1.0);
   }
 `;
 
@@ -107,9 +92,56 @@ const BAY_DROP = [1, 0.66, 0.82] as const;
 const RAIL = 0.05;
 const MULL_HALF = 0.038;
 
+type Bay = { key: string; x: number; w: number; drop: number };
+
+function BlindSlats({
+  bays,
+  head,
+  pitch,
+  material,
+}: {
+  bays: Bay[];
+  head: number;
+  pitch: number;
+  material: THREE.Material;
+}) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const matrices = useMemo(() => {
+    const part = new THREE.Object3D();
+    return bays.flatMap((bay) => {
+      const count = Math.max(1, Math.round(bay.drop / pitch));
+      const spacing = bay.drop / count;
+      return Array.from({ length: count }, (_, i) => {
+        part.position.set(bay.x, head - RAIL - spacing * (i + 0.5), GLASS_Z + 0.1);
+        part.rotation.set(-0.22, 0, 0);
+        part.scale.set(bay.w, spacing * 0.52, 0.065);
+        part.updateMatrix();
+        return part.matrix.clone();
+      });
+    });
+  }, [bays, head, pitch]);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    matrices.forEach((matrix, i) => ref.current!.setMatrixAt(i, matrix));
+    ref.current.instanceMatrix.needsUpdate = true;
+  }, [matrices]);
+
+  return (
+    <instancedMesh
+      ref={ref}
+      args={[undefined, material, matrices.length]}
+      renderOrder={ORDER.frame}
+      frustumCulled={false}
+    >
+      <boxGeometry args={[1, 1, 1]} />
+    </instancedMesh>
+  );
+}
+
 /** Interior surfaces, keyed by what they are rather than by the order
  * they happen to be built in. Disposed as one bank. */
-function useSurfaces(tokens: Tokens, pitch: number, glow: number) {
+function useSurfaces(tokens: Tokens, glow: number) {
   const bank = useMemo(() => {
     const basic = (color: THREE.Color, extra: THREE.MeshBasicMaterialParameters = {}) =>
       new THREE.MeshBasicMaterial({ color, fog: false, toneMapped: false, ...extra });
@@ -160,21 +192,28 @@ function useSurfaces(tokens: Tokens, pitch: number, glow: number) {
         depthWrite: false,
         fog: false,
       }),
-      blind: new THREE.ShaderMaterial({
-        vertexShader: BLIND_VERT,
-        fragmentShader: BLIND_FRAG,
+      metal: new THREE.ShaderMaterial({
+        vertexShader: METAL_VERT,
+        fragmentShader: METAL_FRAG,
         uniforms: {
-          uSlat: { value: tokens.hull.clone().lerp(tokens.facade, 0.2) },
-          uLight: { value: tokens.warm.clone().lerp(tokens.hullEdge, 0.45) },
-          uPitch: { value: pitch },
-          uGlow: { value: glow },
+          uBase: { value: tokens.facade.clone().multiplyScalar(0.48) },
+          uLight: { value: tokens.hullEdge.clone().multiplyScalar(0.18) },
+        },
+        fog: false,
+      }),
+      blind: new THREE.ShaderMaterial({
+        vertexShader: METAL_VERT,
+        fragmentShader: METAL_FRAG,
+        uniforms: {
+          uBase: { value: tokens.facade.clone().multiplyScalar(0.5) },
+          uLight: { value: coveColor.clone().multiplyScalar(glow * 0.6) },
         },
         fog: false,
       }),
       rampDown,
       rampUp,
     };
-  }, [tokens, pitch, glow]);
+  }, [tokens, glow]);
 
   useEffect(() => {
     return () => {
@@ -188,7 +227,7 @@ function useSurfaces(tokens: Tokens, pitch: number, glow: number) {
 export function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) {
   const { size } = useThree();
   const d = useDebug();
-  const s = useSurfaces(tokens, d.blindPitch, d.blindLight);
+  const s = useSurfaces(tokens, d.blindLight);
 
   const aspect = Math.max(0.42, size.width / size.height);
   const halfW = GLASS_HALF_H * aspect;
@@ -215,10 +254,17 @@ export function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) 
 
   return (
     <group>
-      {/* The pane. Over the city, under nothing. */}
-      <mesh position={[0, EYE, GLASS_Z - 0.02]} material={s.glass} renderOrder={ORDER.glass}>
-        <planeGeometry args={[halfW * 2.4, GLASS_HALF_H * 2.4]} />
-      </mesh>
+      {/* Separate recessed panes; the solid profiles occlude their edges. */}
+      {bays.map((bay) => (
+        <mesh
+          key={bay.key}
+          position={[bay.x, (head + sill) / 2, GLASS_Z - 0.045]}
+          material={s.glass}
+          renderOrder={ORDER.glass}
+        >
+          <planeGeometry args={[bay.w, head - sill]} />
+        </mesh>
+      ))}
 
       <mesh position={[0, head + 3, GLASS_Z]} material={s.trim} renderOrder={ORDER.frame}>
         <planeGeometry args={[halfW * 4, 6]} />
@@ -238,6 +284,17 @@ export function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) 
       <mesh position={[0, sill - 3, GLASS_Z]} material={s.shell} renderOrder={ORDER.frame}>
         <planeGeometry args={[halfW * 4, 6]} />
       </mesh>
+      {/* A projecting ledge, with a shaded underside and a thin front lip. */}
+      <mesh
+        position={[0, sill - 0.055, GLASS_Z + 0.17]}
+        material={s.metal}
+        renderOrder={ORDER.frame}
+      >
+        <boxGeometry args={[halfW * 4, 0.11, 0.42]} />
+      </mesh>
+      <mesh position={[0, sill - 0.09, GLASS_Z + 0.39]} material={s.trim} renderOrder={ORDER.frame}>
+        <boxGeometry args={[halfW * 4, 0.036, 0.032]} />
+      </mesh>
       <mesh position={[0, sill - 0.42, GLASS_Z + 0.006]} material={s.rampDown}>
         <planeGeometry args={[halfW * 4, 0.84]} />
       </mesh>
@@ -245,47 +302,62 @@ export function Window({ tokens, mark }: { tokens: Tokens; mark: Mark | null }) 
         <planeGeometry args={[halfW * 4, 0.02]} />
       </mesh>
 
+      <BlindSlats bays={bays} head={head} pitch={d.blindPitch} material={s.blind} />
       {bays.map((bay) => (
         <group key={bay.key} position={[bay.x, 0, 0]}>
           <mesh
-            position={[0, head - RAIL - bay.drop / 2, GLASS_Z + 0.002]}
-            material={s.blind}
+            position={[0, head - RAIL / 2 + 0.006, GLASS_Z + 0.1]}
+            material={s.metal}
             renderOrder={ORDER.frame}
           >
-            <planeGeometry args={[bay.w, bay.drop]} />
+            <boxGeometry args={[bay.w, RAIL + 0.012, 0.18]} />
           </mesh>
           <mesh
-            position={[0, head - RAIL / 2 + 0.006, GLASS_Z + 0.003]}
-            material={s.trim}
+            position={[0, head - RAIL - bay.drop, GLASS_Z + 0.1]}
+            material={s.metal}
             renderOrder={ORDER.frame}
           >
-            <planeGeometry args={[bay.w, RAIL + 0.012]} />
+            <boxGeometry args={[bay.w, 0.025, 0.08]} />
           </mesh>
-          <mesh
-            position={[0, head - RAIL - bay.drop, GLASS_Z + 0.003]}
-            material={s.trim}
-            renderOrder={ORDER.frame}
-          >
-            <planeGeometry args={[bay.w, 0.032]} />
-          </mesh>
-          <mesh position={[0, head - RAIL - bay.drop - 0.021, GLASS_Z + 0.006]} material={s.edge}>
-            <planeGeometry args={[bay.w, 0.012]} />
-          </mesh>
+          {[-1, 1].map((side) => (
+            <mesh
+              key={side}
+              position={[side * bay.w * 0.3, head - RAIL - bay.drop / 2, GLASS_Z + 0.14]}
+              material={s.trim}
+              renderOrder={ORDER.frame}
+            >
+              <boxGeometry args={[0.006, bay.drop, 0.006]} />
+            </mesh>
+          ))}
         </group>
       ))}
 
       {[-1, 1].map((side) => (
         <group key={side}>
           <mesh
-            position={[side * mull, EYE, GLASS_Z + 0.004]}
+            position={[side * mull, EYE, GLASS_Z + 0.06]}
+            material={s.metal}
+            renderOrder={ORDER.frame}
+          >
+            <boxGeometry args={[0.082, GLASS_HALF_H * 3, 0.24]} />
+          </mesh>
+          <mesh
+            position={[side * mull, EYE, GLASS_Z + 0.19]}
             material={s.trim}
             renderOrder={ORDER.frame}
           >
-            <planeGeometry args={[0.075, GLASS_HALF_H * 3]} />
+            <boxGeometry args={[0.052, GLASS_HALF_H * 3, 0.025]} />
           </mesh>
-          <mesh position={[side * mull - side * 0.046, EYE, GLASS_Z + 0.008]} material={s.edge}>
-            <planeGeometry args={[0.014, GLASS_HALF_H * 3]} />
-          </mesh>
+          {[-1, 1].map((edge) => (
+            <mesh
+              key={edge}
+              position={[side * mull + edge * 0.047, EYE, GLASS_Z - 0.01]}
+              material={s.shell}
+              renderOrder={ORDER.frame}
+            >
+              <boxGeometry args={[0.012, GLASS_HALF_H * 3, 0.05]} />
+            </mesh>
+          ))}
         </group>
       ))}
     </group>

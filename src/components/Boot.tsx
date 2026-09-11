@@ -128,10 +128,18 @@ export default function Boot() {
         <img className="boot-mark" src="/favicon.svg" width="28" height="28" alt="" />
 
         <p className="boot-title">
-          {t.boot.title.map((line) => (
-            <span key={line}>{line}</span>
+          {t.boot.titles.map((line, i) => (
+            <span key={line} data-line={`l${i}`}>
+              {line}
+            </span>
           ))}
         </p>
+        {/* Picked before paint by index.html, so hydration never swaps the text. */}
+        <style>
+          {t.boot.titles
+            .map((_, i) => `:root[data-boot-line=l${i}] [data-line=l${i}]{display:block}`)
+            .join("")}
+        </style>
 
         <div className="boot-meter">
           <span className="boot-corner boot-corner--tl" />

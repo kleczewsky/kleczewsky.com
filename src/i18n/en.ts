@@ -66,11 +66,20 @@ const en = {
   },
   hud: {
     tier: "Tier",
+    override: "override",
     localTime: "Local",
     status: "Status",
   },
   boot: {
-    title: ["Kleczewsky is", "initializing"],
+    /** One is picked at random per load. Keep the count in step with index.html. */
+    titles: [
+      "Midnight run",
+      "Showtime",
+      "Systems up",
+      "Hello, stranger",
+      "Hold tight...",
+      "200 OK",
+    ],
     /** What is in progress once each milestone has been reached. */
     stages: {
       start: "Probing device",

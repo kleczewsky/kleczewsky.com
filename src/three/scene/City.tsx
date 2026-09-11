@@ -11,6 +11,8 @@ const CITY_VERT = /* glsl */ `
   attribute float seed;
   varying vec3 vLocal;
   varying vec3 vNrm;
+  varying vec3 vBox;
+  flat varying vec3 vSize;
   // flat: the window hash amplifies the seed about 1e9x, so the one-ulp error some
   // GPUs put on an interpolated constant turned every window on and off in motion.
   flat varying float vSeed;
@@ -19,7 +21,11 @@ const CITY_VERT = /* glsl */ `
 
   void main() {
     vSeed = seed;
-    vNrm = normalize(mat3(instanceMatrix) * normal);
+    vBox = position;
+    vSize = vec3(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz), length(instanceMatrix[2].xyz));
+    // Instances scale without rotating. Inverse scale keeps bevel normals
+    // correct on tall, non-uniformly scaled towers.
+    vNrm = normalize(normal / vSize);
 
     vec4 local = instanceMatrix * vec4(position, 1.0);
     vLocal = local.xyz;
@@ -35,6 +41,8 @@ const CITY_FRAG = /* glsl */ `
   precision highp float;
   varying vec3 vLocal;
   varying vec3 vNrm;
+  varying vec3 vBox;
+  flat varying vec3 vSize;
   flat varying float vSeed;
   varying float vDepth;
   varying float vTop;
@@ -51,8 +59,17 @@ const CITY_FRAG = /* glsl */ `
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   }
 
+  // Exact coverage of a periodic strip, including subpixel mullions.
+  float stripIntegral(float x, float width) {
+    return floor(x) * width + min(fract(x), width);
+  }
+  float strip(float x, float width, float footprint) {
+    float w = max(footprint, 0.0001);
+    return (stripIntegral(x + w * 0.5, width) - stripIntegral(x - w * 0.5, width)) / w;
+  }
+
   void main() {
-    float toward = 0.5 + 0.5 * smoothstep(-1.0, 1.0, -vNrm.z);
+    float toward = 0.32 + 0.68 * max(0.0, dot(vNrm, normalize(vec3(-0.65, 0.45, 0.6))));
     float isRoof = step(0.5, abs(vNrm.y));
     float roof = mix(1.0, 1.45, isRoof);
 
@@ -64,7 +81,9 @@ const CITY_FRAG = /* glsl */ `
 
     // 0.55: a night facade is a dark surface catching a little light,
     // not a lit one. Without it there is no black left in the city.
-    vec3 col = uFacade * toward * roof * fromBelow * 0.55;
+    float style = hash(vec2(vSeed, 13.7));
+    vec3 surface = mix(uFacade, uCool * 0.085, step(0.55, style));
+    vec3 col = surface * toward * roof * fromBelow;
 
     // Distant blocks fall to silhouette against a brighter sky, which
     // gives the wordmark a ridge to stand on.
@@ -78,12 +97,35 @@ const CITY_FRAG = /* glsl */ `
     // Derivatives out here: inside the branch below the spec leaves them
     // undefined, whatever a given driver happens to do.
     float across = abs(vNrm.x) > 0.5 ? vLocal.z : vLocal.x;
-    vec2 cell = vec2(across / 2.5, vLocal.y / 2.8);
+    // Each tower has one bay rhythm and one glass tint across its setbacks.
+    float bay = mix(2.4, 3.6, step(0.55, style));
+    vec2 cell = vec2(across / bay, vLocal.y / 3.2);
     vec2 fw = fwidth(cell);
+
+    float mullion = strip(cell.x, 0.10, fw.x);
+    float spandrel = strip(cell.y, 0.20, fw.y);
+    float structure = max(mullion, spandrel);
+    float detail = 1.0 - smoothstep(700.0, 1900.0, vDepth);
+    float glazing = (1.0 - structure) * (1.0 - isRoof);
+    float reflection = 0.35 + 0.65 * smoothstep(-160.0, 90.0, vTop);
+    col += uHaze * glazing * reflection * toward * 0.25;
+    col *= 1.0 - structure * detail * 0.38;
+
+    // Slim concrete corner piers and roof caps give the glass a frame.
+    float faceWidth = abs(vNrm.x) > 0.5 ? vSize.z : vSize.x;
+    float faceX = abs(vNrm.x) > 0.5 ? vBox.z : vBox.x;
+    float edgeDistance = (0.5 - abs(faceX)) * faceWidth;
+    float edgeAA = max(fwidth(edgeDistance), 0.02);
+    float pier = 1.0 - smoothstep(0.45 - edgeAA, 0.45 + edgeAA, edgeDistance);
+    float capDistance = (0.5 - vBox.y) * vSize.y;
+    float capAA = max(fwidth(capDistance), 0.02);
+    float cap = 1.0 - smoothstep(0.65 - capAA, 0.65 + capAA, capDistance);
+    float frame = max(pier, cap) * (1.0 - isRoof);
+    col = mix(col, uFacade * (0.65 + toward * 0.65), frame * detail);
 
     // Windows cost eight sin()-based hashes and are invisible once
     // depth has crushed them; gating both is the cheapest win here.
-    if (isRoof < 0.5 && far < 0.9 && seen > 0.01) {
+    if (isRoof < 0.5 && max(abs(vNrm.x), abs(vNrm.z)) > 0.99 && far < 0.9 && seen > 0.01) {
       // At a pixel ratio of 1 a window is about a pixel, so one sample per
       // pixel flips under any sub-pixel camera move. Integrate the pixel's
       // footprint over the cells it covers; lit state still comes per cell.
@@ -110,7 +152,8 @@ const CITY_FRAG = /* glsl */ `
           float self = hash(id + vSeed);
           // Roughly a third of the windows. Real towers at night are
           // mostly dark, and the ones that are not are what you look at.
-          float lit = max(step(0.68, k), floorRun * step(0.35, self));
+          float office = hash(vec2(floor(i / 3.0), j) + vSeed * 2.3);
+          float lit = max(step(0.66, office) * step(0.22, k), floorRun * step(0.35, self));
 
           // NB: active, filter, input, output and sample are reserved
           // words in GLSL ES and will not compile.
@@ -121,14 +164,14 @@ const CITY_FRAG = /* glsl */ `
           // Amber, with a minority of cool-white offices. NEVER red. Red
           // windows read as alarm, and red here belongs to the obstruction
           // lights, the ceiling strip and the wordmark alone.
-          vec3 lamp = mix(uWarm, uCool, step(0.84, hash(id.yx + vSeed * 11.0)));
-          float bright = 0.42 + 0.58 * fract(k * 7.31 + self);
+          vec3 lamp = mix(uWarm, uCool, step(0.78, hash(vec2(vSeed, 8.1))));
+          float bright = 0.48 + 0.38 * office;
 
           sum += lamp * lit * bright * ox * oy;
         }
       }
 
-      col += sum / (w.x * w.y) * 1.05 * uDim * seen;
+      col += sum / (w.x * w.y) * 1.05 * uDim * seen * (1.0 - frame);
     }
 
     col *= mix(1.0, 0.07, far);
@@ -152,6 +195,25 @@ export function City({
   const roofMesh = useRef<THREE.InstancedMesh>(null);
   const mat = useRef<THREE.ShaderMaterial>(null);
   const d = useDebug();
+  const geometry = useMemo(() => {
+    // Chamfer only the footprint: roof heights stay precise, while each
+    // corner adds a narrow plane that catches the twilight side light.
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.42, -0.5);
+    shape.lineTo(0.42, -0.5);
+    shape.lineTo(0.5, -0.42);
+    shape.lineTo(0.5, 0.42);
+    shape.lineTo(0.42, 0.5);
+    shape.lineTo(-0.42, 0.5);
+    shape.lineTo(-0.5, 0.42);
+    shape.lineTo(-0.5, -0.42);
+    shape.closePath();
+    return new THREE.ExtrudeGeometry(shape, { depth: 1, bevelEnabled: false, steps: 1 })
+      .rotateX(-Math.PI / 2)
+      .translate(0, -0.5, 0);
+  }, []);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   const uniforms = useMemo(
     () => ({
@@ -206,7 +268,7 @@ export function City({
         renderOrder={ORDER.city}
         frustumCulled={false}
       >
-        <boxGeometry args={[1, 1, 1]} />
+        <primitive object={geometry} attach="geometry" />
         <shaderMaterial
           ref={mat}
           vertexShader={CITY_VERT}

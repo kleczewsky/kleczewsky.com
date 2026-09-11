@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { LOCALES, NAV_ITEMS, href, match, type Locale } from "../routes";
 import { RouteLink, rememberLocale, useLocale } from "../lib/locale";
-import { useTier } from "../lib/tier";
+import { forceTierA, useTier } from "../lib/tier";
 import "./Hud.css";
 
 /* The bottom strip only ever shows values that are actually true:
@@ -58,7 +58,8 @@ function LanguageSwitch() {
 export default function Hud() {
   const { t, locale } = useLocale();
   const time = useClock();
-  const tier = useTier() ?? "c";
+  const probed = useTier();
+  const tier = probed ?? "c";
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
 
@@ -144,6 +145,11 @@ export default function Hud() {
         </span>
         <span className="hud-tier">
           {t.hud.tier} <b>{tier.toUpperCase()}</b>
+          {probed && probed !== "a" ? (
+            <button type="button" className="hud-override" onClick={forceTierA}>
+              ({t.hud.override})
+            </button>
+          ) : null}
         </span>
       </div>
     </>

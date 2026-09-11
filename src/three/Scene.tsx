@@ -25,9 +25,9 @@ export default function Scene({
   // PerformanceMonitor drives the pixel ratio between these bounds:
   // a single ratio from the device tier is a guess, since the same
   // laptop on its own panel vs. a 4K display differs 4x in fragments.
-  const base = tier === "a" ? { min: 1, max: 1.75 } : { min: 0.75, max: 1.25 };
+  const base = tier === "a" ? { min: 1, max: 2 } : { min: 1, max: 1.5 };
   /** What the monitor last asked for, before the range is applied. */
-  const [wanted, setWanted] = useState(base.min);
+  const [wanted, setWanted] = useState((base.min + base.max) / 2);
 
   // Cost is fragments, so both bounds follow the canvas, not the
   // device. Letterboxed to a band it is a quarter the area of a
@@ -37,7 +37,7 @@ export default function Scene({
   const [area, setArea] = useState(0);
   const range = useMemo(() => {
     const gain = Math.max(1, Math.min(2, Math.sqrt(RATIO_AREA / Math.max(area, 1))));
-    return { min: base.min * gain, max: base.max * gain };
+    return { min: Math.min(2, base.min * gain), max: Math.min(2, base.max * gain) };
   }, [area, base.min, base.max]);
 
   useEffect(() => {
@@ -101,10 +101,10 @@ export default function Scene({
       <Canvas
         frameloop={running ? "always" : "never"}
         dpr={d.lockDpr ? d.dpr : dpr}
-        /* antialias off: the composer renders to its own target, so canvas
-           MSAA is paid for and thrown away. */
+        /* Tier A resolves MSAA in the composer; tier B renders straight
+           to the canvas and needs its own edge antialiasing. */
         gl={{
-          antialias: false,
+          antialias: tier === "b",
           powerPreference: "high-performance",
           /* Nothing here is tone mapped. Saying so keeps tier B, which has no
              composer, identical to tier A. */
@@ -116,9 +116,9 @@ export default function Scene({
       >
         {d.lockDpr ? null : (
           <PerformanceMonitor
-            // Start at the bottom. The default 0.5 spends half the
-            // budget before a frame has been measured.
-            factor={0}
+            // Start crisp, then trade resolution for frame time only
+            // when measured performance calls for it.
+            factor={0.5}
             // Both bounds sit below the refresh rate: a page keeping up
             // with 60Hz reports 59-point-something, so an upper bound
             // OF the refresh rate can never be crossed.

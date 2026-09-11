@@ -106,7 +106,6 @@ const GROUND_FRAG = /* glsl */ `
 
     if (vis > 0.002) {
       float ave = streets(vW.xz, uBlock, 0.02, 0.0);
-      float side = streets(vW.xz + uBlock * 0.5, uBlock * 0.5, 0.012, 4.3) * 0.34;
 
       // Downtown is brighter than the outskirts, but the outskirts are
       // never dark. A suburb at night is a carpet of sodium, and that
@@ -115,7 +114,7 @@ const GROUND_FRAG = /* glsl */ `
         240.0, 2400.0, length((vW.xz - vec2(0.0, -900.0)) * vec2(0.6, 1.0))
       );
 
-      float lamp = max(ave, side) * mix(0.34, 1.0, core);
+      float lamp = ave * mix(0.34, 1.0, core);
 
       // Traffic: a slow travelling brightness per block run. It and
       // the windows are the only motion in the frame.

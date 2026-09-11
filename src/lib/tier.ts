@@ -12,6 +12,7 @@ interface ProbeNavigator extends Navigator {
 type Verdict = { gpu: string; strikes: number; at: number };
 
 const STORE = "kleczewsky:tier";
+const OVERRIDE = "kleczewsky:tier-override";
 
 /** Seconds after the reveal before frames count, then seconds sampled. */
 export const GAUGE_SKIP = 1.5;
@@ -75,7 +76,12 @@ function writeVerdict(strikes: number) {
 export function probeTier(): Tier {
   if (typeof window === "undefined" || typeof document === "undefined") return "c";
 
-  const param = new URLSearchParams(location.search).get("tier");
+  let param = new URLSearchParams(location.search).get("tier");
+  try {
+    param ??= localStorage.getItem(OVERRIDE);
+  } catch {
+    /* private mode: no stored override */
+  }
   const forced = param === "a" || param === "b" || param === "c" ? param : null;
   const nav = navigator as ProbeNavigator;
 
@@ -105,6 +111,17 @@ export function judgeFrames(deltas: number[]) {
   const median = (sorted[sorted.length >> 1] ?? 0) * 1000;
   const strikes = readVerdict()?.strikes ?? 0;
   writeVerdict(median > HOPELESS_MS ? STRIKES : median > SLOW_MS ? strikes + 1 : 0);
+}
+
+export function forceTierA() {
+  const url = new URL(location.href);
+  url.searchParams.delete("tier");
+  try {
+    localStorage.setItem(OVERRIDE, "a");
+  } catch {
+    url.searchParams.set("tier", "a");
+  }
+  location.replace(url);
 }
 
 export function applyTier(tier: Tier = probeTier()): Tier {

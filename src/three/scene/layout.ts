@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import { BLOCK, CITY_FLOOR, MAST_LIMIT, OVERLAP, ROOF_LIMIT } from "./constants";
+import { BLOCK, CAM_Z, CITY_FLOOR, EYE, MAST_LIMIT, OVERLAP, ROOF_LIMIT } from "./constants";
 import { makeRandom, smoothstep } from "./math";
 import type { Tokens } from "./tokens";
+import type { Mark } from "./Wordmark";
 
 /** Downtown: clustered cores rather than an even scatter; each site
  * stacks one to three boxes of decreasing footprint. */
-export function useCityLayout(sites: number) {
+export function useCityLayout(sites: number, mark: Mark | null) {
   return useMemo(() => {
     const rnd = makeRandom(20260908);
 
@@ -25,6 +26,7 @@ export function useCityLayout(sites: number) {
     const roofs: THREE.Matrix4[] = [];
     const mastSites: { m: THREE.Matrix4; tip: [number, number, number]; phase: number }[] = [];
     const m = new THREE.Matrix4();
+    const occupied = new Set<string>();
 
     for (let i = 0; i < sites; i++) {
       const t = rnd();
@@ -45,8 +47,14 @@ export function useCityLayout(sites: number) {
       // Snap to the street grid so buildings line the canyons the
       // ground shader draws. Blocks sitting across a road is the detail
       // that quietly ruins it.
-      x = Math.round(x / BLOCK) * BLOCK + (rnd() - 0.5) * 8;
-      z = Math.round(z / BLOCK) * BLOCK + (rnd() - 0.5) * 8;
+      x = Math.floor(x / BLOCK) * BLOCK + BLOCK * 0.5;
+      z = Math.floor(z / BLOCK) * BLOCK + BLOCK * 0.5;
+      const lot = `${x}:${z}`;
+      if (occupied.has(lot)) continue;
+      occupied.add(lot);
+      const firstPiece = pieces.length;
+      const firstRoof = roofs.length;
+      const firstMast = mastSites.length;
 
       let near = 0;
       for (const c of cores) {
@@ -58,6 +66,9 @@ export function useCityLayout(sites: number) {
       const seed = rnd() * 100;
       const depth = -z;
 
+      // Mix straight office slabs with stepped towers, keeping the same
+      // height distribution and skyline composition.
+      const slab = seed % 1 < 0.32;
       const tiers = total > 120 ? 3 : total > 60 ? 2 : 1;
       let w = 10 + rnd() * 17;
       let d = 10 + rnd() * 17;
@@ -66,10 +77,11 @@ export function useCityLayout(sites: number) {
 
       for (let s = 0; s < tiers; s++) {
         const share = s === tiers - 1 ? left : left * (0.4 + rnd() * 0.25);
-        const h = share + OVERLAP;
+        const visibleHeight = slab ? total : share;
+        const h = visibleHeight + OVERLAP;
         m.makeScale(w, h, d);
-        m.setPosition(x, base + share - h / 2, z);
-        pieces.push({ m: m.clone(), seed: seed + s * 0.31, d: depth });
+        m.setPosition(x, base + visibleHeight - h / 2, z);
+        if (!slab || s === 0) pieces.push({ m: m.clone(), seed, d: depth });
 
         base += share;
         left -= share;
@@ -77,15 +89,10 @@ export function useCityLayout(sites: number) {
         d *= 0.66 + rnd() * 0.14;
       }
 
-      // A slender spire on a few of the tallest, which is what gives a
-      // skyline a landmark to be read against.
+      // Antennas are separate unlit metal, never window-bearing floors.
+      let antennaHeight = 0;
       if (total > 165 && rnd() < 0.45) {
-        const sh = 20 + rnd() * 46;
-        const h = sh + OVERLAP;
-        m.makeScale(Math.max(1.6, w * 0.22), h, Math.max(1.6, d * 0.22));
-        m.setPosition(x, base + sh - h / 2, z);
-        pieces.push({ m: m.clone(), seed: seed + 5.7, d: depth });
-        base += sh;
+        antennaHeight = 8 + rnd() * 12;
       }
 
       if (-z < 900 && roofs.length < ROOF_LIMIT && rnd() < 0.75) {
@@ -105,11 +112,50 @@ export function useCityLayout(sites: number) {
       }
 
       if (total > 100) {
-        const mh = 8 + rnd() * 26;
+        const mh = Math.max(antennaHeight, 6 + rnd() * 8);
         const h = mh + OVERLAP;
         m.makeScale(0.85, h, 0.85);
         m.setPosition(x, base + mh - h / 2, z);
         mastSites.push({ m: m.clone(), tip: [x, base + mh, z], phase: rnd() });
+      }
+
+      // Keep real depth occlusion, but reserve the upper 88% of the ink.
+      // Project the limit back to each lot, so a near tower cannot cut
+      // farther into the letters than a distant one. A few thin antennas
+      // can cross higher without hiding the letter shapes.
+      if (mark && z > mark.position[2]) {
+        const distance = CAM_Z - z;
+        const markDistance = CAM_Z - mark.position[2];
+        const halfWord = (mark.inkWidth * 0.5 * distance) / markDistance;
+        if (Math.abs(x) - 16 < halfWord) {
+          const limit =
+            EYE + ((mark.inkBottom + mark.inkHeight * 0.12 - EYE) * (distance - 16)) / markDistance;
+          let top = base;
+          for (let n = firstRoof; n < roofs.length; n++) {
+            const matrix = roofs[n]!;
+            top = Math.max(top, matrix.elements[13]! + matrix.elements[5]! * 0.5);
+          }
+          const scale = Math.min(1, (limit - CITY_FLOOR) / (top - CITY_FLOOR));
+          const shorten = (matrix: THREE.Matrix4) => {
+            matrix.elements[5]! *= scale;
+            matrix.elements[13] = CITY_FLOOR + (matrix.elements[13]! - CITY_FLOOR) * scale;
+          };
+          for (let n = firstPiece; n < pieces.length; n++) shorten(pieces[n]!.m);
+          for (let n = firstRoof; n < roofs.length; n++) shorten(roofs[n]!);
+          for (let n = firstMast; n < mastSites.length; n++) {
+            const mast = mastSites[n]!;
+            shorten(mast.m);
+            const foot = mast.m.elements[13]! - mast.m.elements[5]! * 0.5;
+            const accent = mast.phase > 0.72;
+            const antennaLimit =
+              limit + (mark.inkHeight * (accent ? 0.42 : 0.08) * distance) / markDistance;
+            const desired = mast.m.elements[5]! * (accent ? 2.2 : 1);
+            const height = Math.max(0.1, Math.min(desired, antennaLimit - foot));
+            mast.m.elements[5] = height;
+            mast.m.elements[13] = foot + height * 0.5;
+            mast.tip[1] = foot + height;
+          }
+        }
       }
     }
 
@@ -129,7 +175,7 @@ export function useCityLayout(sites: number) {
       beacons: new Float32Array(mastSites.flatMap((s) => s.tip)),
       phases: new Float32Array(mastSites.map((s) => s.phase)),
     };
-  }, [sites]);
+  }, [sites, mark]);
 }
 
 export type Layout = ReturnType<typeof useCityLayout>;

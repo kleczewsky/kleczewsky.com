@@ -86,9 +86,9 @@ export default function Content({
   const tokens = useTokens();
   const d = useDebug();
   const volley = useRef(-1e4);
-  const layout = useCityLayout(tier === "a" ? SITES : Math.round(SITES * 0.62));
   const lots = useSuburbs(tier === "a" ? SUBURBS : Math.round(SUBURBS * 0.3), tokens);
   const mark = useWordmark(tokens, d);
+  const layout = useCityLayout(tier === "a" ? SITES : Math.round(SITES * 0.62), mark);
   const active = useRef(false);
 
   useEffect(() => {
@@ -153,11 +153,10 @@ export default function Content({
       <Reveal onReady={onReady} onLost={onLost} />
       {tier === "a" && !d.fly && !d.lockDpr ? <Gauge active={active} /> : null}
 
-      {/* multisampling={0}: the composer defaults to 8x MSAA on its
-          own target, which on a 2x display spends milliseconds on
-          edge quality this soft-light scene can't show. */}
+      {/* Sample geometry edges before bloom, preserving thin rooflines
+          and mullions without blurring the whole image with FXAA. */}
       {tier === "a" ? (
-        <EffectComposer enableNormalPass={false} multisampling={0}>
+        <EffectComposer enableNormalPass={false} multisampling={2}>
           {/* Bloom's mipmap chain is the most expensive pass here and
               every tap is a blur, so running it at half width/height
               costs a quarter the fragments and looks the same. */}

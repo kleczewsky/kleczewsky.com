@@ -11,6 +11,7 @@
           var lean = navigator.connection && navigator.connection.saveData;
           if (!calm && !lean) {
             document.documentElement.dataset.boot = "on";
+            document.documentElement.dataset.bootLine = "l" + Math.floor(Math.random() * 6);
           }
         } catch (e) {}
       })();

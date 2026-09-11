@@ -5,6 +5,7 @@ import Boot from "./components/Boot";
 import Hud from "./components/Hud";
 import Frame from "./components/Frame";
 import ScrollRail from "./components/ScrollRail";
+import Ripple from "./components/Ripple";
 import Stage from "./three/Stage";
 import Home from "./pages/Home";
 import Lab from "./pages/Lab";
@@ -29,6 +30,7 @@ function Shell() {
         {t.nav.skipToContent}
       </a>
       <Stage />
+      <Ripple />
       <Frame />
       <ScrollRail />
       <Hud />

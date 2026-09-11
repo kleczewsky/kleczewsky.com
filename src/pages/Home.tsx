@@ -49,13 +49,12 @@ function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
 
       <div className="slab-inner">
         <div className="slab-top">
-          <div className="slab-tabs" role="tablist" aria-label={t.nav.work}>
+          <div className="slab-tabs" role="group" aria-label={t.nav.work}>
             {WORK.map((w, n) => (
               <button
                 key={w.id}
                 type="button"
-                role="tab"
-                aria-selected={n === i}
+                aria-pressed={n === i}
                 aria-label={w.name}
                 className="pill slab-tab t-micro"
                 onClick={() => setI(n)}
@@ -164,42 +163,44 @@ function AboutSection() {
   const { t } = useLocale();
 
   return (
-    <section className="section wrap" id="about">
-      <Head mark="01" title={t.nav.about} lead={t.about.lead} />
+    <div className="about-field">
+      <section className="section wrap" id="about">
+        <Head mark="01" title={t.nav.about} lead={t.about.lead} />
 
-      <div className="about">
-        <AboutPlate />
+        <div className="about">
+          <AboutPlate />
 
-        <div className="about-column">
-          <ol className="about-log" role="list">
-            {t.about.body.map((entry) => (
-              <li key={entry.mark}>
-                <p className="t-micro about-log-mark">{entry.mark}</p>
-                <p className="t-body about-log-text">{entry.text}</p>
-              </li>
-            ))}
-          </ol>
+          <div className="about-column">
+            <ol className="about-log" role="list">
+              {t.about.body.map((entry) => (
+                <li key={entry.mark}>
+                  <p className="t-micro about-log-mark">{entry.mark}</p>
+                  <p className="t-body about-log-text">{entry.text}</p>
+                </li>
+              ))}
+            </ol>
 
-          <ul className="about-figures" role="list">
-            {t.about.figures.map((figure) => (
-              <li key={figure.label} className="about-figure">
-                <span className="t-micro t-primary">{figure.kicker}</span>
-                <span className="t-display about-figure-value">{figure.value}</span>
-                <span className="t-small t-faint about-figure-label">{figure.label}</span>
-              </li>
-            ))}
-          </ul>
+            <ul className="about-figures" role="list">
+              {t.about.figures.map((figure) => (
+                <li key={figure.label} className="about-figure">
+                  <span className="t-micro t-primary">{figure.kicker}</span>
+                  <span className="t-display about-figure-value">{figure.value}</span>
+                  <span className="t-small t-faint about-figure-label">{figure.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
 
-      {/*<div className="about-now">*/}
-      {/*  <h3 className="t-micro about-now-mark">*/}
-      {/*    <span className="chip-dot" />*/}
-      {/*    {t.about.nowHeading}*/}
-      {/*  </h3>*/}
-      {/*  <p className="t-lead about-now-text">{t.about.now}</p>*/}
-      {/*</div>*/}
-    </section>
+        {/*<div className="about-now">*/}
+        {/*  <h3 className="t-micro about-now-mark">*/}
+        {/*    <span className="chip-dot" />*/}
+        {/*    {t.about.nowHeading}*/}
+        {/*  </h3>*/}
+        {/*  <p className="t-lead about-now-text">{t.about.now}</p>*/}
+        {/*</div>*/}
+      </section>
+    </div>
   );
 }
 

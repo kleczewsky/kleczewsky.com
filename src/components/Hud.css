@@ -236,6 +236,18 @@
   min-width: 0;
 }
 
+.hud-override {
+  margin-inline-start: var(--s2);
+  color: var(--primary);
+  letter-spacing: inherit;
+  text-transform: inherit;
+  transition: color var(--d-fast) var(--e-out);
+}
+
+.hud-override:hover {
+  color: var(--primary-hot);
+}
+
 /* Fixed interval, no easing, ignores input. Stops entirely under
    reduced motion, where --beacon-cycle is 0ms. */
 .hud-beacon {

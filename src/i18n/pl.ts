@@ -68,11 +68,19 @@ const pl: Dict = {
   },
   hud: {
     tier: "Tryb",
+    override: "nadpisz",
     localTime: "Czas",
     status: "Status",
   },
   boot: {
-    title: ["Kleczewsky", "uruchamia się"],
+    titles: [
+      "Nocny kurs",
+      "Zaczynamy",
+      "Systemy gotowe",
+      "Witaj, nieznajomy",
+      "Trzymaj się...",
+      "200 OK",
+    ],
     stages: {
       start: "Sprawdzam urządzenie",
       tier: "Pobieram scenę",

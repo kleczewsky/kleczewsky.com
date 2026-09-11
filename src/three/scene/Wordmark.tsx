@@ -14,6 +14,10 @@ export type Mark = {
   width: number;
   height: number;
   position: [number, number, number];
+  /** Visible glyph bounds, excluding the transparent texture padding. */
+  inkWidth: number;
+  inkHeight: number;
+  inkBottom: number;
   /** How far the letters reach from centre, as a fraction of the half
    * width. The mullions are placed from it. */
   reach: number;
@@ -129,6 +133,9 @@ function buildWordmark(width: number, height: number, tokens: Tokens, d: MarkKno
     width: cssW * scale,
     height: cssH * scale,
     position: [0, EYE + ((ascent - descent) / 2) * scale, d.markDepth],
+    inkWidth: inkW * scale,
+    inkHeight: (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * scale,
+    inkBottom: EYE - m.actualBoundingBoxDescent * scale,
     reach: Math.min(1, (inkW * scale) / 2 / halfW),
   };
 }

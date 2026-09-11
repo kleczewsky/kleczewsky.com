@@ -164,7 +164,8 @@
   /* The 45-degree run-out at each end of the housing. */
   --rail-chamfer: 15px;
 
-  --z-scene: 0;
+  --z-waves: 0;
+  --z-scene: 1;
   --z-content: 20;
   --z-hud: 40;
   /* Under the nav, not --z-overlay: the mobile sheet must never cover
