@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { LOCALES, NAV_ITEMS, href, match, type Locale } from "../routes";
 import { RouteLink, rememberLocale, useLocale } from "../lib/locale";
 import { forceTierA, useTier } from "../lib/tier";
@@ -93,17 +93,17 @@ export default function Hud() {
 
         <nav className="hud-nav t-label" aria-label={t.nav.primary}>
           {NAV_ITEMS.map((item) => (
-            <a key={item.id} href={item.href(locale)}>
+            <Link key={item.id} to={item.href(locale)}>
               <span>{t.nav[item.id as keyof typeof t.nav]}</span>
-            </a>
+            </Link>
           ))}
         </nav>
 
         <LanguageSwitch />
 
-        <a href={`${href("home", locale)}#contact`} className="hud-go t-label">
+        <Link to={`${href("home", locale)}#contact`} className="hud-go t-label">
           {t.home.toContact}
-        </a>
+        </Link>
 
         <button
           type="button"
@@ -123,14 +123,14 @@ export default function Hud() {
         aria-hidden={!open}
       >
         {NAV_ITEMS.map((item) => (
-          <a
+          <Link
             key={item.id}
-            href={item.href(locale)}
+            to={item.href(locale)}
             className="t-display"
             onClick={() => setOpen(false)}
           >
             {t.nav[item.id as keyof typeof t.nav]}
-          </a>
+          </Link>
         ))}
       </nav>
 

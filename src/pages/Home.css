@@ -62,13 +62,12 @@
   text-shadow: var(--display-glow);
 }
 
-/* opacity, not visibility: the box has to keep holding its space,
-   and the scene re-measures this element on resize. Both flags are
-   needed: the mark existing is not the same as the canvas being up,
-   and fading on the first alone left the heading gone while the
-   scene was still linking shaders. */
-[data-scene-mark][data-scene="ready"] .home-name {
+/* A running scene owns the heading, including the short rebuild when
+   returning home. Keep the DOM measurable without flashing its ink.
+   Failed texture creation explicitly restores the readable fallback. */
+[data-scene="ready"]:not([data-scene-mark="unavailable"]) .home-name {
   opacity: 0;
+  transition: none;
 }
 
 /* No delay, and far shorter than the canvas fade it hands over to.

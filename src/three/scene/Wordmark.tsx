@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { DebugState } from "../knobs";
-import { CAM_Z, EYE, FOV, ORDER } from "./constants";
+import { CAM_Z, CITY_FLOOR, EYE, FOV, ORDER } from "./constants";
 import type { Tokens } from "./tokens";
 
 /* The typeface is read off the DOM heading's computed style, so the
@@ -11,6 +11,8 @@ import type { Tokens } from "./tokens";
 
 export type Mark = {
   texture: THREE.CanvasTexture;
+  /** Texture boundaries between letters, preserving the original spacing. */
+  glyphEdges: number[];
   width: number;
   height: number;
   position: [number, number, number];
@@ -128,8 +130,17 @@ function buildWordmark(width: number, height: number, tokens: Tokens, d: MarkKno
 
   const scale = (Math.min(MARK_WIDTH * d.markScale, 0.94) * 2 * halfW) / inkW;
 
+  let cursor = pad;
+  const glyphEdges = [0];
+  for (let i = 0; i < advances.length - 1; i++) {
+    cursor += advances[i]! + track;
+    glyphEdges.push((cursor - track / 2) / cssW);
+  }
+  glyphEdges.push(1);
+
   return {
     texture,
+    glyphEdges,
     width: cssW * scale,
     height: cssH * scale,
     position: [0, EYE + ((ascent - descent) / 2) * scale, d.markDepth],
@@ -207,35 +218,110 @@ export function useWordmark(tokens: Tokens, d: DebugState, page: string | null) 
   // replacement effect is still pending.
   const mark = page !== null && built?.request === request ? built.mark : null;
 
-  // Says only that the scene HAS a mark. Whether the DOM heading may
-  // fade needs the reveal as well, which Stage flags separately.
+  // Distinguish a pending rebuild from a failed texture. Only failure
+  // should bring back the HTML heading once the scene is already visible.
   useEffect(() => {
-    if (!mark) return;
-    document.documentElement.dataset.sceneMark = "on";
+    if (page === null || built?.request !== request) return;
+    document.documentElement.dataset.sceneMark = mark ? "on" : "unavailable";
     return () => {
       delete document.documentElement.dataset.sceneMark;
     };
-  }, [mark]);
+  }, [page, built, request, mark]);
 
   return mark;
 }
 
-export function Wordmark({ mark }: { mark: Mark | null }) {
-  if (!mark) return null;
+/** Each letter is a quad from the same texture; the whole word stays one draw call. */
+export function Wordmark({ mark, shown }: { mark: Mark | null; shown: boolean }) {
+  const elapsed = useRef(0);
+  const previous = useRef<Mark | null>(null);
+  const reduced = useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
+  const uniforms = useMemo(() => ({ time: { value: 0 }, drop: { value: 0 } }), []);
+  const geometry = useMemo(() => {
+    if (!mark) return null;
+    const positions: number[] = [];
+    const uvs: number[] = [];
+    const letters: number[] = [];
+    const indices: number[] = [];
+    for (let i = 0; i < mark.glyphEdges.length - 1; i++) {
+      const left = mark.glyphEdges[i]!;
+      const right = mark.glyphEdges[i + 1]!;
+      const x0 = (left - 0.5) * mark.width;
+      const x1 = (right - 0.5) * mark.width;
+      const h = mark.height / 2;
+      positions.push(x0, -h, 0, x1, -h, 0, x1, h, 0, x0, h, 0);
+      uvs.push(left, 0, right, 0, right, 1, left, 1);
+      letters.push(i, i, i, i);
+      const v = i * 4;
+      indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    g.setAttribute("aLetter", new THREE.Float32BufferAttribute(letters, 1));
+    g.setIndex(indices);
+    return g;
+  }, [mark]);
+  useEffect(() => () => geometry?.dispose(), [geometry]);
 
+  const material = useMemo(() => {
+    const m = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0.95,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    m.onBeforeCompile = (shader) => {
+      shader.uniforms.uRiseTime = uniforms.time;
+      shader.uniforms.uDrop = uniforms.drop;
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <common>",
+          `#include <common>
+          attribute float aLetter;
+          uniform float uRiseTime;
+          uniform float uDrop;
+        `,
+        )
+        .replace(
+          "#include <begin_vertex>",
+          `#include <begin_vertex>
+          float progress = clamp((uRiseTime - aLetter * 0.035) / 1.0, 0.0, 1.0);
+          // A restrained ease-out-back: a small crest, then a slow settle.
+          float tail = progress - 1.0;
+          float rise = 1.0 + 1.8 * tail * tail * tail + 0.8 * tail * tail;
+          float remaining = 1.0 - rise;
+          transformed.y -= uDrop * remaining;
+        `,
+        );
+    };
+    m.customProgramCacheKey = () => "wordmark-rise-v1";
+    return m;
+  }, [uniforms]);
+  useEffect(() => () => material.dispose(), [material]);
+
+  useFrame((_, dt) => {
+    if (previous.current !== mark) {
+      previous.current = mark;
+      elapsed.current = 0;
+    }
+    if (!mark) return;
+    // Begin below the city floor. Existing depth testing lets rooftops
+    // obscure the letters naturally as they rise into their final position.
+    uniforms.drop.value = mark.position[1] + mark.height / 2 - CITY_FLOOR + 20;
+    if (shown) elapsed.current = Math.min(2, elapsed.current + Math.min(dt, 1 / 30));
+    uniforms.time.value = reduced ? 2 : elapsed.current;
+  });
+
+  if (!mark || !geometry) return null;
   return (
-    <mesh position={mark.position} renderOrder={ORDER.wordmark}>
-      <planeGeometry args={[mark.width, mark.height]} />
-      {/* depthWrite off so it never occludes anything itself; depth
-          TEST on so the towers between it and the camera cut across
-          the letters. Slight transparency reads as night air. */}
-      <meshBasicMaterial
-        map={mark.texture}
-        transparent
-        opacity={0.95}
-        depthWrite={false}
-        toneMapped={false}
-      />
+    <mesh
+      position={mark.position}
+      geometry={geometry}
+      renderOrder={ORDER.wordmark}
+      frustumCulled={false}
+    >
+      <primitive object={material} attach="material" map={mark.texture} />
     </mesh>
   );
 }

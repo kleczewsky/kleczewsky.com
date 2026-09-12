@@ -141,7 +141,7 @@ export default function Content({
       <Beacons tokens={tokens} layout={layout} tier={tier} />
       <Blimp tokens={tokens} tier={tier} volley={volley} />
       <Fireworks tokens={tokens} layout={layout} tier={tier} volley={volley} />
-      <Wordmark mark={mark} />
+      <Wordmark mark={mark} shown={shown} />
 
       {/* Fly mode replaces the resting camera outright: two
           controllers writing camera.position in the same frame is a

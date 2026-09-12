@@ -1,13 +1,19 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigationType } from "react-router";
 
 /** Native fragment navigation can run before the client-rendered page exists. */
 export default function SectionScroll() {
   const location = useLocation();
+  const navigation = useNavigationType();
 
   useEffect(() => {
     const { hash } = location;
-    if (!hash) return;
+    if (!hash) {
+      // In-app page links should open at the top, just like a fresh load.
+      // Leave initial loads and browser history restoration to the browser.
+      if (navigation === "PUSH") window.scrollTo({ top: 0, behavior: "instant" });
+      return;
+    }
     let id: string;
     try {
       id = decodeURIComponent(hash.slice(1));
@@ -36,7 +42,7 @@ export default function SectionScroll() {
       cancelAnimationFrame(frame);
       for (const event of events) window.removeEventListener(event, cancel);
     };
-  }, [location]);
+  }, [location, navigation]);
 
   return null;
 }
