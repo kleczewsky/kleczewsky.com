@@ -1,3 +1,5 @@
+import { useLocale } from "../lib/locale";
+
 const RULE = "var(--rule-solid)";
 const DIM = "var(--ink-faint)";
 const HOT = "var(--primary)";
@@ -45,12 +47,9 @@ function Node({
 /** Backend: a request, the answer, and the three things that have to
     hold while it happens. */
 function Backend() {
+  const { t } = useLocale();
   return (
-    <svg
-      viewBox="0 0 260 132"
-      role="img"
-      aria-label="A request served by the application, with queue, database and payments behind it"
-    >
+    <svg viewBox="0 0 260 132" role="img" aria-label={t.diagrams.backend}>
       <g strokeWidth="1" fill="none">
         <path d="M60 66 H96" stroke={RULE} />
         <path d="M154 66 H176 M176 66 V26 H196" stroke={RULE} />
@@ -58,10 +57,10 @@ function Backend() {
         <path d="M176 66 V106 H196" stroke={RULE} />
       </g>
       <Node x={12} y={55} label="HTTP" />
-      <Node x={96} y={52} w={58} h={28} label="APP" hot />
-      <Node x={196} y={15} label="QUEUE" />
-      <Node x={196} y={55} label="DB" />
-      <Node x={196} y={95} label="PAY" />
+      <Node x={96} y={52} w={58} h={28} label={t.diagrams.app} hot />
+      <Node x={196} y={15} label={t.diagrams.queue} />
+      <Node x={196} y={55} label={t.diagrams.db} />
+      <Node x={196} y={95} label={t.diagrams.pay} />
       <circle cx="176" cy="66" r="2.5" fill={HOT} />
     </svg>
   );
@@ -69,12 +68,9 @@ function Backend() {
 
 /** Frontend: a widget rendering correctly inside a stranger's page. */
 function Frontend() {
+  const { t } = useLocale();
   return (
-    <svg
-      viewBox="0 0 260 132"
-      role="img"
-      aria-label="An embedded widget rendering inside a third-party page"
-    >
+    <svg viewBox="0 0 260 132" role="img" aria-label={t.diagrams.frontend}>
       <rect x="12" y="12" width="236" height="108" rx="4" fill="var(--panel-sunk)" stroke={RULE} />
       <path d="M12 30 H248" stroke={RULE} strokeWidth="1" />
       {[22, 30, 38].map((cx) => (
@@ -115,10 +111,10 @@ function Frontend() {
         strokeDasharray="3 3"
       />
       <text x="180" y="70" textAnchor="middle" fontSize="9" fontFamily="var(--f-mono)" fill={HOT}>
-        WIDGET
+        {t.diagrams.widget}
       </text>
       <text x="180" y="86" textAnchor="middle" fontSize="7" fontFamily="var(--f-mono)" fill={DIM}>
-        THEIR CSS
+        {t.diagrams.css}
       </text>
     </svg>
   );
@@ -127,6 +123,7 @@ function Frontend() {
 /** Takeover: a tangle on the left, the same system ordered on the
     right. */
 function Takeover() {
+  const { t } = useLocale();
   const tangle: [number, number][] = [
     [26, 30],
     [72, 58],
@@ -135,11 +132,7 @@ function Takeover() {
     [58, 100],
   ];
   return (
-    <svg
-      viewBox="0 0 260 132"
-      role="img"
-      aria-label="A tangled system on the left, the same system ordered on the right"
-    >
+    <svg viewBox="0 0 260 132" role="img" aria-label={t.diagrams.takeover}>
       <g stroke={RULE} strokeWidth="1" fill="none" opacity="0.85">
         <path d="M26 30 L72 58 L34 88 L80 24 L58 100 L26 30" />
         <path d="M72 58 L58 100" />

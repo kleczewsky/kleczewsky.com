@@ -91,7 +91,7 @@ export default function Hud() {
           </span>
         </RouteLink>
 
-        <nav className="hud-nav t-label" aria-label="Primary">
+        <nav className="hud-nav t-label" aria-label={t.nav.primary}>
           {NAV_ITEMS.map((item) => (
             <a key={item.id} href={item.href(locale)}>
               <span>{t.nav[item.id as keyof typeof t.nav]}</span>
@@ -119,7 +119,7 @@ export default function Hud() {
       <nav
         id="hud-sheet"
         className={`hud-sheet${open ? " is-open" : ""}`}
-        aria-label="Primary"
+        aria-label={t.nav.primary}
         aria-hidden={!open}
       >
         {NAV_ITEMS.map((item) => (

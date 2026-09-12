@@ -14,6 +14,7 @@ export interface RouteDef {
 
 export const ROUTES: RouteDef[] = [
   { id: "home", path: { en: "/", pl: "/" } },
+  { id: "connect", path: { en: "/connect", pl: "/connect" } },
   { id: "lab", path: { en: "/lab", pl: "/lab" } },
   { id: "system", path: { en: "/system", pl: "/system" } },
 ];
@@ -40,6 +41,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "about", href: (locale) => `${href("home", locale)}#about` },
   { id: "work", href: (locale) => `${href("home", locale)}#work` },
   { id: "lab", href: (locale) => href("lab", locale) },
+  { id: "agents", href: (locale) => href("connect", locale) },
   { id: "contact", href: (locale) => `${href("home", locale)}#contact` },
 ];
 

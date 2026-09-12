@@ -1,5 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { reach, useBootPhase } from "../lib/boot";
+import { useLocation } from "react-router";
+import { match } from "../routes";
 import { useTier } from "../lib/tier";
 import { useDebug } from "./knobs";
 import "./StageCanvas.css";
@@ -56,6 +58,8 @@ function Readout() {
 }
 
 export default function Stage() {
+  const { pathname } = useLocation();
+  const wordmarkPage = match(pathname)?.route.id === "home" ? pathname : null;
   const tier = useTier();
   const phase = useBootPhase();
   const [ready, setReady] = useState(false);
@@ -88,6 +92,7 @@ export default function Stage() {
         {gl ? (
           <Suspense fallback={null}>
             <Scene
+              wordmarkPage={wordmarkPage}
               tier={tier}
               shown={shown}
               onReady={() => {

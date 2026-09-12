@@ -1,0 +1,314 @@
+.section.connect {
+  align-items: stretch;
+}
+.connect-intro {
+  max-width: 780px;
+  display: grid;
+  justify-items: start;
+  gap: var(--s5);
+  margin-bottom: var(--s8);
+}
+.connect-title.t-display {
+  font-size: clamp(3.25rem, 8vw, 6.75rem);
+  line-height: 0.98;
+  text-shadow: 0 2px 24px rgb(1 4 1 / 0.85);
+}
+.connect-title span {
+  color: var(--primary);
+}
+.connect-lead {
+  max-width: 56ch;
+  color: var(--ink-dim);
+  text-shadow: 0 2px 12px var(--ground);
+}
+.connect-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: var(--s2);
+  margin-top: var(--s2);
+  color: var(--ink);
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+.connect-status li {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  background: var(--panel);
+  border: 1px solid var(--rule-strong);
+}
+.connect-status .chip-dot {
+  background: var(--ok);
+  animation: none;
+}
+.connect-grid {
+  display: grid;
+  gap: var(--grid-gap);
+}
+.connect-panel {
+  min-width: 0;
+  padding: var(--s6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  background: var(--card);
+  transition: border-color var(--d-base) var(--e-out);
+}
+
+/* The same opposing cuts and lit lower edge as the home profile plate.
+   Controls sit inside the padding so their focus rings clear the cut. */
+.connect-panel,
+.connect-terminal {
+  position: relative;
+  border: 1px solid var(--rule);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer),
+    100% 100%,
+    var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer))
+  );
+}
+.connect-panel::after,
+.connect-terminal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: var(--chamfer);
+  width: calc(var(--chamfer) * 1.4143);
+  height: 1px;
+  background: var(--primary);
+  transform-origin: left bottom;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.connect-panel:hover,
+.connect-panel:focus-within {
+  border-color: var(--primary-edge);
+}
+.connect-plate-label {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  width: 100%;
+  margin-bottom: var(--s2);
+}
+.connect-plate-label > p {
+  flex: none;
+}
+.connect-kinds {
+  border: 0;
+  padding: 0;
+  margin: var(--s3) 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+.connect-kinds legend {
+  margin-bottom: var(--s3);
+}
+.connect-kind {
+  position: relative;
+  cursor: pointer;
+}
+.connect-kind input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.connect-kind span {
+  display: block;
+  border: 1px solid var(--card-edge);
+  border-radius: 3px;
+  background: var(--card-sunk);
+  padding: var(--s3) var(--s4);
+  min-height: 44px;
+  transition:
+    border-color var(--d-fast) var(--e-out),
+    background-color var(--d-fast) var(--e-out);
+}
+.connect-kind:hover span {
+  border-color: var(--rule-strong);
+}
+.connect-kind input:checked + span {
+  background: var(--primary-wash);
+  border-color: var(--primary);
+}
+.connect-kind input:focus-visible + span {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+.connect-draft {
+  align-self: flex-start;
+  margin-top: auto;
+}
+.connect-files {
+  margin-top: auto;
+  display: grid;
+  gap: var(--s2);
+}
+.connect-files a {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--card-sunk);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color var(--d-fast) var(--e-out),
+    background-color var(--d-fast) var(--e-out);
+}
+.connect-files a::before {
+  content: "";
+  position: absolute;
+  inset: var(--s4) auto var(--s4) -1px;
+  width: 2px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity var(--d-fast) var(--e-out);
+}
+.connect-files a:hover,
+.connect-files a:focus-visible {
+  color: var(--ink);
+  background: var(--panel);
+  border-color: var(--primary-edge);
+}
+.connect-files a:hover::before,
+.connect-files a:focus-visible::before {
+  opacity: 1;
+}
+.connect-file-icon {
+  color: var(--ink-faint);
+}
+.connect-file-icon svg {
+  display: block;
+  width: 24px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.connect-file-copy {
+  display: grid;
+  gap: var(--s1);
+  min-width: 0;
+}
+.connect-file-path {
+  font-family: var(--f-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.connect-file-description {
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+.connect-file-arrow {
+  color: var(--ink-faint);
+  text-align: end;
+  transition: color var(--d-fast) var(--e-out);
+}
+.connect-files a:hover .connect-file-arrow,
+.connect-files a:focus-visible .connect-file-arrow {
+  color: var(--primary-hot);
+}
+.connect-brief {
+  display: grid;
+  gap: var(--s6);
+  margin-top: var(--s7);
+  padding-block: var(--s7);
+  border-block: 1px solid var(--rule);
+}
+.connect-brief-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s4);
+}
+.connect-brief-head [role="status"] {
+  min-height: 1.6em;
+}
+.connect-terminal {
+  min-width: 0;
+  background: var(--card);
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+.connect-terminal textarea {
+  display: block;
+  width: 100%;
+  flex: 1;
+  min-height: 260px;
+  resize: vertical;
+  padding: var(--s4);
+  border: 1px solid var(--card-edge);
+  border-radius: 0;
+  background: var(--card-sunk);
+  color: var(--ink-dim);
+  font: 0.875rem/1.8 var(--f-mono);
+}
+.connect-terminal textarea:focus-visible {
+  outline: 1px solid var(--primary);
+  outline-offset: 6px;
+}
+.connect-back {
+  align-self: flex-start;
+  margin-top: var(--s6);
+}
+.agent-door {
+  display: grid;
+  gap: var(--s5);
+  padding: var(--s6);
+  margin-top: var(--s8);
+  background: var(--panel-sunk);
+  border: 1px solid var(--rule);
+  border-inline-start: 2px solid var(--primary);
+  width: 100%;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer),
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%
+  );
+}
+.agent-door > div {
+  display: grid;
+  gap: var(--s3);
+}
+.agent-door .btn {
+  align-self: center;
+  justify-self: start;
+}
+@media (min-width: 800px) {
+  .connect-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .connect-brief {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+  .agent-door {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+@media (max-width: 420px) {
+  .connect-panel {
+    padding: var(--s5);
+  }
+  .connect-kind span {
+    padding-inline: var(--s3);
+  }
+}

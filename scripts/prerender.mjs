@@ -17,7 +17,7 @@ const root = join(here, "..");
 const dist = join(root, "dist");
 
 const entry = pathToFileURL(join(root, "dist-server", "entry-server.js")).href;
-const { render, head, allUrls, SITE } = await import(entry);
+const { render, head, allUrls, SITE, machineFiles } = await import(entry);
 
 const template = await readFile(join(dist, "index.html"), "utf8");
 
@@ -29,6 +29,10 @@ function compose(url, locale) {
 }
 
 const written = [];
+
+for (const [path, file] of Object.entries(machineFiles())) {
+  await writeFile(join(dist, path.slice(1)), file.body, "utf8");
+}
 
 for (const { url, locale } of allUrls()) {
   const out = url === "/" ? join(dist, "index.html") : join(dist, url, "index.html");

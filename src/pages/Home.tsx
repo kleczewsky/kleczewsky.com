@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RouteLink, useLocale } from "../lib/locale";
 import { WORK } from "../content/work";
 import { EMAIL, PROFILES } from "../content/links";
+import { CONNECT_COPY } from "../content/connect-copy";
 import { Diagram, SkylineMark, type DiagramKind } from "../components/Diagrams";
 import "./Home.css";
 
@@ -114,7 +115,7 @@ function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
 }
 
 /** The about section is a dossier: a spec plate that stays put, a
-    tagged log beside it, and three figures the prose only mentions. */
+    tagged log beside it, and two figures the prose only mentions. */
 function AboutPlate() {
   const { t } = useLocale();
 
@@ -205,7 +206,8 @@ function AboutSection() {
 }
 
 export default function Home() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const connect = CONNECT_COPY[locale];
   const [i, setI] = useState(0);
 
   return (
@@ -317,6 +319,18 @@ export default function Home() {
           ) : null}
           <p className="t-micro t-faint">{t.contact.responseNote}</p>
         </div>
+        <aside className="agent-door">
+          <div>
+            <p className="t-micro t-primary">{connect.agent}</p>
+            <h3 className="t-title">
+              {connect.title} {connect.accent}
+            </h3>
+            <p className="t-small t-dim">{connect.homeLead}</p>
+          </div>
+          <RouteLink to="connect" className="btn">
+            {connect.homeLink} →
+          </RouteLink>
+        </aside>
       </section>
     </>
   );

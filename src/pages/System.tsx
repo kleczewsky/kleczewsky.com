@@ -1,3 +1,4 @@
+import { useLocale } from "../lib/locale";
 import { useEffect, useState } from "react";
 import "./System.css";
 
@@ -19,12 +20,13 @@ function useResolved(names: string[]) {
 }
 
 function Swatch({ token, role, resolved }: { token: string; role: string; resolved: string }) {
+  const { t } = useLocale();
   return (
     <div className="sw">
       <div className="sw-chip" style={{ background: `var(${token})` }} />
       <div className="sw-meta">
         <span className="t-micro sw-token">{token}</span>
-        <span className="t-micro t-faint">{resolved || "n/a"}</span>
+        <span className="t-micro t-faint">{resolved || t.system.unavailable}</span>
         <span className="t-small t-dim sw-role">{role}</span>
       </div>
     </div>
@@ -74,135 +76,131 @@ function Section({
   );
 }
 
-const TYPE_SPECIMENS: { cls: string; label: string; sample: string; spec: string }[] = [
-  {
-    cls: "t-hero",
-    label: "t-hero",
-    sample: "Kleczewsky",
-    spec: "Teko 600 · clamp 3.5–8.5rem · lh .80 · −.03em",
-  },
-  {
-    cls: "t-display",
-    label: "t-display",
-    sample: "Hire me for",
-    spec: "Teko 600 · clamp 2.75–4.5rem · lh .82 · −.03em",
-  },
-  {
-    cls: "t-title",
-    label: "t-title",
-    sample: "Production Laravel systems",
-    spec: "Spline Sans 600 · clamp 1.5–2rem · lh 1.05",
-  },
-  {
-    cls: "t-lead",
-    label: "t-lead",
-    sample: "Production Laravel and React, shipped and running.",
-    spec: "Spline Sans 400 · clamp 1.06–1.25rem · ink-dim",
-  },
-  {
-    cls: "t-body",
-    label: "t-body",
-    sample: "Body copy sits at one rem with a 1.6 line height and a 64ch measure.",
-    spec: "Spline Sans 400 · 1rem · lh 1.6",
-  },
-  {
-    cls: "t-small",
-    label: "t-small",
-    sample: "Secondary detail and captions.",
-    spec: "Spline Sans 400 · .875rem",
-  },
-  {
-    cls: "t-label",
-    label: "t-label",
-    sample: "02 / Work",
-    spec: "JetBrains Mono 500 · 11px · tracking .14em",
-  },
-  {
-    cls: "t-micro",
-    label: "t-micro",
-    sample: "Status AVAILABLE · Local 19:40",
-    spec: "JetBrains Mono 400 · 10px · tabular · tracking .2em",
-  },
-];
-
 const SPACE = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--s7", "--s8", "--s9"];
 
-const MOTION: [string, string][] = [
-  ["--d-instant", "state acknowledgement"],
-  ["--d-fast", "hover, focus"],
-  ["--d-base", "panels, disclosure"],
-  ["--d-slow", "section entrances"],
-  ["--d-cine", "the intro sequence"],
-];
-
 export default function System() {
+  const { t } = useLocale();
+  const TYPE_SPECIMENS: { cls: string; label: string; sample: string; spec: string }[] = [
+    {
+      cls: "t-hero",
+      label: "t-hero",
+      sample: "Kleczewsky",
+      spec: "Teko 600 · clamp 3.5–8.5rem · lh .80 · −.03em",
+    },
+    {
+      cls: "t-display",
+      label: "t-display",
+      sample: t.hire.mark,
+      spec: "Teko 600 · clamp 2.75–4.5rem · lh .82 · −.03em",
+    },
+    {
+      cls: "t-title",
+      label: "t-title",
+      sample: t.hire.items[0]?.title ?? t.hire.mark,
+      spec: "Spline Sans 600 · clamp 1.5–2rem · lh 1.05",
+    },
+    {
+      cls: "t-lead",
+      label: "t-lead",
+      sample: t.home.stack,
+      spec: "Spline Sans 400 · clamp 1.06–1.25rem · ink-dim",
+    },
+    {
+      cls: "t-body",
+      label: "t-body",
+      sample: t.system.bodySample,
+      spec: "Spline Sans 400 · 1rem · lh 1.6",
+    },
+    {
+      cls: "t-small",
+      label: "t-small",
+      sample: t.system.smallSample,
+      spec: "Spline Sans 400 · .875rem",
+    },
+    {
+      cls: "t-label",
+      label: "t-label",
+      sample: `03 / ${t.nav.work}`,
+      spec: "JetBrains Mono 500 · 11px · tracking .14em",
+    },
+    {
+      cls: "t-micro",
+      label: "t-micro",
+      sample: `${t.hud.status} ${t.status.available} · ${t.hud.localTime} 19:40`,
+      spec: "JetBrains Mono 400 · 10px · tabular · tracking .2em",
+    },
+  ];
+  const MOTION: [string, string][] = [
+    ["--d-instant", t.system.motionInstant],
+    ["--d-fast", t.system.motionFast],
+    ["--d-base", t.system.motionBase],
+    ["--d-slow", t.system.motionSlow],
+    ["--d-cine", t.system.motionCine],
+  ];
   const space = useResolved(SPACE);
   const motion = useResolved(MOTION.map(([t]) => t));
 
   return (
     <div className="section wrap sys">
-      <p className="t-label t-primary section-mark">System</p>
-      <h1 className="t-display">Design system</h1>
-      <p className="t-lead sys-intro">
-        Live reference for the design system. Values are read back out of the running document, so
-        this page always shows what the site actually uses.
-      </p>
+      <p className="t-label t-primary section-mark">{t.chapter.system}</p>
+      <h1 className="t-display">{t.system.title}</h1>
+      <p className="t-lead sys-intro">{t.system.intro}</p>
 
-      <Section mark="01" title="Ground">
+      <Section mark="01" title={t.system.ground}>
         <Group
-          title="Surfaces"
-          note="Near-black with a faint green cast. The accent is red, and that complementary tension is what stops the page reading as a generic dark theme."
+          title={t.system.surfaces}
+          note={t.system.surfacesNote}
           tokens={[
-            ["--ground", "page ground"],
-            ["--panel-sunk", "deepest panel"],
-            ["--panel", "panel"],
-            ["--panel-raised", "raised panel"],
+            ["--ground", t.system.pageGround],
+            ["--panel-sunk", t.system.deepestPanel],
+            ["--panel", t.system.panel],
+            ["--panel-raised", t.system.raisedPanel],
           ]}
         />
         <Group
-          title="Lines"
+          title={t.system.lines}
           tokens={[
-            ["--rule", "hairline"],
-            ["--rule-strong", "emphasised hairline"],
-            ["--rule-solid", "solid edge"],
+            ["--rule", t.system.hairline],
+            ["--rule-strong", t.system.strongLine],
+            ["--rule-solid", t.system.solidEdge],
           ]}
         />
       </Section>
 
-      <Section mark="02" title="Text">
+      <Section mark="02" title={t.system.text}>
         <Group
-          title="Ramp"
-          note="Secondary text is a desaturated green-grey so dimmed copy reads as depth, not as grey UI chrome."
+          title={t.system.ramp}
+          note={t.system.textNote}
           tokens={[
-            ["--ink", "primary"],
-            ["--ink-dim", "secondary"],
-            ["--ink-faint", "tertiary, labels"],
+            ["--ink", t.system.primary],
+            ["--ink-dim", t.system.secondary],
+            ["--ink-faint", t.system.tertiary],
           ]}
         />
       </Section>
 
-      <Section mark="03" title="Accent">
+      <Section mark="03" title={t.system.accent}>
         <Group
-          title="The one accent"
-          note="Interactive affordances, live values, section eyebrows. Never decoration, never large fills, never body text."
+          title={t.system.oneAccent}
+          note={t.system.accentNote}
           tokens={[
-            ["--primary", "rest"],
-            ["--primary-hot", "hover"],
-            ["--primary-dark", "pressed"],
+            ["--primary", t.system.rest],
+            ["--primary-hot", t.system.hover],
+            ["--primary-dark", t.system.pressed],
           ]}
         />
         <Group
-          title="Semantic: a separate axis"
-          note="Status colours. These never stand in for the accent: --ok marks a product that is live, and that is the only claim it is allowed to make."
+          title={t.system.semantic}
+          note={t.system.statusNote}
           tokens={[
-            ["--ok", "live, success"],
-            ["--warning", "warning"],
-            ["--error", "error"],
+            ["--ok", t.system.success],
+            ["--warning", t.system.warning],
+            ["--error", t.system.error],
           ]}
         />
       </Section>
 
-      <Section mark="04" title="Type">
+      <Section mark="04" title={t.system.type}>
         <div className="sys-type">
           {TYPE_SPECIMENS.map((s) => (
             <div key={s.cls} className="sys-spec">
@@ -215,45 +213,44 @@ export default function System() {
           ))}
         </div>
         <div className="sys-group">
-          <h3 className="t-label t-dim">Width axis</h3>
-          <p className="t-small t-faint sys-note">
-            One family covers both cuts. Display is condensed, reading is normal.
-          </p>
+          <h3 className="t-label t-dim">{t.system.fonts}</h3>
+          <p className="t-small t-faint sys-note">{t.system.fontsNote}</p>
           <div className="sys-width">
             <div>
-              <span className="t-micro t-faint">wdth 78, display</span>
+              <span className="t-micro t-faint">{t.system.displayFont}</span>
               <div className="t-display">Kleczewsky</div>
             </div>
             <div>
-              <span className="t-micro t-faint">wdth 100, reading</span>
+              <span className="t-micro t-faint">{t.system.readingFont}</span>
               <div className="t-title">Kleczewsky</div>
+            </div>
+            <div>
+              <span className="t-micro t-faint">{t.system.monoFont}</span>
+              <div className="t-label">Kleczewsky</div>
             </div>
           </div>
         </div>
       </Section>
 
-      <Section mark="05" title="Space">
+      <Section mark="05" title={t.system.space}>
         <div className="sys-space">
           {SPACE.map((token) => (
             <div key={token} className="sys-space-row">
               <span className="t-micro sw-token">{token}</span>
-              <span className="t-micro t-faint">{space[token] ?? "n/a"}</span>
+              <span className="t-micro t-faint">{space[token] ?? t.system.unavailable}</span>
               <span className="sys-space-bar" style={{ width: `var(${token})` }} />
             </div>
           ))}
         </div>
       </Section>
 
-      <Section mark="06" title="Motion">
-        <p className="t-small t-faint sys-note">
-          Instruments move mechanically: fast to leave, long to settle. Hover a row to run its
-          duration on the house curve.
-        </p>
+      <Section mark="06" title={t.system.motion}>
+        <p className="t-small t-faint sys-note">{t.system.motionNote}</p>
         <div className="sys-motion">
           {MOTION.map(([token, use]) => (
             <div key={token} className="sys-motion-row">
               <span className="t-micro sw-token">{token}</span>
-              <span className="t-micro t-faint">{motion[token] ?? "n/a"}</span>
+              <span className="t-micro t-faint">{motion[token] ?? t.system.unavailable}</span>
               <span className="t-small t-dim">{use}</span>
               <span className="sys-motion-track" style={{ ["--dur" as string]: `var(${token})` }}>
                 <span className="sys-motion-dot" />
@@ -263,50 +260,44 @@ export default function System() {
         </div>
       </Section>
 
-      <Section mark="07" title="Components">
+      <Section mark="07" title={t.system.components}>
         <div className="sys-group">
-          <h3 className="t-label t-dim">Buttons</h3>
-          <p className="t-small t-faint sys-note">
-            One filled button per screen: it is the single conversion action. Everything else is a
-            hairline.
-          </p>
+          <h3 className="t-label t-dim">{t.system.buttons}</h3>
+          <p className="t-small t-faint sys-note">{t.system.buttonsNote}</p>
           <div className="sys-row">
             <button type="button" className="btn btn-primary t-label">
-              Primary action
+              {t.system.primaryAction}
             </button>
             <button type="button" className="btn t-label">
-              Secondary
+              {t.system.secondaryAction}
             </button>
           </div>
         </div>
 
         <div className="sys-group">
-          <h3 className="t-label t-dim">Readouts</h3>
+          <h3 className="t-label t-dim">{t.system.readouts}</h3>
           <dl className="sys-row">
             <div className="readout t-micro">
-              <dt>Status</dt>
-              <dd>Available</dd>
+              <dt>{t.hud.status}</dt>
+              <dd>{t.status.available}</dd>
             </div>
             <div className="readout t-micro">
-              <dt>Local</dt>
+              <dt>{t.hud.localTime}</dt>
               <dd>19:40</dd>
             </div>
             <div className="readout t-micro">
-              <dt>Tier</dt>
+              <dt>{t.hud.tier}</dt>
               <dd>A</dd>
             </div>
           </dl>
         </div>
 
         <div className="sys-group">
-          <h3 className="t-label t-dim">Panel and rule</h3>
+          <h3 className="t-label t-dim">{t.system.panelRule}</h3>
           <div className="panel sys-panel">
-            <p className="t-label t-dim">Panel</p>
+            <p className="t-label t-dim">{t.system.panel}</p>
             <hr className="rule" />
-            <p className="t-small t-dim">
-              Translucent, so the scene continues behind it. Corner ticks rather than a radius: this
-              reads as a registered panel, not a card.
-            </p>
+            <p className="t-small t-dim">{t.system.panelNote}</p>
           </div>
         </div>
       </Section>

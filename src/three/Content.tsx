@@ -73,11 +73,13 @@ function Reveal({ onReady, onLost }: { onReady: () => void; onLost: () => void }
 }
 
 export default function Content({
+  wordmarkPage,
   tier,
   shown,
   onReady,
   onLost,
 }: {
+  wordmarkPage: string | null;
   tier: Tier;
   shown: boolean;
   onReady: () => void;
@@ -87,7 +89,7 @@ export default function Content({
   const d = useDebug();
   const volley = useRef(-1e4);
   const lots = useSuburbs(tier === "a" ? SUBURBS : Math.round(SUBURBS * 0.3), tokens);
-  const mark = useWordmark(tokens, d);
+  const mark = useWordmark(tokens, d, wordmarkPage);
   const layout = useCityLayout(tier === "a" ? SITES : Math.round(SITES * 0.62), mark);
   const active = useRef(false);
 

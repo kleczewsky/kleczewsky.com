@@ -4,12 +4,15 @@ import { BrowserRouter } from "react-router";
 import App from "./App";
 import { reach } from "./lib/boot";
 import { applyTier } from "./lib/tier";
+import { match } from "./routes";
 
 // Warms the chunk the moment the tier is known, rather than after
 // hydration has run and Stage's effect has fired. Same module the
 // lazy() in Stage resolves to, so it is one download either way, and
 // tier C still never asks for it, so it has no boot screen to wait on.
-if (applyTier() === "c") {
+const tier = applyTier();
+const isLab = match(window.location.pathname)?.route.id === "lab";
+if (tier === "c" || isLab) {
   delete document.documentElement.dataset.boot;
 } else {
   reach("tier");

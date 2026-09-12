@@ -8,11 +8,13 @@ import { CAM_Z, EYE, FOV, RATIO_AREA } from "./scene/constants";
 import Content from "./Content";
 
 export default function Scene({
+  wordmarkPage,
   tier,
   shown,
   onReady,
   onLost,
 }: {
+  wordmarkPage: string | null;
   tier: Tier;
   shown: boolean;
   onReady: () => void;
@@ -130,7 +132,13 @@ export default function Scene({
             onFallback={() => setWanted(range.min)}
           />
         )}
-        <Content tier={tier} shown={shown} onReady={onReady} onLost={onLost} />
+        <Content
+          wordmarkPage={wordmarkPage}
+          tier={tier}
+          shown={shown}
+          onReady={onReady}
+          onLost={onLost}
+        />
       </Canvas>
       {import.meta.env.DEV ? <Stats className="glstat-panel" /> : null}
     </div>

@@ -1,13 +1,15 @@
-import { Route, Routes } from "react-router";
-import { LOCALES, ROUTES, href } from "./routes";
+import { Route, Routes, useLocation } from "react-router";
+import { LOCALES, ROUTES, href, match } from "./routes";
 import { LocaleProvider, useLocale } from "./lib/locale";
 import Boot from "./components/Boot";
 import Hud from "./components/Hud";
 import Frame from "./components/Frame";
 import ScrollRail from "./components/ScrollRail";
+import SectionScroll from "./components/SectionScroll";
 import Ripple from "./components/Ripple";
 import Stage from "./three/Stage";
 import Home from "./pages/Home";
+import Connect from "./pages/Connect";
 import Lab from "./pages/Lab";
 import System from "./pages/System";
 import NotFound from "./pages/NotFound";
@@ -18,23 +20,27 @@ import "./styles/components.css";
 
 const PAGES: Record<string, () => React.JSX.Element> = {
   home: Home,
+  connect: Connect,
   lab: Lab,
   system: System,
 };
 
 function Shell() {
   const { t } = useLocale();
+  const { pathname } = useLocation();
+  const isLab = match(pathname)?.route.id === "lab";
   return (
     <>
       <a className="skip t-label" href="#main">
         {t.nav.skipToContent}
       </a>
-      <Stage />
-      <Ripple />
+      {!isLab && <Stage />}
+      {!isLab && <Ripple />}
       <Frame />
       <ScrollRail />
+      <SectionScroll />
       <Hud />
-      <Boot />
+      {!isLab && <Boot />}
       <main id="main">
         <Routes>
           {ROUTES.flatMap((route) =>

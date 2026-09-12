@@ -163,29 +163,49 @@ function useSettledSize() {
 }
 
 /** Lives in Content because the window frame needs the result too. */
-export function useWordmark(tokens: Tokens, d: DebugState) {
+export function useWordmark(tokens: Tokens, d: DebugState, page: string | null) {
   const size = useSettledSize();
-  const [fonts, setFonts] = useState(false);
+  const { markDepth, markScale, markGlow } = d;
+  const request = useMemo(
+    () => ({
+      page,
+      width: size.width,
+      height: size.height,
+      tokens,
+      markDepth,
+      markScale,
+      markGlow,
+    }),
+    [page, size.width, size.height, tokens, markDepth, markScale, markGlow],
+  );
+  const [built, setBuilt] = useState<{ request: typeof request; mark: Mark | null } | null>(null);
 
-  // Teko arrives over the network; measuring before it lands gives the
-  // fallback's metrics and the mark settles at the wrong scale.
+  // The canvas survives route changes. Measure after the DOM commit, not
+  // during render, when the previous page's heading can still be present.
   useEffect(() => {
     let live = true;
-    document.fonts.ready.then(() => live && setFonts(true));
+    let frame = 0;
+    let created: Mark | null = null;
+    if (request.page !== null) {
+      void document.fonts.ready.then(() => {
+        if (!live) return;
+        frame = requestAnimationFrame(() => {
+          if (!live) return;
+          created = buildWordmark(request.width, request.height, request.tokens, request);
+          setBuilt({ request, mark: created });
+        });
+      });
+    }
     return () => {
       live = false;
+      cancelAnimationFrame(frame);
+      created?.texture.dispose();
     };
-  }, []);
+  }, [request]);
 
-  const { markDepth, markScale, markGlow } = d;
-
-  const mark = useMemo(
-    // fonts is not read in here. It flips once when Teko lands, and
-    // the glyph metrics measured inside change with it.
-    () => buildWordmark(size.width, size.height, tokens, { markDepth, markScale, markGlow }),
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [size.width, size.height, tokens, fonts, markDepth, markScale, markGlow],
-  );
+  // Never show a cached home texture on another page, even while its
+  // replacement effect is still pending.
+  const mark = page !== null && built?.request === request ? built.mark : null;
 
   // Says only that the scene HAS a mark. Whether the DOM heading may
   // fade needs the reveal as well, which Stage flags separately.
@@ -194,7 +214,6 @@ export function useWordmark(tokens: Tokens, d: DebugState) {
     document.documentElement.dataset.sceneMark = "on";
     return () => {
       delete document.documentElement.dataset.sceneMark;
-      mark.texture.dispose();
     };
   }, [mark]);
 

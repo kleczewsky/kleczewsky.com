@@ -8,7 +8,7 @@ dist-server
 CLAUDE.md
 .claude/
 
-# Blender working files: source script is committed, outputs are not
+# Blender working files
 blender/*.blend
 blender/*.blend1
 blender/*.png

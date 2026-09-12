@@ -4,6 +4,8 @@ import { MemoryRouter } from "react-router";
 import App from "./App";
 import { DICTS } from "./i18n";
 import { LOCALES, href, match, type Locale } from "./routes";
+import { CONNECT_COPY } from "./content/connect-copy";
+export { machineFiles } from "./content/agents";
 
 /* MemoryRouter renders the same tree the browser hydrates, without a
    static-router API that moves between React Router majors. */
@@ -37,7 +39,7 @@ export function head(url: string): string {
 
   const chapterKey = routeId as keyof typeof dict.chapter;
   let title = `${dict.chapter[chapterKey]} · ${dict.meta.siteName}`;
-  const description = dict.meta.description;
+  const description = routeId === "connect" ? CONNECT_COPY[locale].lead : dict.meta.description;
   const alternateFor = (code: Locale) => `${SITE}${href(routeId, code)}`;
 
   if (routeId === "home") {
