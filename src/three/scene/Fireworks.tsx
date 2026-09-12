@@ -3,7 +3,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Tier } from "../../lib/tier";
 import { useDebug } from "../knobs";
-import { FIRE_RUN, HEART, ORDER, RATIO_AREA, SHELLS, SPARKS } from "./constants";
+import { CAM_Z, FOV, FIRE_RUN, HEART, ORDER, RATIO_AREA, SHELLS, SPARKS } from "./constants";
+import { planFireworks } from "./firework-layout";
 import { makeRandom, smoothstep } from "./math";
 import type { Layout } from "./layout";
 import type { Tokens } from "./tokens";
@@ -29,7 +30,7 @@ function heart(t: number): [number, number] {
 /** Shells climb from a mast, then burst on a drag-and-sag model. All
  * of it is struck from uTime in the vertex shader, so a volley is one
  * draw call and no per-frame work on the CPU. */
-function useShells(layout: Layout) {
+function useShells(layout: Layout, aspect: number) {
   return useMemo(() => {
     const rnd = makeRandom(20260910);
     const n = SHELLS * SPARKS + HEART;
@@ -39,27 +40,27 @@ function useShells(layout: Layout) {
     const shell = new Float32Array(n);
     const seed = new Float32Array(n);
 
-    // Middle distance only: launched from the front row the burst
-    // clears the top of the frame before it opens.
-    const tips: [number, number, number][] = [];
-    for (let i = 0; i < layout.beacons.length; i += 3) {
-      const z = layout.beacons[i + 2] ?? 0;
-      if (-z > 700 && -z < 2000) tips.push([layout.beacons[i] ?? 0, layout.beacons[i + 1] ?? 0, z]);
-    }
+    const plan = planFireworks(
+      layout.beacons,
+      SHELLS,
+      aspect,
+      Math.tan((FOV * Math.PI) / 360),
+      CAM_Z,
+    );
 
     for (let s = 0; s < SHELLS; s++) {
-      const tip = tips[Math.floor(rnd() * tips.length)] ?? [0, 60, -1200];
+      const launch = plan.launches[s]!;
+      const tip = launch.origin;
       // Apex as a share of the depth, not an absolute height: one climb
       // reads as a third of the frame near and a sliver far.
       const top = -tip[2] * (0.13 + rnd() * 0.06);
-      const drift = (rnd() - 0.5) * 40;
 
       for (let i = 0; i < SPARKS; i++) {
         const k = s * SPARKS + i;
         origin[k * 3] = tip[0];
         origin[k * 3 + 1] = tip[1] - 18;
         origin[k * 3 + 2] = tip[2];
-        apex[k * 3] = tip[0] + drift;
+        apex[k * 3] = launch.x;
         apex[k * 3 + 1] = top;
         apex[k * 3 + 2] = tip[2];
 
@@ -75,11 +76,8 @@ function useShells(layout: Layout) {
       }
     }
 
-    // The finale goes up from whichever mast stands nearest the axis,
-    // and higher, so the shape opens above the skyline in clear sky
-    // rather than over the middle of downtown.
-    let mid = tips[0] ?? [0, 60, -1400];
-    for (const tip of tips) if (Math.abs(tip[0]) < Math.abs(mid[0])) mid = tip;
+    // A real mast launches the finale, but its apex is on the view axis.
+    const mid = plan.finale.origin;
 
     // Clear sky in this frame is a band from just over the wordmark to
     // just under the blinds. The apex is a share of the depth so it
@@ -93,7 +91,7 @@ function useShells(layout: Layout) {
       origin[k * 3] = mid[0];
       origin[k * 3 + 1] = mid[1] - 18;
       origin[k * 3 + 2] = mid[2];
-      apex[k * 3] = mid[0];
+      apex[k * 3] = plan.finale.x;
       apex[k * 3 + 1] = top;
       apex[k * 3 + 2] = mid[2];
 
@@ -116,7 +114,7 @@ function useShells(layout: Layout) {
     g.setAttribute("aShell", new THREE.BufferAttribute(shell, 1));
     g.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
     return g;
-  }, [layout]);
+  }, [layout, aspect]);
 }
 
 const FIRE_VERT = /* glsl */ `
@@ -203,23 +201,15 @@ export function Fireworks({
   tier: Tier;
   volley: RefObject<number>;
 }) {
-  const geo = useShells(layout);
+  const size = useThree((s) => s.size);
+  const geo = useShells(layout, size.width / Math.max(1, size.height));
   const points = useRef<THREE.Points>(null);
   const mat = useRef<THREE.ShaderMaterial>(null);
   const d = useDebug();
   const dpr = useThree((s) => s.viewport.dpr);
-  const size = useThree((s) => s.size);
 
   useEffect(() => () => geo.dispose(), [geo]);
 
-  // Bloom's mip chain is a fixed number of downsample steps off
-  // whatever the render target is, so a small buffer, not a low dpr
-  // number, is what makes the same glow read hotter: a phone reports
-  // dpr 2 (higher than a desktop's 1) but its buffer is still smaller,
-  // its CSS-pixel canvas is a fraction of a desktop hero's. Scale off
-  // the actual device-pixel count instead. RATIO_AREA is the CSS-pixel
-  // reference a full-height canvas covers; a phone hero comes in under
-  // it even after its own dpr, a desktop hero clears it comfortably.
   const pixels = size.width * size.height * dpr * dpr;
   const glowScale = smoothstep(RATIO_AREA * 0.8, RATIO_AREA * 2.4, pixels);
 
