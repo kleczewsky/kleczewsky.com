@@ -60,7 +60,7 @@ const pl: Dict = {
       },
       {
         title: "Nowy rozdział dla istniejącego kodu",
-        body: "Poznaję kod, porządkuję dług techniczny i poprawiam stabilność oraz wydajność. Ustalam priorytety, żeby zespół mógł dalej rozwijać produkt, a praca z systemem stawała się łatwiejsza.",
+        body: "Porządkuję dług techniczny i usuwam wąskie gardła, gdy zespół dalej rozwija produkt. Ostatnio przeniosłem kluczowy proces płatności w Laravelu do architektury zdarzeniowej i zoptymalizowałem ORM na platformie SaaS obsługującej do 200 tys. użytkowników miesięcznie.",
         tags: ["Kolejki", "Integracje", "Monitoring"],
       },
     ],
@@ -109,12 +109,12 @@ const pl: Dict = {
     lead: "Najpierw ludzie. Potem narzędzia, które pomagają nam wspólnie stworzyć coś przydatnego.",
     items: [
       {
-        term: "Ludzie",
-        desc: "Klienci, projektanci, programiści i osoby korzystające z produktu. Słucham, dopytuję i jasno wyjaśniam decyzje techniczne.",
+        term: "Ludzie · Prowadzenie techniczne",
+        desc: "Pracuję bezpośrednio z klientami i programistami, przekładając wymagania na konkretne decyzje. Jako Laravel Tech Lead w Super-Pharm wspierałem rozwój programistów, uczyłem Gita i pomagałem zewnętrznym zespołom usuwać blokady techniczne.",
       },
       {
-        term: "Laravel",
-        desc: "Mój pierwszy wybór do logiki aplikacji, kolejek, zadań cyklicznych i systemów wspierających codzienną pracę.",
+        term: "PHP · Laravel",
+        desc: "Logika aplikacji, kolejki i zadania cykliczne. Modernizuję starsze systemy; przeniosłem też kluczowy proces płatności do architektury zdarzeniowej w Laravelu.",
       },
       {
         term: "Livewire · Filament",
@@ -122,16 +122,32 @@ const pl: Dict = {
       },
       {
         term: "React · TypeScript",
-        desc: "Rozbudowane interfejsy i widżety, które muszą odnaleźć się na cudzej stronie.",
+        desc: "Rozbudowane interfejsy i osadzane widżety. Tworzyłem między innymi edytor sali na canvasie z obsługą rezerwacji przez przeciąganie i upuszczanie.",
       },
       {
         term: "WebGL · three.js",
         desc: "Trochę głębi, ruchu i miejsca na eksperymenty. Ta strona jest jednym z przykładów.",
       },
+      {
+        term: "MySQL · Redis · Laravel Horizon",
+        desc: "Praca z bazą danych, optymalizacja ORM i kolejki Laravela. Korzystam z Redisa i Horizona jako części zaplecza aplikacji.",
+      },
+      {
+        term: "API · Integracje",
+        desc: "Integracje z Reserve with Google i systemami POS, dokumentacja API w Swaggerze i Scribe oraz sprawdzanie żądań w Postmanie.",
+      },
+      {
+        term: "Podstawy frontendu",
+        desc: "JavaScript, HTML, responsywne strony, Tailwind CSS, Bootstrap, SCSS i jQuery. Pracowałem też z kepler.gl i WordPressem.",
+      },
+      {
+        term: "Narzędzia · Organizacja pracy",
+        desc: "Git, PhpStorm, XDebug, Figma, Jira, Confluence i Scrum. Code review i mentoring są częścią mojej pracy z zespołem.",
+      },
     ],
   },
   about: {
-    lead: "Dobre oprogramowanie zaczyna się od rozmowy. Wspólnie ustalamy, co trzeba rozwiązać. Potem dobieram technologię i prowadzę produkt od pierwszego szkicu do codziennego użytku.",
+    lead: "Dobre oprogramowanie zaczyna się od rozmowy. Łączę doświadczenie senior full-stack developera i Laravel Tech Leada: od analizy wymagań po architekturę, mentoring i wdrożenie. Praca na własny rachunek nauczyła mnie też sprawdzać pomysły przez PoC i MVP, z uwzględnieniem potrzeb biznesu.",
     dossier: "Profil",
     baseLabel: "Lokalizacja",
     stackLabel: "Pracuję z",
@@ -163,7 +179,7 @@ const pl: Dict = {
       },
     ],
     nowHeading: "Teraz",
-    now: "Obecnie rozwijam architekturę backendu i poprawiam wydajność platformy SaaS, z której korzysta 150–200 tys. użytkowników miesięcznie.",
+    now: "Obecnie rozwijam architekturę backendu i poprawiam wydajność platformy SaaS, z której korzysta 100–200 tys. użytkowników miesięcznie.",
   },
   lab: {
     lead: "Wytrąć wszechświat z orbity. Zagnij sygnał. Pobij swój rekord. Sześć małych eksperymentów stworzonych do zabawy.",

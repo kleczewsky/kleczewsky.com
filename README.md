@@ -89,6 +89,9 @@ project, or change what I'm looking for.
       [Polish](src/i18n/pl.ts) together. The table below is a guide to the relevant keys.
 - [ ] **Projects:** add or refresh the summaries, results, status, and links in
       [src/content/work.ts](src/content/work.ts). Each project has both languages.
+- [ ] **CV evidence for agents:** update role dates, accomplishments, and grouped
+      skills in [src/content/experience.ts](src/content/experience.ts). Preserve
+      overlapping role dates unless corrected; use `null` for a current role's end date.
 - [ ] **Contact:** keep the email address and profile links in
       [src/content/links.ts](src/content/links.ts) current.
 - [ ] **Ways to work together:** check the opportunity types, email drafts, and
@@ -123,9 +126,11 @@ out. Check that copy before bringing it back into the page.
 | `/agents.md`    | English title and location, plus the contact instructions written in `machineFiles`                              |
 | `/llms.txt`     | English search description and links to the available context                                                    |
 
-The longer About and skills sections aren't included in the agent profile yet.
-For a new skill or achievement to appear there, add it to the compact skills
-list, introduction, services, or a project summary, or extend `machineFiles`.
+The agent profile also includes the longer About copy, detailed skills, headline
+results, and CV role history. Its flat skills list combines the hero, detailed
+skills headings, service tags, and CV skill categories, removing exact duplicates.
+Project IDs connect employment entries to the shared project descriptions.
+The disabled “Now” block is not included in the profile.
 
 Page titles and descriptions are assembled by
 [src/entry-server.tsx](src/entry-server.tsx), using the language files and

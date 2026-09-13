@@ -1,0 +1,88 @@
+.lab-teaser {
+  position: relative;
+  width: 100%;
+  margin: calc(-1 * var(--s5)) auto 0;
+  isolation: isolate;
+}
+
+.lab-teaser-field {
+  height: clamp(300px, 42vw, 460px);
+}
+
+.lab-teaser canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 74%);
+}
+
+.lab-teaser-pause {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  min-height: 44px;
+  padding: var(--s2);
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lab-teaser-pause:hover,
+.lab-teaser-pause:focus-visible {
+  color: var(--ink);
+}
+
+/* A soft occlusion over the page's wave layer, below the particles. */
+.lab-teaser::before {
+  content: "";
+  position: absolute;
+  inset: -15% -3%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    var(--ground) 28%,
+    color-mix(in srgb, var(--ground) 94%, transparent) 43%,
+    color-mix(in srgb, var(--ground) 65%, transparent) 57%,
+    transparent 74%
+  );
+}
+
+.lab-teaser-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  isolation: isolate;
+  white-space: nowrap;
+}
+
+.lab-teaser-center::before {
+  content: "";
+  position: absolute;
+  inset: -32px -40px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse, var(--ground) 35%, transparent 72%);
+}
+
+.lab-teaser-link.btn {
+  background: var(--ground);
+  border-color: var(--primary-edge);
+}
+
+.lab-teaser-link.btn:hover {
+  background: var(--panel);
+  border-color: var(--primary);
+}
+
+@media (max-width: 479px) {
+  .lab-teaser-link.btn {
+    padding-inline: var(--s3);
+    font-size: var(--t-micro);
+    letter-spacing: 0.08em;
+  }
+}

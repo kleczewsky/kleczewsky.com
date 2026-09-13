@@ -1,0 +1,526 @@
+.stack-map {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  border-block: 1px solid var(--rule-strong);
+  background:
+    radial-gradient(ellipse at 50% 40%, rgb(255 0 39 / 0.045), transparent 55%), var(--panel-glass);
+}
+
+.stack-map-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  color: var(--ink-faint);
+}
+
+.stack-map-top span:last-child {
+  color: var(--ink-dim);
+}
+.stack-map-board {
+  position: relative;
+  height: 460px;
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+}
+.stack-map-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.stack-map-wire,
+.stack-map-signal {
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.stack-map-signal {
+  opacity: 0;
+  stroke: var(--primary-hot);
+  stroke-dasharray: 5 24;
+}
+.is-active .stack-map-wire {
+  stroke: var(--primary-edge);
+  stroke-width: 2;
+}
+.is-active .stack-map-signal {
+  opacity: 1;
+  animation: stack-flow 3s linear infinite;
+}
+@keyframes stack-flow {
+  to {
+    stroke-dashoffset: -116;
+  }
+}
+
+.stack-map-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 112px;
+  height: 112px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+}
+.stack-map-hub-orbit {
+  position: absolute;
+  inset: -24px;
+  border: 1px solid var(--primary-edge);
+  transform: rotate(45deg);
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgb(255 0 39 / 0.06);
+}
+.stack-map-hub-face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  border: 1px solid var(--primary-edge);
+  background: linear-gradient(140deg, #34121a, #120b0e);
+  border-radius: 22px;
+  color: var(--primary-hot);
+  font: 54px/1 var(--f-display);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 12px 45px #0009;
+}
+.stack-map-hub-face img {
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+.stack-map-node {
+  position: absolute;
+  width: 205px;
+  height: 65px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 5px;
+  color: var(--ink-dim);
+  background: linear-gradient(145deg, #212624, #101412 75%);
+  box-shadow:
+    inset 0 1px 0 #ffffff0d,
+    0 8px 20px #0005;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 180ms,
+    background 180ms,
+    box-shadow 180ms;
+}
+.stack-map-node:hover,
+.stack-map-node:focus-visible {
+  border-color: var(--primary-hot);
+  color: var(--ink);
+}
+.stack-map-node:focus-visible {
+  outline: 2px solid var(--primary-hot);
+  outline-offset: 5px;
+}
+.stack-map-node.is-active {
+  border-color: var(--primary-edge);
+  background: linear-gradient(145deg, #35131c, #181214);
+  box-shadow:
+    inset 0 1px 0 #ffffff12,
+    0 0 25px #ff00270a;
+  color: var(--ink);
+}
+.stack-map-symbol {
+  white-space: nowrap;
+  flex: 0 0 32px;
+  text-align: center;
+  font: 25px/1 var(--f-mono);
+  color: var(--ink-faint);
+}
+.is-active .stack-map-symbol {
+  color: var(--primary-hot);
+}
+.stack-map-node-name {
+  font: 12px/1.4 var(--f-mono);
+}
+.stack-map-node-index {
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  color: var(--ink-faint);
+  font: 8px/1 var(--f-mono);
+}
+.stack-map-node--0,
+.stack-map-node--1,
+.stack-map-node--2,
+.stack-map-node--3 {
+  left: 17%;
+}
+.stack-map-node--4,
+.stack-map-node--5,
+.stack-map-node--6,
+.stack-map-node--7 {
+  left: 83%;
+}
+.stack-map-node--0,
+.stack-map-node--4 {
+  top: 65px;
+}
+.stack-map-node--1,
+.stack-map-node--5 {
+  top: 151px;
+}
+.stack-map-node--2,
+.stack-map-node--6 {
+  top: 237px;
+}
+.stack-map-node--3,
+.stack-map-node--7 {
+  top: 323px;
+}
+.stack-map-node--8 {
+  left: 50%;
+  top: 396px;
+}
+.stack-map-details {
+  padding: 2rem 2.5rem;
+  min-height: 170px;
+  border-top: 1px solid var(--rule-strong);
+  background: var(--panel-sunk);
+}
+.stack-map-details > div:not([hidden]) {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 0.8fr) minmax(0, 1.5fr);
+  gap: 1.5rem;
+  align-items: start;
+  animation: stack-detail-in 180ms ease-out;
+}
+.stack-map-detail-index {
+  color: var(--primary-hot);
+  padding-top: 6px;
+}
+.stack-map-details h3,
+.stack-map-details p {
+  margin: 0;
+}
+.stack-map-details p {
+  color: var(--ink-dim);
+}
+.stack-map-details h3,
+.stack-map-details p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@keyframes stack-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .stack-map-node {
+    width: 172px;
+    padding-inline: 10px;
+    gap: 8px;
+  }
+  .stack-map-node-name {
+    font-size: 10px;
+  }
+  .stack-map-details {
+    padding: 1.5rem;
+    min-height: 210px;
+  }
+  .stack-map-details > div:not([hidden]) {
+    grid-template-columns: 45px 1fr;
+    gap: 1rem;
+  }
+  .stack-map-details p {
+    grid-column: 2;
+  }
+}
+@media (max-width: 560px) {
+  .stack-map-top {
+    padding-inline: 1rem;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  .stack-map-board {
+    height: auto;
+    padding: 160px 12px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stack-map-wires {
+    display: none;
+  }
+  .stack-map-hub {
+    top: 76px;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  .stack-map-node {
+    position: relative;
+    inset: auto;
+    transform: none;
+    width: 100%;
+    height: 68px;
+  }
+  .stack-map-node--8 {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 5px);
+  }
+  .stack-map-symbol {
+    flex-basis: 25px;
+    font-size: 21px;
+  }
+  .stack-map-details {
+    padding: 1.25rem;
+    min-height: 265px;
+  }
+  .stack-map-details > div:not([hidden]) {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  .stack-map-details p {
+    grid-column: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stack-map *,
+  .stack-map *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* Use the same quiet surfaces and fine rules as the surrounding sections. */
+.stack-map {
+  isolation: isolate;
+  border: 1px solid var(--rule);
+  background: var(--panel-glass);
+}
+.stack-map-top {
+  border-bottom: 1px solid var(--rule);
+}
+.stack-map-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.stack-map-motion {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-block: -8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--panel-sunk);
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+.stack-map-motion:hover,
+.stack-map-motion:focus-visible {
+  color: var(--primary-hot);
+  border-color: var(--primary-hot);
+}
+.stack-map-motion:focus-visible {
+  outline: 2px solid var(--primary-hot);
+  outline-offset: 3px;
+}
+.stack-map-board {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(#ffffff05 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff05 1px, transparent 1px);
+}
+.stack-map-atmosphere {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.stack-map-radar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 350px;
+  height: 350px;
+  margin: -175px;
+  border: 1px solid #ff4d6812;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0 54px,
+    #ff4d6810 55px 56px,
+    transparent 57px 80px
+  );
+}
+.stack-map-hub-orbit {
+  animation: stack-orbit 28s linear infinite;
+  border-style: dashed;
+}
+.stack-map-hub-ring {
+  position: absolute;
+  inset: -45px;
+  border-radius: 50%;
+  border: 1px solid #ff4d6825;
+  border-top: 2px solid var(--primary-hot);
+  border-bottom: 2px solid var(--primary-dark);
+  animation: stack-ring 14s linear infinite;
+  box-shadow: 0 0 32px #ff002708;
+}
+
+/* Animate opacity on a static glow instead of repainting a blurred shadow. */
+.stack-map-hub-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 45px #ff002723;
+  opacity: 0.3;
+  animation: stack-breathe 5s ease-in-out infinite;
+}
+.stack-map-burst {
+  position: absolute;
+  inset: -10px;
+  border: 1px solid var(--primary-hot);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: stack-burst 800ms ease-out both;
+}
+.stack-map-signal {
+  stroke-dasharray: 3 97;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.2;
+  animation: stack-packet 7s linear infinite;
+}
+.stack-map-wires g:nth-child(2n) .stack-map-signal {
+  animation-delay: -2s;
+}
+.stack-map-wires g:nth-child(3n) .stack-map-signal {
+  animation-delay: -4s;
+}
+.is-active .stack-map-signal {
+  animation: stack-packet 2.5s linear infinite;
+  opacity: 1;
+}
+.stack-map-node {
+  transition:
+    border-color 180ms,
+    background 180ms,
+    box-shadow 180ms,
+    translate 250ms;
+}
+.stack-map-node:hover {
+  translate: 0 -4px;
+  box-shadow:
+    inset 0 1px 0 #ffffff18,
+    0 12px 25px #0009,
+    0 0 20px #ff00270a;
+}
+.stack-map-node.is-active {
+  box-shadow:
+    inset 3px 0 0 var(--primary),
+    inset 0 1px 0 #ffffff18,
+    0 8px 30px #0006,
+    0 0 32px #ff002715;
+}
+.stack-map-node.is-active .stack-map-symbol {
+  text-shadow: 0 0 15px #ff4d6840;
+}
+@keyframes stack-orbit {
+  from {
+    transform: rotate(45deg);
+  }
+  to {
+    transform: rotate(405deg);
+  }
+}
+@keyframes stack-ring {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes stack-breathe {
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes stack-burst {
+  from {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+@keyframes stack-packet {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+.stack-map:not(.is-visible)
+  :is(.stack-map-signal, .stack-map-hub-orbit, .stack-map-hub-ring, .stack-map-hub-face),
+.stack-map.is-paused
+  :is(.stack-map-signal, .stack-map-hub-orbit, .stack-map-hub-ring, .stack-map-hub-face) {
+  animation-play-state: paused !important;
+}
+.stack-map:not(.is-visible) .stack-map-hub-face::after,
+.stack-map.is-paused .stack-map-hub-face::after {
+  animation-play-state: paused;
+}
+.stack-map.is-paused .stack-map-burst {
+  display: none;
+}
+@media (max-width: 560px) {
+  .stack-map-radar {
+    top: 76px;
+    width: 200px;
+    height: 200px;
+    margin: -100px;
+  }
+  .stack-map-motion {
+    width: 28px;
+    height: 28px;
+  }
+  .stack-map-controls {
+    gap: 0.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stack-map *,
+  .stack-map *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .stack-map-burst {
+    display: none;
+  }
+  .stack-map-node:hover {
+    translate: none;
+  }
+  .stack-map-motion {
+    display: none;
+  }
+}

@@ -1,6 +1,7 @@
 import en from "../i18n/en";
 import { EMAIL, PROFILES } from "./links";
 import { WORK } from "./work";
+import { CV_SKILLS, EXPERIENCE } from "./experience";
 
 export const SITE_URL = "https://kleczewsky.com";
 export const ENGAGEMENTS = ["contract", "full-time", "freelance"] as const;
@@ -18,7 +19,7 @@ export function emailDraft(kind: Engagement, polish = false) {
   return `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-/** Generated from the same content as the visible portfolio, in dev and at build time. */
+/** Generated from shared portfolio content and CV evidence, in dev and at build time. */
 export function machineFiles(): Record<string, { type: string; body: string }> {
   const profile = {
     schema_version: 1,
@@ -32,13 +33,38 @@ export function machineFiles(): Record<string, { type: string; body: string }> {
       engagements: ENGAGEMENTS,
       note: "Confirm start date and capacity by email.",
     },
-    skills: en.home.stack.split(" · "),
+    skills: [
+      ...new Set([
+        ...en.home.stack.split(" · "),
+        ...en.stack.items.flatMap(({ term }) => term.split(" · ")),
+        ...en.hire.items.flatMap(({ tags }) => tags),
+        ...Object.values(CV_SKILLS).flat(),
+      ]),
+    ],
+    skill_categories: CV_SKILLS,
+    skill_details: en.stack.items.map(({ term, desc }) => ({
+      name: term,
+      description: desc,
+    })),
+    about: {
+      summary: en.about.lead,
+      approach: en.about.body.map(({ mark, text }) => ({ title: mark, description: text })),
+    },
+    achievements: en.about.figures.map(({ kicker, value, label }) => ({
+      category: kicker,
+      value,
+      description: label,
+    })),
+    experience: EXPERIENCE,
+    experience_note:
+      "Role dates are as supplied in the CV; overlapping roles are preserved. A null end_date denotes a current role. Confirm current employment details when relevant.",
     services: en.hire.items.map(({ title, body, tags }) => ({
       title,
       description: body,
       technologies: tags,
     })),
-    projects: WORK.map(({ name, status, summary, links }) => ({
+    projects: WORK.map(({ id, name, status, summary, links }) => ({
+      id,
       name,
       status,
       summary: summary.en,

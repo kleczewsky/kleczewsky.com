@@ -8,6 +8,7 @@ const SAMPLE = 4;
 const DISPLAY = 0.5;
 /** The field advances at a fixed rate whatever the display refreshes at. */
 const STEP = 1000 / 60;
+const DRAW_INTERVAL = 1000 / 30;
 /** Wave speed squared, in cells per step. The scheme is stable below 0.5. */
 const SPEED2 = 0.22;
 /** Share of a wave kept per step. Lower dies out closer to the pointer. */
@@ -48,25 +49,45 @@ export default function Ripple() {
     let before = 0;
     let energy = 0;
     let lastInput = 0;
+    let lastDraw = 0;
+    let fieldHeight = 0;
+    let fieldTop = 0;
+    let fieldLeft = 0;
+    let heroBottom = 0;
+    let viewportWidth = 0;
+    let viewportHeight = 0;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const coarse = window.matchMedia("(pointer: coarse)");
 
     const resize = () => {
       const bounds = field.getBoundingClientRect();
-      const { width, height } = bounds;
+      const width = host.clientWidth;
+      const height = window.innerHeight;
+      fieldTop = bounds.top + window.scrollY;
+      fieldLeft = bounds.left;
       const hero = document.querySelector(".home-hero") ?? document.querySelector(".stage");
       const start = hero ? Math.max(0, hero.getBoundingClientRect().bottom - bounds.top) : 0;
+      heroBottom = start + fieldTop;
       field.style.setProperty("--ripple-start", `${start}px`);
-      // A document-sized surface scrolls with the content. Bound the
-      // simulation grid so long pages do not multiply the CPU budget.
-      sample = Math.max(SAMPLE, Math.ceil(Math.sqrt((width * height) / 100_000)));
+      if (width === viewportWidth && height === viewportHeight && bounds.height === fieldHeight)
+        return;
+      fieldHeight = bounds.height;
+      viewportWidth = width;
+      viewportHeight = height;
+      reset();
+      // Keep the small simulation in document coordinates so scrolling
+      // never erases a wake. Only the visible slice is shaded and enlarged.
+      const cellBudget = tier === "a" ? 100_000 : 60_000;
+      sample = Math.max(SAMPLE, Math.ceil(Math.sqrt((width * fieldHeight) / cellBudget)));
       cols = Math.max(3, Math.ceil(width / sample));
-      rows = Math.max(3, Math.ceil(height / sample));
+      rows = Math.max(3, Math.ceil(fieldHeight / sample));
       sim.width = cols;
       sim.height = rows;
-      canvas.width = Math.round(cols * sample * DISPLAY);
-      canvas.height = Math.round(rows * sample * DISPLAY);
-      canvas.style.width = `${cols * sample}px`;
-      canvas.style.height = `${rows * sample}px`;
+      canvas.width = Math.round(width * DISPLAY);
+      canvas.height = Math.round(height * DISPLAY);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
       ctx.imageSmoothingQuality = "high";
       cur = new Float32Array(cols * rows);
       prev = new Float32Array(cols * rows);
@@ -103,6 +124,12 @@ export default function Ripple() {
 
     const frame = (now: number) => {
       if (!image) return;
+      // Physics keeps its fixed step; rendering is capped even on 120 Hz screens.
+      if (lastDraw && now - lastDraw < DRAW_INTERVAL - 0.5) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      lastDraw = now;
       acc += before ? Math.min(100, now - before) : STEP;
       before = now;
       for (let n = 0; acc >= STEP && n < 4; n++) {
@@ -118,13 +145,18 @@ export default function Ripple() {
         raf = 0;
         before = 0;
         acc = 0;
+        lastDraw = 0;
+        energy = 0;
         return;
       }
 
+      const offset = window.scrollY - fieldTop;
+      const firstRow = Math.max(1, Math.floor(offset / sample));
+      const lastRow = Math.min(rows - 1, Math.ceil((offset + viewportHeight) / sample));
       const d = image.data;
       // Light the slope of the surface. Opposite sides of a crest catch
       // different amounts of light, so the wake has depth instead of a fill.
-      for (let y = 1; y < rows - 1; y++) {
+      for (let y = firstRow; y < lastRow; y++) {
         for (let x = 1; x < cols - 1; x++) {
           const i = y * cols + x;
           const dx = (cur[i + 1] ?? 0) - (cur[i - 1] ?? 0);
@@ -134,9 +166,21 @@ export default function Ripple() {
           d[i * 4 + 3] = Math.min(0.42, (light + rim) * 0.2) * 255;
         }
       }
-      simCtx.putImageData(image, 0, 0);
+      if (lastRow > firstRow)
+        simCtx.putImageData(image, 0, 0, 0, firstRow, cols, lastRow - firstRow);
+      canvas.style.transform = `translateY(${offset}px)`;
       ctx.globalAlpha = Math.min(1, Math.max(0, (4000 - (now - lastInput)) / 1200));
-      ctx.drawImage(sim, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(
+        sim,
+        0,
+        offset / sample,
+        viewportWidth / sample,
+        viewportHeight / sample,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
       raf = visible ? requestAnimationFrame(frame) : 0;
       if (!raf) before = 0;
     };
@@ -156,10 +200,21 @@ export default function Ripple() {
     };
 
     const onMove = (e: PointerEvent) => {
-      if (!visible || document.hidden || motion.matches || e.pointerType === "touch") return;
-      const box = field.getBoundingClientRect();
-      const x = e.clientX - box.left;
-      const y = e.clientY - box.top;
+      if (
+        !visible ||
+        document.hidden ||
+        motion.matches ||
+        coarse.matches ||
+        e.pointerType === "touch"
+      )
+        return;
+      if (e.clientY + window.scrollY < heroBottom) {
+        lastX = -1;
+        return;
+      }
+      // Geometry is cached on resize, never read for every pointer event.
+      const x = e.clientX - fieldLeft;
+      const y = e.clientY + window.scrollY - fieldTop;
 
       if (lastX >= 0) {
         const dist = Math.hypot(x - lastX, y - lastY);
@@ -190,9 +245,17 @@ export default function Ripple() {
       before = 0;
       acc = 0;
       lastX = -1;
+      lastDraw = 0;
+      energy = 0;
       cur.fill(0);
       prev.fill(0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    const onScroll = () => {
+      // Existing waves stay in document space and keep evolving. Break
+      // the pointer stroke so scrolling cannot inject a long artificial wake.
+      lastX = -1;
     };
 
     const io = new IntersectionObserver(([entry]) => {
@@ -206,6 +269,9 @@ export default function Ripple() {
     resize();
     io.observe(field);
     ro.observe(field);
+    window.addEventListener("resize", resize);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    coarse.addEventListener("change", reset);
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave);
     document.addEventListener("visibilitychange", reset);
@@ -215,6 +281,9 @@ export default function Ripple() {
       cancelAnimationFrame(raf);
       io.disconnect();
       ro.disconnect();
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", onScroll);
+      coarse.removeEventListener("change", reset);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", reset);

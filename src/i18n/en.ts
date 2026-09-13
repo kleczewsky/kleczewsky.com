@@ -59,7 +59,7 @@ const en = {
       },
       {
         title: "A fresh start for existing code",
-        body: "I get to know the codebase, work through technical debt, and improve stability and performance. Clear priorities help the team keep shipping while the system gets easier to work with.",
+        body: "I work through technical debt and performance bottlenecks while the team keeps shipping. Recent work includes migrating a critical Laravel payment flow to event-driven architecture and optimizing ORM usage for a SaaS platform serving up to 200,000 monthly users.",
         tags: ["Queues", "Integrations", "Observability"],
       },
     ],
@@ -109,12 +109,12 @@ const en = {
     lead: "People first. Then the tools that help us build something useful together.",
     items: [
       {
-        term: "People",
-        desc: "Clients, designers, developers, and the people using the product. I listen, ask questions, and make technical decisions clear.",
+        term: "People · Technical leadership",
+        desc: "I work directly with clients and developers to turn requirements into practical decisions. As Laravel Tech Lead at Super-Pharm, I mentored developers, taught Git, and helped external teams resolve technical blockers.",
       },
       {
-        term: "Laravel",
-        desc: "My go-to for application logic, queues, scheduled jobs, and the systems behind everyday work.",
+        term: "PHP · Laravel",
+        desc: "Application logic, queues, and scheduled jobs. I modernize legacy systems and have migrated a critical payment flow to event-driven architecture in Laravel.",
       },
       {
         term: "Livewire · Filament",
@@ -122,16 +122,32 @@ const en = {
       },
       {
         term: "React · TypeScript",
-        desc: "Interactive frontends and widgets that need to feel at home on someone else’s site.",
+        desc: "Interactive frontends and embeddable widgets. My work includes a canvas floor planner with drag-and-drop reservation management.",
       },
       {
         term: "WebGL · three.js",
         desc: "A little depth, motion, and room to play. This site is one example.",
       },
+      {
+        term: "MySQL · Redis · Laravel Horizon",
+        desc: "Database work, ORM performance optimization, and Laravel queues. I use Redis and Horizon alongside the application backend.",
+      },
+      {
+        term: "APIs · Integrations",
+        desc: "Reserve with Google and Point-of-Sale integrations, API documentation with Swagger and Scribe, and request inspection with Postman.",
+      },
+      {
+        term: "Frontend foundations",
+        desc: "JavaScript, HTML, responsive web design, Tailwind CSS, Bootstrap, SCSS, and jQuery. I have also worked with kepler.gl and WordPress.",
+      },
+      {
+        term: "Tools · Workflow",
+        desc: "Git, PhpStorm, XDebug, Figma, Jira, Confluence, and Scrum. Code review and mentoring are part of how I work with a team.",
+      },
     ],
   },
   about: {
-    lead: "Good software starts with a conversation. I work with people to understand the problem, make the technical decisions, and take a product from the first sketch to everyday use.",
+    lead: "Good software starts with a conversation. I bring senior full-stack development and Laravel Tech Lead experience, from understanding requirements to architecture, mentoring, and delivery. My freelance work also taught me to use proofs of concept and MVPs to test ideas against business needs.",
     dossier: "Profile",
     baseLabel: "Location",
     stackLabel: "I work with",
@@ -163,7 +179,7 @@ const en = {
       },
     ],
     nowHeading: "Now",
-    now: "Currently, I’m working on backend architecture and performance for a SaaS platform serving 150,000–200,000 monthly users.",
+    now: "Currently, I’m working on backend architecture and performance for a SaaS platform serving 100,000–200,000 monthly users.",
   },
   lab: {
     lead: "Pull a universe out of orbit. Bend a signal. Chase a new high score. Six small experiments, made to be played with.",

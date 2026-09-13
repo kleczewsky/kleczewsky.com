@@ -5,6 +5,9 @@ import { EMAIL, PROFILES } from "../content/links";
 import { CONNECT_COPY } from "../content/connect-copy";
 import { Diagram, SkylineMark, type DiagramKind } from "../components/Diagrams";
 import "./Home.css";
+import { ProfileProjection } from "../components/ProfileProjection";
+import { StackMap } from "../components/StackMap";
+import { LabTeaser } from "../components/LabTeaser";
 
 /* Below the hero: a centred head with a lit title, a card leading
    with a diagram, one chamfered slab, and a definition grid. */
@@ -166,10 +169,13 @@ function AboutSection() {
   return (
     <div className="about-field">
       <section className="section wrap" id="about">
-        <Head mark="01" title={t.nav.about} lead={t.about.lead} />
-
         <div className="about">
-          <AboutPlate />
+          <Head mark="01" title={t.nav.about} lead={t.about.lead} />
+
+          <div className="about-profile">
+            <ProfileProjection />
+            <AboutPlate />
+          </div>
 
           <div className="about-column">
             <ol className="about-log" role="list">
@@ -279,27 +285,14 @@ export default function Home() {
         <WorkSlab i={i} setI={setI} />
       </section>
 
-      {/* Facts, listed rather than sold. This is the section a tech
-          lead scans for the stack, so it is a table and not a pitch. */}
       <section className="section wrap" id="stack">
         <Head mark="04" title={t.stack.mark} lead={t.stack.lead} />
-        <dl className="defs">
-          {t.stack.items.map((item) => (
-            <div key={item.term}>
-              <dt className="t-title def-term">{item.term}</dt>
-              <dd className="t-small def-desc">{item.desc}</dd>
-            </div>
-          ))}
-        </dl>
+        <StackMap />
       </section>
 
       <section className="section wrap" id="lab">
         <Head mark="05" title={t.nav.lab} lead={t.lab.lead} />
-        <div className="home-centre">
-          <RouteLink to="lab" className="btn">
-            {t.home.more} →
-          </RouteLink>
-        </div>
+        <LabTeaser />
       </section>
 
       <section className="section wrap" id="contact">

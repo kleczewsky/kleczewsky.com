@@ -1,0 +1,95 @@
+.profile-projection {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin-inline: auto;
+  padding-top: 8px;
+}
+
+.projection-figure {
+  position: relative;
+  width: min(100%, 280px);
+  height: 280px;
+  margin-inline: auto;
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(to bottom, transparent, #000 5%, #000 72%, transparent 100%);
+}
+
+.projection-media {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+  object-fit: contain;
+  opacity: 0.86;
+  mix-blend-mode: screen;
+}
+
+.projection-poster,
+[data-still="true"] .projection-video {
+  visibility: hidden;
+}
+[data-still="true"] .projection-poster {
+  visibility: visible;
+}
+
+.projection-beam {
+  position: absolute;
+  inset: 12% 0 -12%;
+  background: linear-gradient(to top, rgb(255 0 39 / 0.22), rgb(255 0 39 / 0.015) 85%);
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 28% 100%);
+}
+
+.projection-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(1 4 1 / 0.32) 3px 4px);
+}
+
+.projection-emitter {
+  position: absolute;
+  bottom: -1px;
+  left: 18%;
+  right: 18%;
+  height: 3px;
+  background: var(--primary-hot);
+  box-shadow:
+    0 0 8px var(--primary),
+    0 -9px 30px rgb(255 0 39 / 0.4);
+}
+
+.projection-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px 10px;
+  color: var(--ink-faint);
+}
+
+.projection-caption button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--ink-dim);
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.projection-caption button:hover {
+  border-color: var(--primary);
+}
+.projection-caption button:focus-visible {
+  outline: 2px solid var(--primary-hot);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projection-caption button {
+    display: none;
+  }
+}
