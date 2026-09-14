@@ -155,13 +155,9 @@ export default function Content({
       <Reveal onReady={onReady} onLost={onLost} />
       {tier === "a" && !d.fly && !d.lockDpr ? <Gauge active={active} /> : null}
 
-      {/* Sample geometry edges before bloom, preserving thin rooflines
-          and mullions without blurring the whole image with FXAA. */}
       {tier === "a" ? (
-        <EffectComposer enableNormalPass={false} multisampling={2}>
-          {/* Bloom's mipmap chain is the most expensive pass here and
-              every tap is a blur, so running it at half width/height
-              costs a quarter the fragments and looks the same. */}
+        <EffectComposer enableNormalPass={false} multisampling={0}>
+          {/* Bloom runs at half width/height to reduce fragment work. */}
           <Bloom
             intensity={d.bloom}
             luminanceThreshold={d.bloomThreshold}

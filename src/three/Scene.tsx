@@ -59,25 +59,13 @@ export default function Scene({
   // old range's value in place until the next incline.
   const dpr = Math.min(Math.max(wanted, range.min), range.max);
 
-  // Pause offscreen without remounting the quality controller. Its settled
-  // factor and fallback state belong to the scene, not each visit to the hero.
+  // Diagnostic: keep rendering across viewport exits to isolate the
+  // stop/resume transition. Hidden tabs still pause normally.
   useEffect(() => {
-    const el = host.current;
-    if (!el) return;
-    let onScreen = true;
-    const sync = () => setRunning(onScreen && !document.hidden);
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry) return;
-        onScreen = entry.isIntersecting;
-        sync();
-      },
-      { rootMargin: "5% 0px" },
-    );
-    io.observe(el);
+    const sync = () => setRunning(!document.hidden);
+    sync();
     document.addEventListener("visibilitychange", sync);
     return () => {
-      io.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
   }, []);
@@ -102,8 +90,8 @@ export default function Scene({
         // store and re-render scene subscribers after every scroll burst.
         resize={{ scroll: false }}
         dpr={d.lockDpr ? d.dpr : dpr}
-        /* Tier A resolves MSAA in the composer; tier B renders straight
-           to the canvas and needs its own edge antialiasing. */
+        /* Tier B renders straight to the canvas and uses native antialiasing.
+           Tier A keeps MSAA disabled in both the canvas and composer. */
         gl={{
           antialias: tier === "b",
           powerPreference: "high-performance",
