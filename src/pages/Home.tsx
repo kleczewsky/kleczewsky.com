@@ -35,9 +35,6 @@ function Head({
   );
 }
 
-/** One project at a time on a chamfered plate. Three products do not
-    need three cards; they need one object that can hold any of them
-    properly. */
 function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
   const { t, locale } = useLocale();
   const study = WORK[i];
@@ -117,8 +114,6 @@ function WorkSlab({ i, setI }: { i: number; setI: (n: number) => void }) {
   );
 }
 
-/** The about section is a dossier: a spec plate that stays put, a
-    tagged log beside it, and two figures the prose only mentions. */
 function AboutPlate() {
   const { t } = useLocale();
 
@@ -220,9 +215,6 @@ export default function Home() {
     <>
       <section className="home-hero">
         <div className="home-crest">
-          {/* buildWordmark() in Scene.tsx measures this node to redraw
-              it in 3D: accent is the trailing span, split point is
-              the text length before it. Check it before editing. */}
           <h1 className="t-hero home-name" data-wordmark>
             Kleczew<span>sky</span>
           </h1>
@@ -256,8 +248,6 @@ export default function Home() {
 
       <AboutSection />
 
-      {/* Freelance readers stop at the first section they can act on,
-          so the offer goes above the proof. */}
       <section className="section wrap" id="services">
         <Head mark="02" title={t.hire.mark} lead={t.hire.lead} marked />
         <ul className="home-cards" role="list">
