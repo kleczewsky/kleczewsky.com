@@ -168,7 +168,7 @@ function AboutSection() {
           <Head mark="01" title={t.nav.about} lead={t.about.lead} />
 
           <div className="about-profile">
-            <ProfileProjection />
+            {/*<ProfileProjection />*/}
             <AboutPlate />
           </div>
 
