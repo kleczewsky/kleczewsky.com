@@ -236,7 +236,7 @@
   .about-profile .projection-figure {
     --projection-height: clamp(160px, calc(100svh - 540px), 280px);
     height: var(--projection-height);
-    width: min(100%, 280px, calc(var(--projection-height) * 1.3158));
+    width: min(100%, 280px, var(--projection-height));
   }
 
   .about-column {

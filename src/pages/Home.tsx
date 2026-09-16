@@ -5,7 +5,6 @@ import { EMAIL, PROFILES } from "../content/links";
 import { CONNECT_COPY } from "../content/connect-copy";
 import { Diagram, SkylineMark, type DiagramKind } from "../components/Diagrams";
 import "./Home.css";
-import { ProfileProjection } from "../components/ProfileProjection";
 import { StackMap } from "../components/StackMap";
 import { LabTeaser } from "../components/LabTeaser";
 
@@ -168,7 +167,6 @@ function AboutSection() {
           <Head mark="01" title={t.nav.about} lead={t.about.lead} />
 
           <div className="about-profile">
-            {/*<ProfileProjection />*/}
             <AboutPlate />
           </div>
 

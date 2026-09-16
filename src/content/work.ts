@@ -64,8 +64,8 @@ export const WORK: CaseStudy[] = [
   {
     id: "slinger",
     index: "05",
-    name: "Slinger",
-    mark: "/marks/slinger.svg",
+    name: "Slinger · Portal Strzelca",
+    mark: "/marks/portal-strzelca.svg",
     status: "live",
     links: [
       { label: "slingerstore.com", url: "https://slingerstore.com" },
