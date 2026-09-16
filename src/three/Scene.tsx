@@ -59,16 +59,27 @@ export default function Scene({
   // old range's value in place until the next incline.
   const dpr = Math.min(Math.max(wanted, range.min), range.max);
 
-  // Diagnostic: keep rendering across viewport exits to isolate the
-  // stop/resume transition. Hidden tabs still pause normally.
+  // The hero must release the GPU once it leaves the viewport. Keeping
+  // its bloom/composer running offscreen competes with scrolling and
+  // the lab canvas, particularly on phones. RenderLoop preserves time
+  // across pauses so returning to the hero does not rewind the scene.
   useEffect(() => {
-    const sync = () => setRunning(!document.hidden);
+    const el = host.current;
+    if (!el) return;
+    let visible = false;
+    const sync = () => setRunning(!document.hidden && (visible || d.fly));
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = !!entry?.isIntersecting;
+      sync();
+    });
+    observer.observe(el);
     sync();
     document.addEventListener("visibilitychange", sync);
     return () => {
+      observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, []);
+  }, [d.fly]);
 
   useEffect(() => {
     if (running) return;
